@@ -1,3 +1,5 @@
+Jun
+
 "echom expand('<sfile>:p:h')
 if exists("g:loaded_vim_node_plugins") 
     finish
@@ -34,7 +36,7 @@ fun! CompleteMonths(findstart, base)
     " find months matching with "a:base"
     for m in split("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec")
       if m =~ '^' . a:base
-    call complete_add(m)
+    call complete_add({"word": m, "menu": "menu_item", "info": "info_item"})
       endif
       sleep 300m	" simulate searching for next match
       if complete_check()
@@ -44,6 +46,6 @@ fun! CompleteMonths(findstart, base)
     return []
   endif
 endfun
-set completefunc=CompleteMonths
+set omnifunc=CompleteMonths
 
 "call xolox#misc#os#exec({"command": "node plugin/index.js"})
