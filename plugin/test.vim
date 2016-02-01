@@ -1,10 +1,11 @@
-echom expand('<sfile>:p:h')
+"echom expand('<sfile>:p:h')
 if exists("g:loaded_vim_node_plugins") 
     finish
 elseif !has("clientserver")
     echom "vim-node-plugins requires clientserver"
     finish
 endif
+
 command! -nargs=+ AsyncHello call SendAsyncText(<q-args>)
 
 function! SendAsyncText(hello_text)
@@ -45,5 +46,4 @@ fun! CompleteMonths(findstart, base)
 endfun
 set completefunc=CompleteMonths
 
-
-echom xolox#misc#os#exec({"command": "node plugin/index.js"}).stdout.length
+"call xolox#misc#os#exec({"command": "node plugin/index.js"})
