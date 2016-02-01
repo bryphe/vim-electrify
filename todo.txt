@@ -4,7 +4,16 @@
 4) Create node client to proxy commands to server
 5) Submit responses back using remote-expr
 
+--Create simple omnicompleter (data example) that interops with javascript
+Test case:
+1) Create new buffer with enew
+2) Set filetype='date'
+3) Get omnicomplete from JS
+
 IAutoCompleter {
+    canHandleFile(fileName, fileType);
+    onFileEntered(fileName, fileType);
+    onFileClosed(fileName, fileType);
     getCompletionColumn(completionContext: ICompletionContext): number;
     getCompletionNames(completionContext: ICompletionContext);
 }
@@ -18,6 +27,9 @@ ICompletionContext {
 
 
 6) Intergration with TypeScript language service
+--Standalone language service integration
+https://github.com/Microsoft/TypeScript/wiki/Using-the-Language-Service-API
+Full path from tsconfig.json -> map to language service instance
 
 7) CSS autocomplete
 https://github.com/adobe/brackets/blob/master/src/extensions/default/CSSCodeHints/CSSProperties.json
