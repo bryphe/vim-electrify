@@ -1,0 +1,23 @@
+1) Change omnifunc to a JS provider
+2) Create a node (server) process to run in background 
+3) Close node process when exiting
+4) Create node client to proxy commands to server
+5) Submit responses back using remote-expr
+
+IAutoCompleter {
+    getCompletionColumn(completionContext: ICompletionContext): number;
+    getCompletionNames(completionContext: ICompletionContext);
+}
+
+ICompletionContext {
+    fileFullPath: string;
+    line: number;
+    column: number;
+    edits: string;
+}
+
+
+6) Intergration with TypeScript language service
+
+7) CSS autocomplete
+https://github.com/adobe/brackets/blob/master/src/extensions/default/CSSCodeHints/CSSProperties.json
