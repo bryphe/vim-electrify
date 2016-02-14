@@ -20,6 +20,8 @@
     "express": "^4.13.4"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^2.11.0",
     "typings": "^0.6.8"
   }
 }
