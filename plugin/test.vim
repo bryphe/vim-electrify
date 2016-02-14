@@ -11,15 +11,13 @@ command! -nargs=+ AsyncHello call SendAsyncText(<q-args>)
 
 function! SendAsyncText(hello_text)
   let temp_file = tempname()
-  exec 'silent !start cmd /c "echo '.a:hello_text.' > '.temp_file
-        \ ' & vim --servername '.v:servername.' --remote-expr "GetAsyncText('."'".a:hello_text."')\"".
-        \ ' & pause"'
+  call xolox#misc#os#exec({"command": "node index.js " .v:servername, "async": 1})
 endfunction
 
-function! GetAsyncText(temp_file_name)
-    echomsg a:temp_file_name
-  "echomsg readfile(a:temp_file_name)[0]
-  call delete(a:temp_file_name)
+function! GetAsyncText(textFromCommandLine)
+    :new
+    echomsg a:textFromCommandLine . "?"
+    :redraw
 endfunction
 
 fun! CompleteMonths(findstart, base)
