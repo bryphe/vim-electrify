@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/extr0py/vim-node-omnicomplete",
   "dependencies": {
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "minimist": "^1.2.0"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
