@@ -9,7 +9,7 @@
         "outDir": "../../lib/client"
     },
     "exclude": [
-        "typings/main",
-        "typings/main.d.ts"
+        "typings/browser",
+        "typings/browser.d.ts"
     ]
 }

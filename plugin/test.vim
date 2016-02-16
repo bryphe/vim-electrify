@@ -8,6 +8,8 @@ elseif !has("clientserver")
 endif
 
 command! -nargs=+ AsyncHello call SendAsyncText(<q-args>)
+command! -nargs=+ ExecuteCommandFromJavaScript call ExecuteCommand(<q-args>)
+command! -nargs=+ Test call GetAsyncText(<q-args>)
 
 function! SendAsyncText(hello_text)
   let temp_file = tempname()
@@ -15,9 +17,11 @@ function! SendAsyncText(hello_text)
 endfunction
 
 function! GetAsyncText(textFromCommandLine)
-    :new
-    echomsg a:textFromCommandLine . "?"
-    :redraw
+    call extropy#js#execute(a:textFromCommandLine)
+endfunction
+
+function! ExtropyExecute(command)
+    call extropy#js#execute(a:command)
 endfunction
 
 fun! CompleteMonths(findstart, base)
