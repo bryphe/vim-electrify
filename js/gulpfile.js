@@ -1,5 +1,6 @@
 var path = require("path");
 var gulp = require("gulp");
+var exec = require("child_process").exec;
 var ts = require("gulp-typescript");
 
 var serverTsConfigPath = path.join(__dirname, "src/server/tsconfig.json");
@@ -26,4 +27,8 @@ gulp.task("build:client", function () {
 gulp.task("build", gulp.parallel("build:server", "build:client"));
 gulp.task("default", gulp.series("build"));
 
-gulp.watch("src/**/*.ts", gulp.series("build"));
+sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build"));
+sourceWatcher.on("change", function () {
+    console.log("Stopping existing server session");
+    exec("npm run stop-server");
+});

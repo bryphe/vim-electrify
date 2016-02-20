@@ -18,6 +18,7 @@ app.post("/api/vim/start/:servername/:plugin", (req, res) => {
 });
 
 app.post("/api/stop", function(req, res) {
+    console.log("stopping server");
     res.send("closing server.");
     process.exit();
 });
