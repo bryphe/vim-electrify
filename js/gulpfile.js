@@ -20,6 +20,10 @@ gulp.task("build:client", function () {
         .pipe(ts(tsClientProject));
 
     return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib/client")));
+
 });
 
-gulp.task("default", ["build:server", "build:client"]);
+gulp.task("build", gulp.parallel("build:server", "build:client"));
+gulp.task("default", gulp.series("build"));
+
+gulp.watch("src/**/*.ts", gulp.series("build"));

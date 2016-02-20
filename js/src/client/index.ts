@@ -3,12 +3,13 @@ var path = require("path");
 console.dir(argv);
 var childProcess = require("child_process");
 var HTTP = require("q-io/http");
+var log = require("winston");
 
 console.log("Hello world");
 
+var port = argv.port || 3000;
 // Handle start process
 if(argv.start) {
-    var port = argv.port || 3000;
 
     HTTP.request("http://localhost:" + port)
         .then((response) => {
@@ -18,6 +19,11 @@ if(argv.start) {
             console.log("Server not up, starting")
             startServer(port);
         });
+} else if(argv.stop) {
+    HTTP.request({url: "http://localhost:" + port + "/api/stop", method: "POST"})
+        .then((response) => {
+            console.log("Server closing");
+        }, (error) => console.log("Error closing server: " + error));
 }
 
 function startServer(port): void {
