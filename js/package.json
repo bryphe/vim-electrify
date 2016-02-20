@@ -4,7 +4,7 @@
   "description": "Interop layer to allow running node-powered JavaScript plugins for VIM",
   "main": "index.js",
   "scripts": {
-    "start-server": "node lib/client/index.js --start",
+    "start-server": "node lib/server/index.js",
     "stop-server": "node lib/client/index.js --stop",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/extr0py/vim-node-omnicomplete",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "express": "^4.13.4",
     "minimist": "^1.2.0",
-    "winston": "^2.1.1"
+    "winston": "^2.1.1",
+    "winston-logs-display": "^0.1.1"
   },
   "devDependencies": {
     "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",

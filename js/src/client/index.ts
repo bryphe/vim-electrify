@@ -26,6 +26,14 @@ if(argv.start) {
         }, (error) => console.log("Error closing server: " + error));
 }
 
+if(argv.loadPlugin) {
+    var serverName = argv.servername;
+    var pluginName = argv.loadPlugin;
+    var jsfile = argv.path;
+
+    HTTP.request({url: "http://localhost:" + port + "/api/vim/start/" + serverName + "/" + pluginName, body: [JSON.stringify({path: argv.path})], headers: { "Content-Type": "application/json" }, method: "POST"});
+}
+
 function startServer(port): void {
     var serverPath = path.join(__dirname, "../server/index.js");
     var child = childProcess.spawn("node", [serverPath, "--port=" + port], { detached: true, cwd: path.join(__dirname, "../server"), stdio: ['ignore', 'ignore', 'ignore']});

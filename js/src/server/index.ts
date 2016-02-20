@@ -1,19 +1,36 @@
 var express = require("express");
 var app = express();
+var os = require("os");
+var path = require("path");
+var log = require("winston");
+var bodyParser = require("body-parser");
 
-console.log("hello world4");
+import SessionManager from "./SessionManager"
+
+var sessionManager = new SessionManager();
+
+
+app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
-    res.send("Hello World");
+    log.info("Get request at root")
+    res.send("Hello World2");
 });
 
 app.get("/api/vim", function (req, res) {
     res.send("Open for requests");
 });
 
-app.post("/api/vim/start/:servername/:plugin", (req, res) => {
-    console.log(req.params.servername);
-    console.log(req.params.plugin);
+app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
+    console.log(req.params.serverName);
+    console.log(req.params.pluginName);
+    console.log("-pre body");
+    console.log(req.body);
+    console.log("-post body");
+
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    session.plugins.start(req.params.pluginName, req.body.path);
+
     res.send("done");
 });
 
@@ -26,3 +43,5 @@ app.post("/api/stop", function(req, res) {
 app.listen(3000, function () {
     console.log("Listening on 3000");
 });
+
+console.log("Server up-and-running4");

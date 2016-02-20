@@ -1,6 +1,7 @@
 var path = require("path");
 var gulp = require("gulp");
 var exec = require("child_process").exec;
+var execSync = require("child_process").execSync;
 var ts = require("gulp-typescript");
 
 var serverTsConfigPath = path.join(__dirname, "src/server/tsconfig.json");
@@ -24,11 +25,19 @@ gulp.task("build:client", function () {
 
 });
 
+gulp.task("start-server", function(cb) {
+    var child = exec("npm run start-server");
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    cb();
+});
+
 gulp.task("build", gulp.parallel("build:server", "build:client"));
 gulp.task("default", gulp.series("build"));
 
-sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build"));
+sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build", "start-server"));
 sourceWatcher.on("change", function () {
     console.log("Stopping existing server session");
-    exec("npm run stop-server");
+    execSync("npm run stop-server");
+    console.log("Stopping server complete.");
 });

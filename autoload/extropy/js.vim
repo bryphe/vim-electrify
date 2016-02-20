@@ -12,10 +12,11 @@ function! extropy#js#echo(msg)
     echom a:msg
 endfunction
 
-function! extropy#js#loadplugin(fullPathToJavascriptFile)
+function! extropy#js#loadplugin(pluginName, fullPathToJavascriptFile)
     "echom "script: " .s:clientjspath
     "echom "called loadplugin" . a:fullPathToJavascriptFile
-  call xolox#misc#os#exec({"command": "node " .s:clientjspath. " --start --servername " .v:servername. "", "async": 1})
+    echom a:pluginName
+  call xolox#misc#os#exec({"command": "node " .s:clientjspath. " --loadPlugin " .a:pluginName. " --servername " .v:servername. " --path " .a:fullPathToJavascriptFile, "async": 1})
 endfunction
 
 " TODO:

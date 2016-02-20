@@ -1,4 +1,5 @@
 
+echom "Hello world"
 "echom expand('<sfile>:p:h')
 if exists("g:loaded_vim_node_plugins") 
     finish
