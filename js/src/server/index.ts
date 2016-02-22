@@ -34,6 +34,19 @@ app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
     res.send("done");
 });
 
+app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {
+    log.info(req.params);
+    log.info(req.body);
+
+    var callContext = req.body;
+
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    var plugin = session.plugins.getPlugin(req.params.pluginName);
+    plugin.execute(req.params.commandName, callContext);
+
+    res.send("done");
+});
+
 app.post("/api/stop", function(req, res) {
     console.log("stopping server");
     res.send("closing server.");

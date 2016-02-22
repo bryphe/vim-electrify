@@ -17,7 +17,7 @@ export default class Plugin {
         if(this._pluginProcess)
             return;
 
-        this._pluginProcess = childProcess.exec("node " + this._pluginPath + " --servername " + this._gvimServerName);
+        this._pluginProcess = childProcess.exec("node " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);
         this._pluginProcess.stdout.on("data", (data, err) => {
             console.log("Got data from plugin process:" + data);
         });
@@ -33,5 +33,13 @@ export default class Plugin {
         this._pluginProcess.on("exit", () => {
             console.log("process disconnected");
         });
+    }
+
+    public execute(commandName: string, callContext: any) {
+        var commandInfo = {
+            command: commandName,
+            callContext: callContext
+        };
+        this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
     }
 }

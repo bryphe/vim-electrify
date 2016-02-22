@@ -11,7 +11,7 @@ var port = argv.port || 3000;
 // Handle start process
 if(argv.start) {
 
-    HTTP.request("http://localhost:" + port)
+    HTTP.request(getBaseUrl())
         .then((response) => {
             // TODO: Validate proper schema
             console.log("Server up-and-running");
@@ -20,7 +20,7 @@ if(argv.start) {
             startServer(port);
         });
 } else if(argv.stop) {
-    HTTP.request({url: "http://localhost:" + port + "/api/stop", method: "POST"})
+    HTTP.request({url: getBaseUrl() + "/api/stop", method: "POST"})
         .then((response) => {
             console.log("Server closing");
         }, (error) => console.log("Error closing server: " + error));
@@ -31,7 +31,19 @@ if(argv.loadPlugin) {
     var pluginName = argv.loadPlugin;
     var jsfile = argv.path;
 
-    HTTP.request({url: "http://localhost:" + port + "/api/vim/start/" + serverName + "/" + pluginName, body: [JSON.stringify({path: argv.path})], headers: { "Content-Type": "application/json" }, method: "POST"});
+    HTTP.request({url: getBaseUrl() + "/api/vim/start/" + serverName + "/" + pluginName, body: [JSON.stringify({path: argv.path})], headers: { "Content-Type": "application/json" }, method: "POST"});
+} else if(argv.exec) {
+    var serverName = argv.servername;
+    var pluginName = argv.plugin;
+    var commandName = argv.command;
+    var state = JSON.parse(argv.state.split("'").join('"'));
+    console.log(state);
+
+    HTTP.request({url: getBaseUrl() + "/api/vim/exec/" + serverName + "/" + pluginName + "/" + commandName, body: [JSON.stringify(state)], headers: { "Content-Type": "application/json" }, method: "POST"});
+}
+
+function getBaseUrl(): string {
+    return "http://localhost:" + port;
 }
 
 function startServer(port): void {

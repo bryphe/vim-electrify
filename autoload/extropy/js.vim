@@ -19,6 +19,23 @@ function! extropy#js#loadplugin(pluginName, fullPathToJavascriptFile)
   call xolox#misc#os#exec({"command": "node " .s:clientjspath. " --loadPlugin " .a:pluginName. " --servername " .v:servername. " --path " .a:fullPathToJavascriptFile, "async": 1})
 endfunction
 
+function! extropy#js#createCommand(pluginName, commandName) 
+    echom "CreateCommand: " . a:pluginName
+    execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"
+endfunction
+
+function! extropy#js#callJsFunction(pluginName, commandName)
+    let state = extropy#js#getEditingState()
+    echom "callJsFunction: " . a:pluginName . a:commandName .state
+    call xolox#misc#os#exec({"command": "node " .s:clientjspath. " --exec --plugin " . a:pluginName. " --servername " .v:servername. " --command " .a:commandName. " --state \"" .state. "\"", "async": 1})
+endfunction
+
+function! extropy#js#getEditingState() 
+    let currentBuffer = expand("%:p")
+    let state = { "currentBuffer": currentBuffer }
+    return string(state)
+endfunction
+
 " TODO:
 " Add real 'start' method to the plugin
 " Callback if node client reports an error talking to the server

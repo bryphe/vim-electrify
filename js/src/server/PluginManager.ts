@@ -14,9 +14,14 @@ export default class PluginManager {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
             var plugin = new Plugin(this._gvimServerName, pluginName, pluginFilePath);
             plugin.start();
+            this._pluginNameToInstance[pluginName] = plugin;
             return;
         }
 
         console.log("Plugin [" + pluginName + "] already started.")
+    }
+
+    public getPlugin(pluginName: string) {
+        return this._pluginNameToInstance[pluginName];
     }
 }
