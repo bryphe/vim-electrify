@@ -2,6 +2,7 @@ import Plugin from "./Plugin";
 import path = require("path");
 import fs = require("fs");
 import glob = require("glob");
+import util = require("util");
 
 export default class PluginManager {
 
@@ -16,11 +17,22 @@ export default class PluginManager {
     public loadGlobalPlugins() {
 
         var jsPluginDirectory = path.join(__dirname, "../../../../../js-plugins");
-        console.log("PLUGIN DIRECTORY" + jsPluginDirectory);
-        console.log(fs.existsSync(jsPluginDirectory));
 
-        var derp = glob.sync(path.join(jsPluginDirectory, "*/package.json"));
-        console.log(derp);
+        var plugins = glob.sync(path.join(jsPluginDirectory, "*/package.json"));
+
+        plugins.forEach((plugin) => {
+            this._loadPluginFromPackage(plugin);
+        });
+    }
+
+    private _loadPluginFromPackage(packageFilePath: string): void {
+        var packageInfo = JSON.parse(fs.readFileSync(packageFilePath, "utf8"));
+        var main = packageInfo.main;
+        var name = packageInfo.name;
+        var version = packageInfo.version;
+        util.format("Loading plugin: %s %s %s", name, version, main);
+
+        this.start(name, path.join(packageFilePath, "..", main))
     }
 
     public start(pluginName: string, pluginFilePath: string): void {
