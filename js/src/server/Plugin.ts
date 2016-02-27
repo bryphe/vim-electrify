@@ -14,7 +14,7 @@ export default class Plugin {
     }
 
     public start(): void {
-        if(this._pluginProcess)
+        if (this._pluginProcess)
             return;
 
         this._pluginProcess = childProcess.exec("node " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);

@@ -2,8 +2,19 @@ let s:plugindir = expand('<sfile>:p:h:h:h')
 let s:clientjspath = s:plugindir . "/js/lib/client/index.js"
 "echom s:clientjspath
 
+
+function! extropy#js#initializeEventListeners()
+
+    augroup ExtropyEventListeners
+        autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter", expand("%:p"))
+    augroup END
+endfunction
+
+function! extropy#js#notifyBufferEvent(eventName, buffer)
+    echom a:eventName.a:buffer
+endfunction
+
 function! extropy#js#execute(command)
-    echom 'hey2' . a:command
     :execute a:command
     :redraw
 endfunction
@@ -32,7 +43,8 @@ endfunction
 
 function! extropy#js#getEditingState() 
     let currentBuffer = expand("%:p")
-    let state = { "currentBuffer": currentBuffer }
+    let currentWord = expand("<cword>");
+    let state = { "currentBuffer": currentBuffer, "currentWord": currentWord }
     return string(state)
 endfunction
 

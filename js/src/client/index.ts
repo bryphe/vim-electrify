@@ -5,8 +5,6 @@ var childProcess = require("child_process");
 var HTTP = require("q-io/http");
 var log = require("winston");
 
-console.log("Hello world");
-
 var port = argv.port || 3000;
 // Handle start process
 if(argv.start) {
@@ -36,10 +34,21 @@ if(argv.loadPlugin) {
     var serverName = argv.servername;
     var pluginName = argv.plugin;
     var commandName = argv.command;
+    var state = getState();
+
+    HTTP.request({url: getBaseUrl() + "/api/vim/exec/" + serverName + "/" + pluginName + "/" + commandName, body: [JSON.stringify(state)], headers: { "Content-Type": "application/json" }, method: "POST"});
+} else if(argv.event) {
+    var serverName = argv.servername;
+    var eventName = argv.event;
+    var state = getState();
+    
+    HTTP.request({url: getBaseUrl() + "/api/vim/event/" + serverName + "/" + eventName, body: JSON.stringify(state), headers: { "Content-Type": "application/json"}, method: "POST"});
+}
+
+function getState(): any { 
     var state = JSON.parse(argv.state.split("'").join('"'));
     console.log(state);
 
-    HTTP.request({url: getBaseUrl() + "/api/vim/exec/" + serverName + "/" + pluginName + "/" + commandName, body: [JSON.stringify(state)], headers: { "Content-Type": "application/json" }, method: "POST"});
 }
 
 function getBaseUrl(): string {

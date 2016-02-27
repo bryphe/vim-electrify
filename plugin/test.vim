@@ -1,12 +1,13 @@
 
-echom "Hello world"
-"echom expand('<sfile>:p:h')
 if exists("g:loaded_vim_node_plugins") 
     finish
+
 elseif !has("clientserver")
     echom "vim-node-plugins requires clientserver"
     finish
 endif
+
+call extropy#js#initializeEventListeners()
 
 command! -nargs=+ AsyncHello call SendAsyncText(<q-args>)
 command! -nargs=+ ExecuteCommandFromJavaScript call ExecuteCommand(<q-args>)

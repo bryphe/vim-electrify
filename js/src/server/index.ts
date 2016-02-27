@@ -34,6 +34,16 @@ app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
     res.send("done");
 });
 
+app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
+    log.info(req.params);
+    log.info(req.body);
+
+    var state = req.body;
+    console.log("Received event");
+
+    res.send("done");
+});
+
 app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
