@@ -5,6 +5,8 @@ var childProcess = require("child_process");
 var HTTP = require("q-io/http");
 var log = require("winston");
 
+var http2 = require("http");
+
 var port = argv.port || 3000;
 // Handle start process
 if(argv.start) {
@@ -29,26 +31,37 @@ if(argv.loadPlugin) {
     var pluginName = argv.loadPlugin;
     var jsfile = argv.path;
 
-    HTTP.request({url: getBaseUrl() + "/api/vim/start/" + serverName + "/" + pluginName, body: [JSON.stringify({path: argv.path})], headers: { "Content-Type": "application/json" }, method: "POST"});
+    postData("/api/vim/start/" + serverName + "/" + pluginName, {path: argv.path});
 } else if(argv.exec) {
     var serverName = argv.servername;
     var pluginName = argv.plugin;
     var commandName = argv.command;
     var state = getState();
 
-    HTTP.request({url: getBaseUrl() + "/api/vim/exec/" + serverName + "/" + pluginName + "/" + commandName, body: [JSON.stringify(state)], headers: { "Content-Type": "application/json" }, method: "POST"});
+    postData("/api/vim/exec/" + serverName + "/" + pluginName + "/" + commandName, state);
 } else if(argv.event) {
     var serverName = argv.servername;
     var eventName = argv.event;
     var state = getState();
-    
-    HTTP.request({url: getBaseUrl() + "/api/vim/event/" + serverName + "/" + eventName, body: JSON.stringify(state), headers: { "Content-Type": "application/json"}, method: "POST"});
+
+    postData("/api/vim/event/" + serverName + "/" + eventName, state);
+}
+
+function postData(path: string, body: any) {
+    var bodyString = JSON.stringify(body);
+    var headers = {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(bodyString, "utf8")
+    }
+
+
+    HTTP.request({url: getBaseUrl() + path, body: [bodyString], headers, method: "POST"});
 }
 
 function getState(): any { 
     var state = JSON.parse(argv.state.split("'").join('"'));
     console.log(state);
-
+    return state;
 }
 
 function getBaseUrl(): string {
