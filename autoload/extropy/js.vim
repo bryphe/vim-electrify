@@ -13,7 +13,6 @@ endfunction
 function! extropy#js#notifyBufferEvent(eventName, buffer)
 
     let state = extropy#js#getEditingState()
-    echom string(state)
     call xolox#misc#os#exec({"command": "node " .s:clientjspath. " --event " . a:eventName. " --servername " .v:servername. " --state \"" .state. "\"", "async": 1})
 
 endfunction

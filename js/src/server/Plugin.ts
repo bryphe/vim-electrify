@@ -35,6 +35,10 @@ export default class Plugin {
         });
     }
 
+    public notifyEvent(eventName: string, eventArgs: any) {
+        console.log(this._pluginName + ": firing event - " + eventName);
+    }
+
     public execute(commandName: string, callContext: any) {
         var commandInfo = {
             command: commandName,

@@ -40,6 +40,8 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
 
     var state = req.body;
     console.log("Received event");
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    session.notifyEvent(req.params.eventName, state)
 
     res.send("done");
 });

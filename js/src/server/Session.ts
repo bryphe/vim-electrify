@@ -13,4 +13,8 @@ export default class Session {
     public get plugins(): PluginManager {
         return this._pluginManager;
     }
+
+    public notifyEvent(eventName: string, eventArgs: any) {
+        this._pluginManager.notifyEvent(eventName, eventArgs);
+    }
 }
