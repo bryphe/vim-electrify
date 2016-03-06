@@ -5,6 +5,8 @@ var path = require("path");
 var log = require("winston");
 var bodyParser = require("body-parser");
 
+require("colors").enabled = true;
+
 import SessionManager from "./SessionManager"
 
 var sessionManager = new SessionManager();

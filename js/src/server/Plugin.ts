@@ -1,4 +1,6 @@
 import childProcess = require("child_process");
+var colors = require("colors/safe");
+
 
 export default class Plugin {
 
@@ -19,7 +21,7 @@ export default class Plugin {
 
         this._pluginProcess = childProcess.exec("node " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);
         this._pluginProcess.stdout.on("data", (data, err) => {
-            console.log("Got data from plugin process:" + data);
+            console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
         });
 
         this._pluginProcess.stderr.on("data", (data, err) => {
