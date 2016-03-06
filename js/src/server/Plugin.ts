@@ -1,4 +1,6 @@
 import childProcess = require("child_process");
+import path = require("path");
+
 var colors = require("colors/safe");
 
 
@@ -19,7 +21,16 @@ export default class Plugin {
         if (this._pluginProcess)
             return;
 
-        this._pluginProcess = childProcess.exec("node " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);
+        // Get absolute path to plugin
+        var pluginWorkingDirectory = path.resolve(path.dirname(this._pluginPath));
+
+        // Get api path
+        var apiPath = path.resolve(path.join(__dirname, "..", "api", "index.js"));
+
+        // Get plugin shim path
+        var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
+
+        this._pluginProcess = childProcess.exec("node " + pluginShimPath + " --apipath " + apiPath + " --pluginpath " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);
         this._pluginProcess.stdout.on("data", (data, err) => {
             console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
         });

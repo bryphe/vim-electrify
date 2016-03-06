@@ -1,18 +1,16 @@
 import childProcess = require("child_process");
 import events = require("events");
 
-var argv = require("minimist")(process.argv.slice(2));
-
-class Vim extends events.EventEmitter {
+export default class Vim extends events.EventEmitter {
 
     private _serverName: string;
     private _commandNameToFunction = {};
     private _pluginName: string;
 
-    constructor(serverName?: string, pluginName?: string) {
+    constructor(serverName: string, pluginName: string) {
         super();
-        this._serverName = serverName || this._getServerNameFromArgs();
-        this._pluginName = pluginName || this._getPluginNameFromArgs();
+        this._serverName = serverName;
+        this._pluginName = pluginName;
 
         console.log("vim driver: servername" + this._serverName + " " + this._pluginName);
 
@@ -51,14 +49,6 @@ class Vim extends events.EventEmitter {
         var vimProcess = childProcess.exec("vim --servername " + this._serverName + " --remote-expr \"" +command + "\"");
     }
 
-    private _getServerNameFromArgs(): string {
-        return argv.servername;
-    }
-
-    private _getPluginNameFromArgs(): string {
-        return argv.pluginname || "unnamedplugin";
-    }
-
     private _executeEvent(command: any): void {
         var eventName = command.eventName;
         this.emit(eventName, command.callContext);
@@ -87,7 +77,3 @@ class Vim extends events.EventEmitter {
         }
     }
 }
-
-export = Vim;
-
-
