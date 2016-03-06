@@ -33,7 +33,7 @@ gulp.task("start-server", function(cb) {
 });
 
 gulp.task("build", gulp.parallel("build:server", "build:client"));
-gulp.task("default", gulp.series("build"));
+gulp.task("default", gulp.series("build", "start-server"));
 
 sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build", "start-server"));
 sourceWatcher.on("change", function () {

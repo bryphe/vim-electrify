@@ -36,11 +36,20 @@ export default class Plugin {
     }
 
     public notifyEvent(eventName: string, eventArgs: any) {
-        console.log(this._pluginName + ": firing event - " + eventName);
+        console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
+
+        var commandInfo = {
+            type: "event",
+            eventName: eventName,
+            callContext: eventArgs
+        };
+
+        this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
     }
 
     public execute(commandName: string, callContext: any) {
         var commandInfo = {
+            type: "execute",
             command: commandName,
             callContext: callContext
         };
