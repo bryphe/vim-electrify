@@ -38,10 +38,16 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
 
+    var eventName = req.params.eventName;
+
     var state = req.body;
-    console.log("Received event");
+    log.info("Received event: " + eventName);
     var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.notifyEvent(req.params.eventName, state)
+    session.notifyEvent(eventName, state)
+
+    if(eventName === "VimLeave") {
+        sessionManager.endSession(req.params.serverName);
+    }
 
     res.send("done");
 });

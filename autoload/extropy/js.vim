@@ -7,6 +7,7 @@ function! extropy#js#initializeEventListeners()
 
     augroup ExtropyEventListeners
         autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter", expand("%:p"))
+        autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave", expand("%:p"))
     augroup END
 endfunction
 

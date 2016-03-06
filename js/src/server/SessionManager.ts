@@ -7,7 +7,7 @@ export default class SessionManager {
     private _sessions = {};
 
     public getOrCreateSession(sessionName: string): Session {
-        if(this._sessions[sessionName]) {
+        if (this._sessions[sessionName]) {
             log.info("Session exists: " + sessionName);
             return this._sessions[sessionName];
         }
@@ -16,5 +16,15 @@ export default class SessionManager {
         var newSession = new Session(sessionName);
         this._sessions[sessionName] = newSession;
         return newSession;
+    }
+
+    public endSession(sessionName: string): void {
+        // TODO: Clean up all plugins and close gracefully. 
+        // Need to make sure the results don't conflict with another session
+        
+        log.info("Deleting session: " + sessionName);
+        if (this._sessions[sessionName]) {
+            delete this._sessions[sessionName];
+        }
     }
 }

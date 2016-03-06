@@ -23,6 +23,7 @@ export default class Plugin {
         });
 
         this._pluginProcess.stderr.on("data", (data, err) => {
+            this._pluginProcess = null;
             console.log("Error from process: " + data + "|" + err);
         });
 
@@ -31,6 +32,7 @@ export default class Plugin {
         });
 
         this._pluginProcess.on("exit", () => {
+            this._pluginProcess = null;
             console.log("process disconnected");
         });
     }
@@ -44,7 +46,8 @@ export default class Plugin {
             callContext: eventArgs
         };
 
-        this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+        if (this._pluginProcess)
+            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
     }
 
     public execute(commandName: string, callContext: any) {
@@ -53,6 +56,7 @@ export default class Plugin {
             command: commandName,
             callContext: callContext
         };
-        this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+        if (this._pluginProcess)
+            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
     }
 }
