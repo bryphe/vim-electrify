@@ -4,35 +4,29 @@ var exec = require("child_process").exec;
 var execSync = require("child_process").execSync;
 var ts = require("gulp-typescript");
 
-var serverTsConfigPath = path.join(__dirname, "src/server/tsconfig.json");
-var clientTsConfigPath = path.join(__dirname, "src/client/tsconfig.json");
-var apiTsConfigPath = path.join(__dirname, "src/api/tsconfig.json");
+var tsProjects = [
+    "server",
+    "client",
+    "api",
+    "plugin-shim-process"
+];
 
-var tsServerProject = ts.createProject(serverTsConfigPath);
-var tsClientProject = ts.createProject(clientTsConfigPath);
-var tsApiProject = ts.createProject(apiTsConfigPath);
+tsProjects.forEach(function (project) {
 
-gulp.task("build:server", function () {
-    var tsResult = tsServerProject.src()
-        .pipe(ts(tsServerProject));
+var tsConfigPath = path.join(__dirname, "src", project, "tsconfig.json");
+var tsProject = ts.createProject(tsConfigPath);
+    gulp.task("build:" + project, function () {
+        var tsResult = tsProject.src()
+            .pipe(ts(tsProject));
 
-    return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib/server")));
+        return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project)));
+    });
 });
 
-gulp.task("build:client", function () {
-    var tsResult = tsClientProject.src()
-        .pipe(ts(tsClientProject));
-
-    return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib/client")));
-
+var buildTasks = tsProjects.map(function (project) {
+    return "build:" + project;
 });
-
-gulp.task("build:api", function () {
-    var tsResult = tsApiProject.src()
-        .pipe(ts(tsApiProject));
-
-    return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib/api")));
-});
+gulp.task("build", gulp.parallel(buildTasks));
 
 gulp.task("start-server", function(cb) {
     var child = exec("npm run start-server");
@@ -41,7 +35,6 @@ gulp.task("start-server", function(cb) {
     cb();
 });
 
-gulp.task("build", gulp.parallel("build:server", "build:client", "build:api"));
 gulp.task("default", gulp.series("build", "start-server"));
 
 sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build", "start-server"));
