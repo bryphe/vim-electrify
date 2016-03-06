@@ -6,9 +6,11 @@ var ts = require("gulp-typescript");
 
 var serverTsConfigPath = path.join(__dirname, "src/server/tsconfig.json");
 var clientTsConfigPath = path.join(__dirname, "src/client/tsconfig.json");
+var apiTsConfigPath = path.join(__dirname, "src/api/tsconfig.json");
 
 var tsServerProject = ts.createProject(serverTsConfigPath);
 var tsClientProject = ts.createProject(clientTsConfigPath);
+var tsApiProject = ts.createProject(apiTsConfigPath);
 
 gulp.task("build:server", function () {
     var tsResult = tsServerProject.src()
@@ -25,6 +27,13 @@ gulp.task("build:client", function () {
 
 });
 
+gulp.task("build:api", function () {
+    var tsResult = tsApiProject.src()
+        .pipe(ts(tsApiProject));
+
+    return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib/api")));
+});
+
 gulp.task("start-server", function(cb) {
     var child = exec("npm run start-server");
     child.stdout.pipe(process.stdout);
@@ -32,7 +41,7 @@ gulp.task("start-server", function(cb) {
     cb();
 });
 
-gulp.task("build", gulp.parallel("build:server", "build:client"));
+gulp.task("build", gulp.parallel("build:server", "build:client", "build:api"));
 gulp.task("default", gulp.series("build", "start-server"));
 
 sourceWatcher = gulp.watch("src/**/*.ts", gulp.series("build", "start-server"));
