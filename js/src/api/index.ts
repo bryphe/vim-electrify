@@ -60,6 +60,14 @@ export default class Vim extends events.EventEmitter {
         this._commandNameToFunction[commandName](command.callContext);
     }
 
+    private _startOmniCompletion(command: any): void {
+        console.log("API: Got omnicompletion request");
+        this._rawExec("extropy#js#completeAdd()");
+        setTimeout(() => {
+            this._rawExec("extropy#js#completeEnd()");
+        }, 1000);
+    }
+
     private _handleCommand(commandInfo: any): void {
         var command = null;
         try {
@@ -74,6 +82,8 @@ export default class Vim extends events.EventEmitter {
                 this._executeCommand(command);
             else if(command.type === "event")
                 this._executeEvent(command);
+            else if(command.type === "omnicomplete")
+                this._startOmniCompletion(command);
         }
     }
 }

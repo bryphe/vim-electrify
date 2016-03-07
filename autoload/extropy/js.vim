@@ -44,7 +44,7 @@ endfunction
 
 function! extropy#js#startAutocomplete()
     let state = extropy#js#getEditingState()
-    call extropy#js#executeRemoteCommand(["startAutoComplete"], { "state": state })
+    call extropy#js#executeRemoteCommand([], { "post": "/api/vim/omnicomplete/".v:servername."/start" })
     let s:isAutoCompleting = 0
 endfunction
 
@@ -62,7 +62,6 @@ function! extropy#js#executeRemoteCommand(arguments, parameters)
         let basePath = basePath . " --" .key. " " .value
     endfor
 
-    echom "Executing: " .basePath
     call xolox#misc#os#exec({"command": basePath, "async": 1})
 endfunction
 

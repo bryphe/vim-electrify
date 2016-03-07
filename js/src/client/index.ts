@@ -27,7 +27,13 @@ if(argv.start) {
         }, (error) => console.log("Error closing server: " + error));
 }
 
-if(argv.exec) {
+// TODO: Migrate everything to just take a generic HTTP call
+// This will make it easier to use some other strategy in the future
+// (like making HTTP requests from python)
+if(argv.post) {
+    postData(argv.post);
+}
+else if(argv.exec) {
     var serverName = argv.servername;
     var pluginName = argv.plugin;
     var commandName = argv.command;

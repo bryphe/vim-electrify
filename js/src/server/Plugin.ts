@@ -63,6 +63,15 @@ export default class Plugin {
             this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
     }
 
+    public startOmniComplete(): void {
+        var commandInfo = {
+            type: "omnicomplete"
+        };
+
+        if(this._pluginProcess)
+            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+    }
+
     public execute(commandName: string, callContext: any) {
         var commandInfo = {
             type: "execute",

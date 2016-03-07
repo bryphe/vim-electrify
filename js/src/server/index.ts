@@ -54,6 +54,12 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     res.send("done");
 });
 
+app.post("/api/vim/omnicomplete/:serverName/start", (req, res) => {
+    console.log("start omnicomplete");
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    session.plugins.startOmniComplete();
+});
+
 app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
