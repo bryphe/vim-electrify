@@ -30,7 +30,7 @@ export default class Plugin {
         // Get plugin shim path
         var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
 
-        this._pluginProcess = childProcess.exec("node " + pluginShimPath + " --apipath " + apiPath + " --pluginpath " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName);
+        this._pluginProcess = childProcess.exec("node " + pluginShimPath + " --apipath " + apiPath + " --pluginpath " + this._pluginPath + " --servername " + this._gvimServerName + " --pluginname " + this._pluginName, { cwd: pluginWorkingDirectory });
         this._pluginProcess.stdout.on("data", (data, err) => {
             console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
         });
