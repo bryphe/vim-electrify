@@ -3,7 +3,6 @@ var path = require("path");
 console.dir(argv);
 var childProcess = require("child_process");
 var HTTP = require("q-io/http");
-var log = require("winston");
 
 var http2 = require("http");
 
@@ -31,7 +30,14 @@ if(argv.start) {
 // This will make it easier to use some other strategy in the future
 // (like making HTTP requests from python)
 if(argv.post) {
-    postData(argv.post);
+
+    var body = {};
+
+    if(argv.body) {
+        body = JSON.parse(argv.body.split("'").join('"'));
+    }
+
+    postData(argv.post, body);
 }
 else if(argv.exec) {
     var serverName = argv.servername;
@@ -81,5 +87,8 @@ function startServer(port): void {
 }
 
 
+function log(msg: any): void {
+    postData("/api/log", msg);
+}
 
 

@@ -63,7 +63,7 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _startOmniCompletion(command: any): void {
-        console.log("API: Got omnicompletion request");
+        console.log("API: Got omnicompletion request: " + JSON.stringify(command));
         this._rawExec("extropy#js#completeAdd('" + JSON.stringify([{word: "alpha"}, {word: "beta"}, {word:"derp"}]) + "')");
         setTimeout(() => {
             this._rawExec("extropy#js#completeEnd()");

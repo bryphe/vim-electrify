@@ -36,6 +36,10 @@ app.post("/api/vim/start/:serverName", (req, res) => {
     res.send("done");
 });
 
+app.post("/api/log", (req, res) => {
+    console.log("[LOG]:" + JSON.stringify(req.body));
+});
+
 app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
@@ -56,8 +60,11 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
 
 app.post("/api/vim/omnicomplete/:serverName/start", (req, res) => {
     console.log("start omnicomplete");
+
+    var body = req.body;
+
     var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.plugins.startOmniComplete();
+    session.plugins.startOmniComplete(body);
 });
 
 app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {

@@ -42,9 +42,10 @@ function! extropy#js#callJsFunction(pluginName, commandName)
     call extropy#js#executeRemoteCommand(["exec"], { "plugin": a:pluginName, "command": a:commandName, "state": state })
 endfunction
 
-function! extropy#js#startAutocomplete()
-    let state = extropy#js#getEditingState()
-    call extropy#js#executeRemoteCommand([], { "post": "/api/vim/omnicomplete/".v:servername."/start" })
+function! extropy#js#startAutocomplete(omniCompleteState)
+    let omniCompleteArgs = "\"".string(a:omniCompleteState)."\""
+    echom omniCompleteArgs
+    call extropy#js#executeRemoteCommand([], { "post": "/api/vim/omnicomplete/".v:servername."/start", "body": omniCompleteArgs })
     let s:isAutoCompleting = 0
 endfunction
 
@@ -86,16 +87,20 @@ function! extropy#js#getEditingState()
 endfunction
 
 function! extropy#js#complete(findstart, base)
+    let line = getline('.')
+    let lineNumber = line(".")
+    let col = col('.')
     if a:findstart
         " locate the start of the word
-        let line = getline('.')
-        let start = col('.') - 1
+        let start = col - 1
         while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
             let start -= 1
         endwhile
         return start
     else
-        call extropy#js#startAutocomplete()
+        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": lineNumber, "col": col, "base": a:base }
+        " let omniCompleteState = { "base": a:base }
+        call extropy#js#startAutocomplete(omniCompleteState)
 
         while s:isAutoCompleting == 0
             " for completion in s:completionEntries
