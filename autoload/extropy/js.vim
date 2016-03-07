@@ -69,10 +69,11 @@ function! extropy#js#completeEnd()
     let s:isAutoCompleting = 1
 endfunction
 
-function! extropy#js#completeAdd()
-    let completionEntries = "[{\"word\":\"alpha\"}, {\"word\":\"alphabet\"}]"
-    execute "let localDerp=".completionEntries
+function! extropy#js#completeAdd(completionEntries)
+    echom "Got entries".a:completionEntries
+    execute "let localDerp=".a:completionEntries
     for completion in localDerp
+        echom "Adding completion".completion
         call complete_add(completion)
     endfor
     let s:completionEntries = localDerp

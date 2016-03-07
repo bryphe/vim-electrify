@@ -46,6 +46,8 @@ export default class Vim extends events.EventEmitter {
 
     private _rawExec(command: string) {
 
+        console.log("_rawExec: " + command);
+        command = command.split("\"").join("\\\"");
         var vimProcess = childProcess.exec("vim --servername " + this._serverName + " --remote-expr \"" +command + "\"");
     }
 
@@ -62,7 +64,7 @@ export default class Vim extends events.EventEmitter {
 
     private _startOmniCompletion(command: any): void {
         console.log("API: Got omnicompletion request");
-        this._rawExec("extropy#js#completeAdd()");
+        this._rawExec("extropy#js#completeAdd('" + JSON.stringify([{word: "alpha"}, {word: "beta"}, {word:"derp"}]) + "')");
         setTimeout(() => {
             this._rawExec("extropy#js#completeEnd()");
         }, 1000);
