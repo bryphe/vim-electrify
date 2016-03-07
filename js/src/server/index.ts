@@ -5,10 +5,13 @@ var path = require("path");
 var log = require("winston");
 var bodyParser = require("body-parser");
 
+require("colors").enabled = true;
+
 import SessionManager from "./SessionManager"
 
 var sessionManager = new SessionManager();
 
+// TODO: Handle creating session
 
 app.use(bodyParser.json());
 
@@ -21,7 +24,7 @@ app.get("/api/vim", function (req, res) {
     res.send("Open for requests");
 });
 
-app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
+app.post("/api/vim/start/:serverName", (req, res) => {
     console.log(req.params.serverName);
     console.log(req.params.pluginName);
     console.log("-pre body");
@@ -29,7 +32,6 @@ app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
     console.log("-post body");
 
     var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.plugins.start(req.params.pluginName, req.body.path);
 
     res.send("done");
 });
@@ -38,12 +40,24 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
 
+    var eventName = req.params.eventName;
+
     var state = req.body;
-    console.log("Received event");
+    log.info("Received event: " + eventName);
     var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.notifyEvent(req.params.eventName, state)
+    session.notifyEvent(eventName, state)
+
+    if(eventName === "VimLeave") {
+        sessionManager.endSession(req.params.serverName);
+    }
 
     res.send("done");
+});
+
+app.post("/api/vim/omnicomplete/:serverName/start", (req, res) => {
+    console.log("start omnicomplete");
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    session.plugins.startOmniComplete();
 });
 
 app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {

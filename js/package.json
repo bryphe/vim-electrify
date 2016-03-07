@@ -20,6 +20,7 @@
   "homepage": "https://github.com/extr0py/vim-node-omnicomplete",
   "dependencies": {
     "body-parser": "^1.15.0",
+    "colors": "^1.1.2",
     "express": "^4.13.4",
     "glob": "^7.0.0",
     "minimist": "^1.2.0",

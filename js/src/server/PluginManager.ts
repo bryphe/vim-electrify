@@ -51,6 +51,15 @@ export default class PluginManager {
         return this._pluginNameToInstance[pluginName];
     }
 
+    public startOmniComplete(): void {
+        console.log("PluginManager - starting omnicomplete");
+
+        Object.keys(this._pluginNameToInstance).forEach((key) => {
+            var plugin = this._pluginNameToInstance[key];
+            plugin.startOmniComplete();
+        });
+    }
+
     public notifyEvent(eventName: string, eventArgs: any) {
         Object.keys(this._pluginNameToInstance).forEach((key) => {
             var plugin = this._pluginNameToInstance[key];
