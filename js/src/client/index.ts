@@ -15,6 +15,7 @@ if(argv.start) {
         .then((response) => {
             // TODO: Validate proper schema
             console.log("Server up-and-running");
+            postData("/api/vim/start/" + argv.servername);
         }, (err) => {
             console.log("Server not up, starting")
             startServer(port);
@@ -26,13 +27,7 @@ if(argv.start) {
         }, (error) => console.log("Error closing server: " + error));
 }
 
-if(argv.loadPlugin) {
-    var serverName = argv.servername;
-    var pluginName = argv.loadPlugin;
-    var jsfile = argv.path;
-
-    postData("/api/vim/start/" + serverName + "/" + pluginName, {path: argv.path});
-} else if(argv.exec) {
+if(argv.exec) {
     var serverName = argv.servername;
     var pluginName = argv.plugin;
     var commandName = argv.command;
@@ -47,7 +42,8 @@ if(argv.loadPlugin) {
     postData("/api/vim/event/" + serverName + "/" + eventName, state);
 }
 
-function postData(path: string, body: any) {
+function postData(path: string, body?: any) {
+    body = body || {};
     var bodyString = JSON.stringify(body);
     var headers = {
         "Content-Type": "application/json",
@@ -70,7 +66,7 @@ function getBaseUrl(): string {
 
 function startServer(port): void {
     var serverPath = path.join(__dirname, "../server/index.js");
-    var child = childProcess.spawn("node", [serverPath, "--port=" + port], { detached: true, cwd: path.join(__dirname, "../server"), stdio: ['ignore', 'ignore', 'ignore']});
+    var child = childProcess.spawn("node", [serverPath, "--port=" + port, "--servername=" + argv.servername], { detached: true, cwd: path.join(__dirname, "../server"), stdio: ['ignore', 'ignore', 'ignore']});
     child.on("error", (err) => {
         console.log(err);
     });

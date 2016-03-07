@@ -11,6 +11,7 @@ import SessionManager from "./SessionManager"
 
 var sessionManager = new SessionManager();
 
+// TODO: Handle creating session
 
 app.use(bodyParser.json());
 
@@ -23,7 +24,7 @@ app.get("/api/vim", function (req, res) {
     res.send("Open for requests");
 });
 
-app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
+app.post("/api/vim/start/:serverName", (req, res) => {
     console.log(req.params.serverName);
     console.log(req.params.pluginName);
     console.log("-pre body");
@@ -31,7 +32,6 @@ app.post("/api/vim/start/:serverName/:pluginName", (req, res) => {
     console.log("-post body");
 
     var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.plugins.start(req.params.pluginName, req.body.path);
 
     res.send("done");
 });
