@@ -16,7 +16,8 @@ export default class PluginManager {
 
     public loadGlobalPlugins() {
 
-        var jsPluginDirectory = path.join(__dirname, "../../../../../js-plugins");
+        var jsPluginDirectory = path.join(process.env.HOME, "vimfiles", "js-plugins");
+        console.log("Loading plugins from: {0}", jsPluginDirectory)
 
         var plugins = glob.sync(path.join(jsPluginDirectory, "*/package.json"));
 

@@ -21,12 +21,25 @@ tsProjects.forEach(function (project) {
 
         return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project)));
     });
+
+    gulp.task("install-typings:" + project, function (cb) {
+        var child = exec("typings install", { cwd: path.join(__dirname, "src", project)});
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
+        cb();
+    });
 });
 
 var buildTasks = tsProjects.map(function (project) {
     return "build:" + project;
 });
+
+var typingsTasks = tsProjects.map(function (project) {
+    return "install-typings:" + project
+});
+
 gulp.task("build", gulp.parallel(buildTasks));
+gulp.task("install-typings", gulp.parallel(typingsTasks));
 
 gulp.task("start-server", function(cb) {
     var child = exec("npm run start-server");
@@ -53,4 +66,4 @@ gulp.task("watch", function() {
     });
 });
 
-gulp.task("default", gulp.series("build", "start-server", "watch"));
+gulp.task("default", gulp.series("install-typings", "build", "start-server", "watch"));
