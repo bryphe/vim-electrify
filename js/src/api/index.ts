@@ -73,7 +73,7 @@ export default class Vim extends events.EventEmitter {
         console.log("API: Got omnicompletion request: " + JSON.stringify(command));
         var ret = [];
         this._omniCompleters.forEach((completer) => {
-            ret = ret.concat(completer.getCompletions(command.callContext));
+            ret = ret.concat(completer.getCompletions(command.arguments));
         });
         this._rawExec("extropy#js#completeAdd('" + JSON.stringify(ret) + "')");
     }

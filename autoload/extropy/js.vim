@@ -110,7 +110,7 @@ function! extropy#js#complete(findstart, base)
         return start
     else
         " TODO: Refactor to use common state code
-        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(line) + col }
+        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
         let omniCompleteState.base = a:base
         " let omniCompleteState.modifications = getline(1, "$")
         " let omniCompleteState = { "base": a:base }
