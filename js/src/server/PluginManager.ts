@@ -56,8 +56,10 @@ export default class PluginManager {
         console.log("PluginManager - starting omnicomplete");
 
         Object.keys(this._pluginNameToInstance).forEach((key) => {
+            if(key.indexOf("typescript") >= 0)  {
             var plugin = this._pluginNameToInstance[key];
             plugin.startOmniComplete(omniCompletionArgs);
+            }
         });
     }
 

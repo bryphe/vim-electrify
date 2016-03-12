@@ -71,22 +71,33 @@ function! extropy#js#completeEnd()
 endfunction
 
 function! extropy#js#completeAdd(completionEntries)
-    echom "Got entries".a:completionEntries
-    execute "let localDerp=".a:completionEntries
+    echom "Calling"
+    echom "Calling completeadd".a:completionEntries
+
+    let splitted = join(split(a:completionEntries, "\\"), "")
+    echom "Fix up quotes".splitted
+
+    execute "let localDerp=".splitted
+    echom "localDerp populated2"
+    echom "localDerp type:".type(localDerp)
     for completion in localDerp
-        echom "Adding completion".completion
+        echom "Calling completeadd"
         call complete_add(completion)
     endfor
-    let s:completionEntries = localDerp
+
+    call extropy#js#completeEnd()
 endfunction
 
 function! extropy#js#getEditingState()
     let currentBuffer = expand("%:p")
-    let state = { "currentBuffer": currentBuffer }
+    let line = line(".")
+    let col = col(".")
+    let state = { "currentBuffer": currentBuffer, "line": line, "col": col, "byte": line2byte(line) + col }
     return "\"".string(state)."\""
 endfunction
 
 function! extropy#js#complete(findstart, base)
+    echom "starting completion"
     let line = getline('.')
     let lineNumber = line(".")
     let col = col('.')
@@ -98,7 +109,10 @@ function! extropy#js#complete(findstart, base)
         endwhile
         return start
     else
-        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": lineNumber, "col": col, "base": a:base }
+        " TODO: Refactor to use common state code
+        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(line) + col }
+        let omniCompleteState.base = a:base
+        " let omniCompleteState.modifications = getline(1, "$")
         " let omniCompleteState = { "base": a:base }
         call extropy#js#startAutocomplete(omniCompleteState)
 

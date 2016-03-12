@@ -1,11 +1,15 @@
 import childProcess = require("child_process");
 import events = require("events");
 
+import omni = require("./IOmniCompleter");
+
 export default class Vim extends events.EventEmitter {
 
     private _serverName: string;
     private _commandNameToFunction = {};
     private _pluginName: string;
+
+    private _omniCompleters: omni.IOmniCompleter[] = [];
 
     constructor(serverName: string, pluginName: string) {
         super();
@@ -36,6 +40,10 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("extropy#js#createCommand('" + this._pluginName + "', '" + name + "')")
     }
 
+    public addOmniCompleter(omniCompleter: omni.IOmniCompleter): void {
+        this._omniCompleters.push(omniCompleter);
+    }
+
     public exec(command: string) {
         this._rawExec("extropy#js#execute('" + command + "')");
     }
@@ -63,10 +71,11 @@ export default class Vim extends events.EventEmitter {
 
     private _startOmniCompletion(command: any): void {
         console.log("API: Got omnicompletion request: " + JSON.stringify(command));
-        this._rawExec("extropy#js#completeAdd('" + JSON.stringify([{word: "alpha"}, {word: "beta"}, {word:"derp"}]) + "')");
-        setTimeout(() => {
-            this._rawExec("extropy#js#completeEnd()");
-        }, 1000);
+        var ret = [];
+        this._omniCompleters.forEach((completer) => {
+            ret = ret.concat(completer.getCompletions(command.callContext));
+        });
+        this._rawExec("extropy#js#completeAdd('" + JSON.stringify(ret) + "')");
     }
 
     private _handleCommand(commandInfo: any): void {
