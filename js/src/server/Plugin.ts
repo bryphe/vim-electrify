@@ -33,14 +33,14 @@ export default class Plugin {
         // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
         // Instead of a separate process - maybe we could use the 'cluster' module?
         this._pluginProcess = childProcess.spawn("node",  [pluginShimPath, "--apipath="+apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
-        // this._pluginProcess.stdout.on("data", (data, err) => {
-        //     console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
-        // });
+        this._pluginProcess.stdout.on("data", (data, err) => {
+            console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
+        });
 
-        // this._pluginProcess.stderr.on("data", (data, err) => {
-        //     this._pluginProcess = null;
-        //     console.log("Error from process: " + data + "|" + err);
-        // });
+        this._pluginProcess.stderr.on("data", (data, err) => {
+            this._pluginProcess = null;
+            console.log("Error from process: " + data + "|" + err);
+        });
 
         this._pluginProcess.on("message", (msg) => {
             console.log("got message!");

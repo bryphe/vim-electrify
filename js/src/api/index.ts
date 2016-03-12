@@ -45,10 +45,9 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _rawExec(command: string) {
-
         console.log("_rawExec: " + command);
         command = command.split("\"").join("\\\"");
-        var vimProcess = childProcess.exec("vim --servername " + this._serverName + " --remote-expr \"" +command + "\"");
+        var vimProcess = childProcess.spawn("vim", ["--servername", this._serverName, "--remote-expr", command], { detached: true, stdio: "ignore"});
     }
 
     private _executeEvent(command: any): void {
