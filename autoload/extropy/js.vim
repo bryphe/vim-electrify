@@ -104,7 +104,6 @@ function! extropy#js#complete(findstart, base)
         endwhile
         return start
     else
-        echom "MORE COMPLETION"
         " TODO: Refactor to use common state code
         let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
         let omniCompleteState.base = a:base
