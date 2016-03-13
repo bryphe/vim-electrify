@@ -112,7 +112,10 @@ function! extropy#js#complete(findstart, base)
         " TODO: Refactor to use common state code
         let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
         let omniCompleteState.base = a:base
-        " let omniCompleteState.modifications = getline(1, "$")
+
+        let tempFileName = tempname()
+        execute "w ".tempFileName
+        let omniCompleteState.tempFile = tempFileName
         " let omniCompleteState = { "base": a:base }
         call extropy#js#startAutocomplete(omniCompleteState)
 
