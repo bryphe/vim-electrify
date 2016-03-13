@@ -116,7 +116,6 @@ function! extropy#js#complete(findstart, base)
         call extropy#js#startAutocomplete(omniCompleteState)
 
         while s:isAutoCompleting == 0
-            " redraw
             call complete_check()
             sleep 1m^I
         endwhile
