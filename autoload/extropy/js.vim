@@ -80,10 +80,11 @@ function! extropy#js#completeAdd(completionEntries)
     execute "let localDerp=".splitted
     echom "localDerp populated2"
     echom "localDerp type:".type(localDerp)
-    for completion in localDerp
-        echom "Calling completeadd"
-        call complete_add(completion)
-    endfor
+    let s:completionEntries = localDerp
+    " for completion in localDerp
+        " echom "Calling completeadd"
+        " call complete_add(completion)
+    " endfor
 
     call extropy#js#completeEnd()
 endfunction
@@ -120,12 +121,18 @@ function! extropy#js#complete(findstart, base)
         call extropy#js#startAutocomplete(omniCompleteState)
 
         while s:isAutoCompleting == 0
-            " for completion in s:completionEntries
-            "     call complete_add(completion)
-            " endfor
-            " let s:completionEntries = []
+            call complete_check()
             sleep 300m^I
         endwhile
+
+        echom string(s:completionEntries)
+        for completion in s:completionEntries
+            echom string(completion)
+            if completion =~ '^' .a:base
+                call complete_add(completion)
+            endif
+        endfor
+        let s:completionEntries = []
         return []
     endif
 endfun
