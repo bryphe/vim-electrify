@@ -38,7 +38,6 @@ endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
     let state = extropy#js#getEditingState()
-    echom "callJsFunction: " . a:pluginName . a:commandName .state
     call extropy#js#executeRemoteCommand(["exec"], { "plugin": a:pluginName, "command": a:commandName, "state": state })
 endfunction
 
@@ -71,15 +70,10 @@ function! extropy#js#completeEnd()
 endfunction
 
 function! extropy#js#completeAdd(completionEntries)
-    echom "Calling"
-    echom "Calling completeadd".a:completionEntries
 
     let splitted = join(split(a:completionEntries, "\\"), "")
-    echom "Fix up quotes".splitted
 
     execute "let localDerp=".splitted
-    echom "localDerp populated2"
-    echom "localDerp type:".type(localDerp)
     let s:completionEntries = localDerp
     " for completion in localDerp
         " echom "Calling completeadd"
@@ -110,6 +104,7 @@ function! extropy#js#complete(findstart, base)
         endwhile
         return start
     else
+        echom "MORE COMPLETION"
         " TODO: Refactor to use common state code
         let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
         let omniCompleteState.base = a:base
@@ -121,13 +116,14 @@ function! extropy#js#complete(findstart, base)
         call extropy#js#startAutocomplete(omniCompleteState)
 
         while s:isAutoCompleting == 0
+            " redraw
             call complete_check()
-            sleep 300m^I
+            sleep 1m^I
         endwhile
 
-        echom string(s:completionEntries)
+        " echom string(s:completionEntries)
         for completion in s:completionEntries
-            echom string(completion)
+            " echom string(completion)
             if completion =~ '^' .a:base
                 call complete_add(completion)
             endif
