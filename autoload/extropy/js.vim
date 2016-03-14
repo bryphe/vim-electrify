@@ -4,6 +4,7 @@ let s:clientjspath = s:plugindir . "/js/lib/client/index.js"
 
 let s:isAutoCompleting = 0
 let s:completionEntries = []
+let s:lastCompletion = { "line": -1, "col": -1 }
 
 function! extropy#js#initializeEventListeners()
 
@@ -92,7 +93,6 @@ function! extropy#js#getEditingState()
 endfunction
 
 function! extropy#js#complete(findstart, base)
-    echom "starting completion"
     let line = getline('.')
     let lineNumber = line(".")
     let col = col('.')
@@ -102,17 +102,39 @@ function! extropy#js#complete(findstart, base)
         while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
             let start -= 1
         endwhile
+
+        " Don't autocomplete starting a string
+        if start > 0
+            if line[start] == '"' || line[start] == "'"
+                echom "HIT THIS CASE"
+                let start = -1
+            endif
+        endif
+
+        " If this isn't the same cached completion, relookup
+        if s:lastCompletion.line == lineNumber  && s:lastCompletion.col == start
+            " Cached entries are still valid
+            let s:isAutoCompleting = 1
+        else
+            " Not valid, new completion
+            let s:completionEntries = []
+            let s:isAutoCompleting = 0
+        endif
+
+        let s:lastCompletion.line = lineNumber
+        let s:lastCompletion.col = start
         return start
     else
         " TODO: Refactor to use common state code
-        let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
-        let omniCompleteState.base = a:base
+        if s:isAutoCompleting == 0
+            let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
+            let omniCompleteState.base = a:base
 
-        let tempFileName = tempname()
-        execute "w ".tempFileName
-        let omniCompleteState.tempFile = tempFileName
-        " let omniCompleteState = { "base": a:base }
-        call extropy#js#startAutocomplete(omniCompleteState)
+            let tempFileName = tempname()
+            execute "w ".tempFileName
+            let omniCompleteState.tempFile = tempFileName
+            call extropy#js#startAutocomplete(omniCompleteState)
+        endif
 
         while s:isAutoCompleting == 0
             call complete_check()
@@ -126,7 +148,6 @@ function! extropy#js#complete(findstart, base)
                 call complete_add(completion)
             endif
         endfor
-        let s:completionEntries = []
         return []
     endif
 endfun
