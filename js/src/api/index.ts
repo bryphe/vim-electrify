@@ -37,7 +37,7 @@ export default class Vim extends events.EventEmitter {
         console.log("Registering command: " + name);
         this._commandNameToFunction[name] = callbackFunction;
 
-        this._rawExec("extropy#js#createCommand('" + this._pluginName + "', '" + name + "')")
+        this._rawExec("extropy#command#createCommand('" + this._pluginName + "', '" + name + "')")
     }
 
     public addOmniCompleter(omniCompleter: omni.IOmniCompleter): void {
@@ -45,11 +45,11 @@ export default class Vim extends events.EventEmitter {
     }
 
     public exec(command: string) {
-        this._rawExec("extropy#js#execute('" + command + "')");
+        this._rawExec("extropy#command#execute('" + command + "')");
     }
 
     public echo(msg: string): void {
-        this._rawExec("extropy#js#echo('" + msg + "')");
+        this._rawExec("extropy#command#echo('" + msg + "')");
     }
 
     private _rawExec(command: string) {

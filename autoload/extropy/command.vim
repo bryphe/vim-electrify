@@ -12,7 +12,7 @@ function! extropy#command#echo(msg)
 endfunction
 
 function! extropy#command#createCommand(pluginName, commandName) 
-    echom "CreateCommand: " . a:pluginName
+    echom "CreateCommand: " . a:pluginName . a:commandName
     execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"
 endfunction
 

@@ -31,10 +31,7 @@ if shouldStartServer == True:
 
     # TODO: Pass in port specified in config
     subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
-    print "shouldStartServer"
 else:
-    print "should not start server"
-
 
 EOF
     call extropy#js#executeRemoteCommand("start/".v:servername)
@@ -53,9 +50,7 @@ function! extropy#js#notifyBufferEvent(eventName)
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-    call extropy#js#executeRemoteCommand("exec/".v:servername."/".a:pluginName."/".commandName)
-
-    " call extropy#js#executeRemoteCommand(["exec"], { "plugin": a:pluginName, "command": a:commandName, "state": state })
+    call extropy#js#executeRemoteCommand("exec/".v:servername."/".a:pluginName."/".a:commandName)
 endfunction
 
 function! extropy#js#executeRemoteCommand(path)
