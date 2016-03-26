@@ -1,3 +1,7 @@
+let s:isAutoCompleting = 0
+let s:lastCompletion = { }
+
+
 
 function! extropy#omnicomplete#startAutocomplete(omniCompleteState)
     let omniCompleteArgs = "\"".string(a:omniCompleteState)."\""
@@ -6,9 +10,25 @@ function! extropy#omnicomplete#startAutocomplete(omniCompleteState)
     let s:isAutoCompleting = 0
 endfunction
 
-
 function! extropy#omnicomplete#completeEnd()
     let s:isAutoCompleting = 1
+endfunction
+
+function! extropy#omnicomplete#completeAddTest(completionEntries)
+    call complete_add({ 'word': a:completionEntries, 'menu': 'derp'})
+    call complete_add({ 'word': "derp1", 'menu': 'derp'})
+    call complete_add({ 'word': "derp2", 'menu': 'derp'})
+    call complete_add({ 'word': "hello", 'menu': 'derp'})
+    " call feedkeys("\<C-x>\<C-o>")
+    " call complete_check()
+    let a = pumvisible()
+    echom a
+    if pumvisible() == 1
+        call feedkeys("\<Esc> \<C-x>\<C-o>")
+         " call complete_check()
+         echom "feeding keys"
+    endif
+
 endfunction
 
 function! extropy#omnicomplete#completeAdd(completionEntries)
@@ -84,3 +104,26 @@ function! extropy#omnicomplete#complete(findstart, base)
         return []
     endif
 endfun
+
+function! extropy#omnicomplete#test_completion(findstart, base)
+    let line = getline('.')
+    let lineNumber = line(".")
+    let col = col('.')
+    if a:findstart
+        " locate the start of the word
+        let start = col - 1
+        while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
+            let start -= 1
+        endwhile
+
+        return start
+    else
+        call complete_add(a:base)
+        call complete_add(a:base."...")
+        return [a:base, a:base."..."]
+    endif
+endfun
+
+
+
+

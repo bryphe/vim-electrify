@@ -31,10 +31,9 @@ if shouldStartServer == True:
 
     # TODO: Pass in port specified in config
     subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
-else:
 
 EOF
-    call extropy#js#executeRemoteCommand("start/".v:servername)
+    call extropy#js#executeRemoteCommand("/api/start/".v:servername)
 endfunction
 
 function! extropy#js#initializeEventListeners()
@@ -46,11 +45,11 @@ function! extropy#js#initializeEventListeners()
 endfunction
 
 function! extropy#js#notifyBufferEvent(eventName)
-    call extropy#js#executeRemoteCommand("event/".v:servername."/".a:eventName)
+    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/event/".a:eventName)
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-    call extropy#js#executeRemoteCommand("exec/".v:servername."/".a:pluginName."/".a:commandName)
+    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/".a:pluginName."/".a:commandName)
 endfunction
 
 function! extropy#js#executeRemoteCommand(path)
@@ -77,30 +76,15 @@ headers = { "Content-Type": "application/json"}
 
 data = json.dumps(values)
 
-req = urllib2.Request("http://127.0.0.1:3000/api/vim/" + path, data, headers)
-response = urllib2.urlopen(req)
+try:
+    req = urllib2.Request("http://127.0.0.1:3000" + path, data, headers)
+    response = urllib2.urlopen(req)
+except:
+    print "NodeJS: There was an error communicating with NodeJS plugin server"
+    pass
+# TODO: Handle error case error (connection refused / server goes down / etc)
 
 EOF
-    " let basePath = "node " .s:clientjspath. " --servername " .v:servername
-
-    " for arg in a:arguments
-    "     let basePath = basePath . " --" .arg
-    " endfor
-
-    " for param in keys(a:parameters)
-    "     let key = param
-    "     let value = a:parameters[key]
-    "     let basePath = basePath . " --" .key. " " .value
-    " endfor
-
-    " call xolox#misc#os#exec({"command": basePath, "async": 1})
 endfunction
 
 
-function! extropy#js#getEditingState()
-    let currentBuffer = expand("%:p")
-    let line = line(".")
-    let col = col(".")
-    let state = { "currentBuffer": currentBuffer, "line": line, "col": col, "byte": line2byte(line) + col }
-    return state
-endfunction

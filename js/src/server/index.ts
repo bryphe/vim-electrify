@@ -16,15 +16,10 @@ var sessionManager = new SessionManager();
 app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
-    log.info("Get request at root")
-    res.send("node-js-plugins is open for business");
+    res.send("Open for business");
 });
 
-app.get("/api/vim", function (req, res) {
-    res.send("Open for requests");
-});
-
-app.post("/api/vim/start/:serverName", (req, res) => {
+app.post("/api/start/:serverName", (req, res) => {
     console.log(req.params.serverName);
     console.log(req.params.pluginName);
     console.log("-pre body");
@@ -40,7 +35,7 @@ app.post("/api/log", (req, res) => {
     console.log("[LOG]:" + JSON.stringify(req.body));
 });
 
-app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
+app.post("/api/plugin/:serverName/event/:eventName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
 
@@ -58,7 +53,7 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     res.send("done");
 });
 
-app.post("/api/vim/omnicomplete/:serverName/start", (req, res) => {
+app.post("/api/plugin/:serverName/omnicomplete", (req, res) => {
     console.log("start omnicomplete");
 
     var body = req.body;
@@ -67,7 +62,7 @@ app.post("/api/vim/omnicomplete/:serverName/start", (req, res) => {
     session.plugins.startOmniComplete(body);
 });
 
-app.post("/api/vim/exec/:serverName/:pluginName/:commandName", (req, res) => {
+app.post("/api/plugin/:serverName/:pluginName/:commandName", (req, res) => {
     log.info(req.params);
     log.info(req.body);
 
