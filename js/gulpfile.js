@@ -6,7 +6,6 @@ var ts = require("gulp-typescript");
 
 var tsProjects = [
     "server",
-    "client",
     "api",
     "plugin-shim-process"
 ];
@@ -66,4 +65,4 @@ gulp.task("watch", function() {
     });
 });
 
-gulp.task("default", gulp.series("install-typings", "build", "start-server", "watch"));
+gulp.task("default", gulp.series("stop-server", "install-typings", "build", "start-server", "watch"));
