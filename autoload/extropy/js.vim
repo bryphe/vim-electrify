@@ -1,161 +1,111 @@
 let s:plugindir = expand('<sfile>:p:h:h:h')
-let s:clientjspath = s:plugindir . "/js/lib/client/index.js"
-"echom s:clientjspath
+let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
+let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 
-let s:isAutoCompleting = 0
-let s:completionEntries = []
-let s:lastCompletion = { "line": -1, "col": -1 }
+function! extropy#js#start()
+
+python << EOF
+import urllib2
+import subprocess
+import os
+import vim
+
+serverPath = vim.eval("s:serverJsPath")
+
+def isServerActive():
+    active = False
+    try: 
+        output = urllib2.urlopen("http://127.0.0.1:3000/api/vim").read();
+        # TODO: Validate that this actually a proper server
+        # TODO: Use port specified here
+        active = True
+    except:
+        pass
+    return active
+
+shouldStartServer = not isServerActive()
+if shouldStartServer == True:
+
+    startupinfo = subprocess.STARTUPINFO()
+    startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+
+    # TODO: Pass in port specified in config
+    subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
+    print "shouldStartServer"
+else:
+    print "should not start server"
+
+
+EOF
+    call extropy#js#executeRemoteCommand("start/".v:servername)
+endfunction
 
 function! extropy#js#initializeEventListeners()
-
     augroup ExtropyEventListeners
-        autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter", expand("%:p"))
-        autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave", expand("%:p"))
+        autocmd!
+        autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
+        autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
     augroup END
 endfunction
 
-function! extropy#js#start()
-    call extropy#js#executeRemoteCommand(["start"], {})
-endfunction
-
-function! extropy#js#notifyBufferEvent(eventName, buffer)
-    let state = extropy#js#getEditingState()
-    call extropy#js#executeRemoteCommand([], {"event": a:eventName, "state": state })
-endfunction
-
-function! extropy#js#execute(command)
-    :execute a:command
-    :redraw
-endfunction
-
-function! extropy#js#echo(msg)
-    echom a:msg
-endfunction
-
-function! extropy#js#createCommand(pluginName, commandName) 
-    echom "CreateCommand: " . a:pluginName
-    execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"
+function! extropy#js#notifyBufferEvent(eventName)
+    call extropy#js#executeRemoteCommand("event/".v:servername."/".a:eventName)
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-    let state = extropy#js#getEditingState()
-    call extropy#js#executeRemoteCommand(["exec"], { "plugin": a:pluginName, "command": a:commandName, "state": state })
+    call extropy#js#executeRemoteCommand("exec/".v:servername."/".a:pluginName."/".commandName)
+
+    " call extropy#js#executeRemoteCommand(["exec"], { "plugin": a:pluginName, "command": a:commandName, "state": state })
 endfunction
 
-function! extropy#js#startAutocomplete(omniCompleteState)
-    let omniCompleteArgs = "\"".string(a:omniCompleteState)."\""
-    echom omniCompleteArgs
-    call extropy#js#executeRemoteCommand([], { "post": "/api/vim/omnicomplete/".v:servername."/start", "body": omniCompleteArgs })
-    let s:isAutoCompleting = 0
-endfunction
+function! extropy#js#executeRemoteCommand(path)
 
-function! extropy#js#executeRemoteCommand(arguments, parameters)
+python << EOF
+import urllib2
+import json
+import vim
 
-    let basePath = "node " .s:clientjspath. " --servername " .v:servername
+path = vim.eval("a:path")
+currentBuffer = vim.eval("expand('%:p')")
+line = vim.eval("line('.')")
+col = vim.eval("col('.')")
+byte = vim.eval("line2byte(line('.')) + col('.')")
 
-    for arg in a:arguments
-        let basePath = basePath . " --" .arg
-    endfor
+values = {
+"currentBuffer": currentBuffer,
+"line": line,
+"col": col,
+"byte": byte
+}
 
-    for param in keys(a:parameters)
-        let key = param
-        let value = a:parameters[key]
-        let basePath = basePath . " --" .key. " " .value
-    endfor
+headers = { "Content-Type": "application/json"}
 
-    call xolox#misc#os#exec({"command": basePath, "async": 1})
-endfunction
+data = json.dumps(values)
 
-function! extropy#js#completeEnd()
-    let s:isAutoCompleting = 1
-endfunction
+req = urllib2.Request("http://127.0.0.1:3000/api/vim/" + path, data, headers)
+response = urllib2.urlopen(req)
 
-function! extropy#js#completeAdd(completionEntries)
+EOF
+    " let basePath = "node " .s:clientjspath. " --servername " .v:servername
 
-    let splitted = join(split(a:completionEntries, "\\"), "")
-
-    execute "let localDerp=".splitted
-    let s:completionEntries = localDerp
-    " for completion in localDerp
-        " echom "Calling completeadd"
-        " call complete_add(completion)
+    " for arg in a:arguments
+    "     let basePath = basePath . " --" .arg
     " endfor
 
-    call extropy#js#completeEnd()
+    " for param in keys(a:parameters)
+    "     let key = param
+    "     let value = a:parameters[key]
+    "     let basePath = basePath . " --" .key. " " .value
+    " endfor
+
+    " call xolox#misc#os#exec({"command": basePath, "async": 1})
 endfunction
+
 
 function! extropy#js#getEditingState()
     let currentBuffer = expand("%:p")
     let line = line(".")
     let col = col(".")
     let state = { "currentBuffer": currentBuffer, "line": line, "col": col, "byte": line2byte(line) + col }
-    return "\"".string(state)."\""
+    return state
 endfunction
-
-function! extropy#js#complete(findstart, base)
-    let line = getline('.')
-    let lineNumber = line(".")
-    let col = col('.')
-    if a:findstart
-        " locate the start of the word
-        let start = col - 1
-        while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
-            let start -= 1
-        endwhile
-
-        " Don't autocomplete starting a string
-        if start > 0
-            if line[start] == '"' || line[start] == "'"
-                echom "HIT THIS CASE"
-                let start = -1
-            endif
-        endif
-
-        " If this isn't the same cached completion, relookup
-        if s:lastCompletion.line == lineNumber  && s:lastCompletion.col == start
-            " Cached entries are still valid
-            let s:isAutoCompleting = 1
-        else
-            " Not valid, new completion
-            let s:completionEntries = []
-            let s:isAutoCompleting = 0
-        endif
-
-        let s:lastCompletion.line = lineNumber
-        let s:lastCompletion.col = start
-        return start
-    else
-        " TODO: Refactor to use common state code
-        if s:isAutoCompleting == 0
-            let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
-            let omniCompleteState.base = a:base
-
-            let tempFileName = tempname()
-            execute "w ".tempFileName
-            let omniCompleteState.tempFile = tempFileName
-            call extropy#js#startAutocomplete(omniCompleteState)
-        endif
-
-        while s:isAutoCompleting == 0
-            call complete_check()
-            sleep 1m^I
-        endwhile
-
-        " echom string(s:completionEntries)
-        for completion in s:completionEntries
-            " echom string(completion)
-            if completion =~ '^' .a:base
-                call complete_add(completion)
-            endif
-        endfor
-        return []
-    endif
-endfun
-" TODO:
-" Add real 'start' method to the plugin
-" Callback if node client reports an error talking to the server
-" Load plugin as separate process
-" Add plugin-name argument to script file
-" Create plugin in vim-node-test-plugin that just does :TestRoundTrip and
-" calls extropy#js#exec("myPlugin", "myFunction", args)
-" Add logging to the server to see calls that came in

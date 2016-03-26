@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
     log.info("Get request at root")
-    res.send("Hello World2");
+    res.send("node-js-plugins is open for business");
 });
 
 app.get("/api/vim", function (req, res) {
@@ -47,7 +47,7 @@ app.post("/api/vim/event/:serverName/:eventName", (req, res) => {
     var eventName = req.params.eventName;
 
     var state = req.body;
-    log.info("Received event: " + eventName);
+    log.info("Received event: " + eventName + " data:" + JSON.stringify(state));
     var session = sessionManager.getOrCreateSession(req.params.serverName);
     session.notifyEvent(eventName, state)
 
