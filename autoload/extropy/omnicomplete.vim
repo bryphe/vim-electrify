@@ -2,7 +2,7 @@ let s:isAutoCompleting = 0
 let s:lastCompletion = { 'line': -1, 'col': -1 }
 
 let s:cachedCompletion = []
-function! extropy#omnicomplete#startAutocomplete(omniCompleteState)
+function! extropy#omnicomplete#startAutocomplete()
     call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/omnicomplete/start")
     let s:isAutoCompleting = 0
 endfunction
@@ -17,6 +17,7 @@ function! extropy#omnicomplete#setCachedCompletion(completionEntries)
     let splitted = join(split(a:completionEntries, "\\"), "")
 
     execute "let s:cachedCompletion = ". splitted
+    let s:completionEntries = s:cachedCompletion
     for entry in s:cachedCompletion
         call complete_add(entry)
     endfor
@@ -81,11 +82,7 @@ function! extropy#omnicomplete#complete(findstart, base)
         " TODO: Refactor to use common state code
         if s:isAutoCompleting == 0
             call extropy#js#notifyBufferUpdated()
-            let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
-            let omniCompleteState.base = a:base
-
-            let tempFileName = tempname()
-            call extropy#omnicomplete#startAutocomplete(omniCompleteState)
+            call extropy#omnicomplete#startAutocomplete()
         endif
 
         while s:isAutoCompleting == 0

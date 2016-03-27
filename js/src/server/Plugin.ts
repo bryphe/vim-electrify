@@ -61,7 +61,7 @@ export default class Plugin {
                 var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore"});
                 return;
                    } else if(data.type == "log") {
-                    console.log("[" + colors.cyan(this._pluginName) + "]" + data.msg);
+                    console.log("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
                     return;
                    }
            }

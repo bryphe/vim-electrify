@@ -1,3 +1,4 @@
+import Promise = require("bluebird");
 import childProcess = require("child_process");
 import events = require("events");
 import os = require("os");
@@ -9,6 +10,7 @@ export default class Vim extends events.EventEmitter {
     private _serverName: string;
     private _commandNameToFunction = {};
     private _pluginName: string;
+    private _log = new Log();
 
     private _omniCompleters: omni.IOmniCompleter[] = [];
 
@@ -20,7 +22,6 @@ export default class Vim extends events.EventEmitter {
 
         var stdin = (<any>process).openStdin();
         stdin.on("data",  (commandInfo) =>  {
-            console.log("Got some data!: " + commandInfo);
             this._handleCommand(commandInfo);
         });
     }
@@ -72,24 +73,40 @@ export default class Vim extends events.EventEmitter {
 
     private _executeCommand(command: any): void {
         var commandName = command.command;
-        console.log("Executing command (type: " + command.type + "): " + commandName)
         this._commandNameToFunction[commandName](command.callContext);
     }
 
     private _startOmniCompletion(omniInfo: any): void {
-        console.log("API: Got omnicompletion request: " + JSON.stringify(omniInfo));
-        var ret = [];
+        this._log.verbose("Omnicompletion: starting");
+        var promises = [];
+
         this._omniCompleters.forEach((completer) => {
-            ret = ret.concat(completer.getCompletions(omniInfo));
+            promises.push(completer.getCompletions(omniInfo));
         });
-        this._rawExec("extropy#omnicomplete#setCachedCompletion('" + JSON.stringify(ret) + "')");
+
+        Promise.all(promises).then((ret) => {
+
+            var allSuggestions = [];
+            ret = ret || [];
+            ret.forEach(r => {
+                allSuggestions = allSuggestions.concat(r);
+            });
+            this._log.verbose(JSON.stringify(ret));
+
+
+            this._log.verbose("Omnicompletion: total values returned: " + allSuggestions.length);
+            this._rawExec("extropy#omnicomplete#setCachedCompletion('" + JSON.stringify(allSuggestions) + "')");
+        });
     }
 
     private _updateOmniCompletion(omniInfo: any): void {
-        console.log("API: Got omnicompletion update request: " + JSON.stringify(omniInfo));
+        this._log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
+
+            var newContent = omniInfo.lines.join(os.EOL);
+
+            this._log.verbose(newContent);
 
         this._omniCompleters.forEach((completer) => {
-            var newContent = omniInfo.lines.join(os.EOL);
             completer.onFileUpdate(omniInfo.currentBuffer, newContent);
         });
     }
@@ -117,7 +134,7 @@ export default class Vim extends events.EventEmitter {
 }
 
 export class Log {
-    public verbose(msg: string, properties: any): void {
+    public verbose(msg: string, properties?: any): void {
         
         var commandToSend = {
             type: "log",
@@ -128,7 +145,7 @@ export class Log {
         console.log(JSON.stringify(commandToSend));
     }
 
-    public error(msg: string, properties: any): void {
+    public error(msg: string, properties?: any): void {
 
         var commandToSend = {
             type: "log",
