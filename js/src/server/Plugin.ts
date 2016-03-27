@@ -1,5 +1,6 @@
 import childProcess = require("child_process");
 import path = require("path");
+import readline = require("readline");
 
 var colors = require("colors/safe");
 
@@ -10,6 +11,7 @@ export default class Plugin {
     private _pluginName: string;
     private _pluginProcess: childProcess.ChildProcess;
     private _gvimServerName: string;
+    private _rl: any;
 
     constructor(gvimServerName: string, pluginName: string, pluginPath: string) {
         this._gvimServerName = gvimServerName;
@@ -33,8 +35,10 @@ export default class Plugin {
         // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
         // Instead of a separate process - maybe we could use the 'cluster' module?
         this._pluginProcess = childProcess.spawn("node",  [pluginShimPath, "--apipath="+apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
-        this._pluginProcess.stdout.on("data", (data, err) => {
-            console.log("[" + colors.cyan(this._pluginName) + ":" + colors.green(this._gvimServerName) + "]" + data);
+
+        this._rl = readline.createInterface({
+            input: this._pluginProcess.stdout,
+            output: this._pluginProcess.stdin
         });
 
         this._pluginProcess.stderr.on("data", (data, err) => {
@@ -42,8 +46,27 @@ export default class Plugin {
             console.log("Error from process: " + data + "|" + err);
         });
 
-        this._pluginProcess.on("message", (msg) => {
-            console.log("got message!");
+        this._rl.on("line", (msg) => {
+            console.log("Got rl line");
+            var data = null;
+           try {
+                data = JSON.parse(msg);
+           } catch(ex) { }
+
+           if(data && data.type) {
+               if(data.type == "command") {
+
+                var command = data.command.split("\"").join("\\\"");
+                console.log("got command: " + command);
+                var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore"});
+                return;
+                   } else if(data.type == "log") {
+                    console.log("[" + colors.cyan(this._pluginName) + "]" + data.msg);
+                    return;
+                   }
+           }
+
+           console.log(colors.red("UNHANDLED MESSAGE: " + msg));
         });
 
         this._pluginProcess.on("exit", () => {
@@ -61,8 +84,7 @@ export default class Plugin {
             callContext: eventArgs
         };
 
-        if (this._pluginProcess)
-            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+        this._writeToPlugin(commandInfo);
     }
 
     public startOmniComplete(omniCompletionArgs: any): void {
@@ -71,8 +93,16 @@ export default class Plugin {
             arguments: omniCompletionArgs
         };
 
-        if(this._pluginProcess)
-            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+        this._writeToPlugin(commandInfo);
+    }
+
+    public updateOmniComplete(updateOmniCompletionArgs: any): void {
+        var commandInfo = {
+            type: "omnicomplete-update",
+            arguments: updateOmniCompletionArgs
+        };
+
+        this._writeToPlugin(commandInfo);
     }
 
     public execute(commandName: string, callContext: any) {
@@ -81,7 +111,11 @@ export default class Plugin {
             command: commandName,
             callContext: callContext
         };
+        this._writeToPlugin(commandInfo);
+    }
+
+    private _writeToPlugin(command: any): void {
         if (this._pluginProcess)
-            this._pluginProcess.stdin.write(JSON.stringify(commandInfo));
+            this._pluginProcess.stdin.write(JSON.stringify(command));
     }
 }

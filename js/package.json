@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/extr0py/vim-node-omnicomplete",
   "dependencies": {
+    "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
     "colors": "^1.1.2",
     "express": "^4.13.4",

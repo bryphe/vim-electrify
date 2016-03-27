@@ -53,13 +53,27 @@ app.post("/api/plugin/:serverName/event/:eventName", (req, res) => {
     res.send("done");
 });
 
-app.post("/api/plugin/:serverName/omnicomplete", (req, res) => {
+app.post("/api/plugin/:serverName/omnicomplete/start", (req, res) => {
     console.log("start omnicomplete");
 
     var body = req.body;
 
     var session = sessionManager.getOrCreateSession(req.params.serverName);
     session.plugins.startOmniComplete(body);
+
+    res.send("done");
+});
+
+// Notify omnicompletion that a file has been updated
+app.post("/api/plugin/:serverName/omnicomplete/update", (req, res) => {
+    console.log("update omnicomplete");
+
+    var body = req.body;
+
+    var session = sessionManager.getOrCreateSession(req.params.serverName);
+    session.plugins.updateOmniComplete(body);
+
+    res.send("done");
 });
 
 app.post("/api/plugin/:serverName/:pluginName/:commandName", (req, res) => {

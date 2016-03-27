@@ -1,5 +1,6 @@
 import childProcess = require("child_process");
 import events = require("events");
+import os = require("os");
 
 import omni = require("./IOmniCompleter");
 
@@ -16,7 +17,6 @@ export default class Vim extends events.EventEmitter {
         this._serverName = serverName;
         this._pluginName = pluginName;
 
-        console.log("vim driver: servername" + this._serverName + " " + this._pluginName);
 
         var stdin = (<any>process).openStdin();
         stdin.on("data",  (commandInfo) =>  {
@@ -34,7 +34,7 @@ export default class Vim extends events.EventEmitter {
     }
 
     public addCommand(name: string, callbackFunction: Function): void {
-        console.log("Registering command: " + name);
+        // console.log("Registering command: " + name);
         this._commandNameToFunction[name] = callbackFunction;
 
         this._rawExec("extropy#command#createCommand('" + this._pluginName + "', '" + name + "')")
@@ -53,9 +53,16 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _rawExec(command: string) {
-        console.log("_rawExec: " + command);
-        command = command.split("\"").join("\\\"");
-        var vimProcess = childProcess.spawn("vim", ["--servername", this._serverName, "--remote-expr", command], { detached: true, stdio: "ignore"});
+        var commandToSend = {
+            type: "command",
+            command: command
+        }
+        this._sendCommand(commandToSend);
+    }
+
+    private _sendCommand(command: any) {
+        // The other process listens on stdin
+        console.log(JSON.stringify(command) + os.EOL);
     }
 
     private _executeEvent(command: any): void {
@@ -69,13 +76,22 @@ export default class Vim extends events.EventEmitter {
         this._commandNameToFunction[commandName](command.callContext);
     }
 
-    private _startOmniCompletion(command: any): void {
-        console.log("API: Got omnicompletion request: " + JSON.stringify(command));
+    private _startOmniCompletion(omniInfo: any): void {
+        console.log("API: Got omnicompletion request: " + JSON.stringify(omniInfo));
         var ret = [];
         this._omniCompleters.forEach((completer) => {
-            ret = ret.concat(completer.getCompletions(command.arguments));
+            ret = ret.concat(completer.getCompletions(omniInfo));
         });
-        this._rawExec("extropy#js#completeAdd('" + JSON.stringify(ret) + "')");
+        this._rawExec("extropy#omnicomplete#setCachedCompletion('" + JSON.stringify(ret) + "')");
+    }
+
+    private _updateOmniCompletion(omniInfo: any): void {
+        console.log("API: Got omnicompletion update request: " + JSON.stringify(omniInfo));
+
+        this._omniCompleters.forEach((completer) => {
+            var newContent = omniInfo.lines.join(os.EOL);
+            completer.onFileUpdate(omniInfo.currentBuffer, newContent);
+        });
     }
 
     private _handleCommand(commandInfo: any): void {
@@ -93,7 +109,33 @@ export default class Vim extends events.EventEmitter {
             else if(command.type === "event")
                 this._executeEvent(command);
             else if(command.type === "omnicomplete")
-                this._startOmniCompletion(command);
+                this._startOmniCompletion(command.arguments);
+            else if(command.type === "omnicomplete-update")
+                this._updateOmniCompletion(command.arguments);
         }
+    }
+}
+
+export class Log {
+    public verbose(msg: string, properties: any): void {
+        
+        var commandToSend = {
+            type: "log",
+            logLevel: "verbose",
+            msg: msg,
+            properties: properties
+        }
+        console.log(JSON.stringify(commandToSend));
+    }
+
+    public error(msg: string, properties: any): void {
+
+        var commandToSend = {
+            type: "log",
+            logLevel: "error",
+            msg: msg,
+            properties: properties
+        }
+        console.log(JSON.stringify(commandToSend));
     }
 }

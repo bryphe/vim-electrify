@@ -4,4 +4,5 @@ export interface ICompletionInfo {
 
 export interface IOmniCompleter {
     getCompletions(context: any): ICompletionInfo[]
+    onFileUpdate(fileName: string, newContents: string): void;
 }

@@ -9,7 +9,6 @@ var pluginPath = argv.pluginpath;
 
 var Vim = require(apiPath);
 global["vim"] = new Vim.default(serverName, pluginName);
+global["log"] = new Vim.Log();
 
 require(pluginPath);
-
-console.log("Plugin loaded.");

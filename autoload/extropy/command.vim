@@ -3,6 +3,7 @@
 " Set of commands that the node-vim interop layer can call back into
 
 function! extropy#command#execute(command)
+    :echom "Executing: ".a:command
     :execute a:command
     :redraw
 endfunction

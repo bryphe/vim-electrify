@@ -2,6 +2,8 @@ let s:plugindir = expand('<sfile>:p:h:h:h')
 let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
 let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 
+let b:extropy_change_tick = -1
+
 function! extropy#js#start()
 
 python << EOF
@@ -39,6 +41,9 @@ endfunction
 function! extropy#js#initializeEventListeners()
     augroup ExtropyEventListeners
         autocmd!
+        autocmd! CursorHold * :call extropy#js#notifyBufferUpdated()
+        autocmd! CursorHoldI * :call extropy#js#notifyBufferUpdated()
+        autocmd! BufEnter * :let b:extropy_change_tick = -1
         autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
         autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
     augroup END
@@ -52,13 +57,41 @@ function! extropy#js#callJsFunction(pluginName, commandName)
     call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/".a:pluginName."/".a:commandName)
 endfunction
 
-function! extropy#js#executeRemoteCommand(path)
+function! extropy#js#restartServer()
+    call extropy#js#stopServer()
+    call extropy#js#start()
+endfunction
+
+function! extropy#js#stopServer()
+    call extropy#js#executeRemoteCommand("/api/stop")
+endfunction
 
 python << EOF
 import urllib2
 import json
 import vim
 
+class Request:
+    def __init__(self, path, arguments):
+        self._path = path
+        self._arguments = arguments
+
+    def send(self):
+        headers = { "Content-Type": "application/json"}
+
+        data = json.dumps(self._arguments)
+
+        try:
+            req = urllib2.Request("http://127.0.0.1:3000" + self._path, data, headers)
+            response = urllib2.urlopen(req)
+        except:
+            print "NodeJS: There was an error communicating with NodeJS plugin server"
+            pass
+EOF
+
+function! extropy#js#executeRemoteCommand(path)
+python << EOF
+import vim
 path = vim.eval("a:path")
 currentBuffer = vim.eval("expand('%:p')")
 line = vim.eval("line('.')")
@@ -72,19 +105,40 @@ values = {
 "byte": byte
 }
 
-headers = { "Content-Type": "application/json"}
+request = Request(path, values)
+request.send()
 
-data = json.dumps(values)
-
-try:
-    req = urllib2.Request("http://127.0.0.1:3000" + path, data, headers)
-    response = urllib2.urlopen(req)
-except:
-    print "NodeJS: There was an error communicating with NodeJS plugin server"
-    pass
-# TODO: Handle error case error (connection refused / server goes down / etc)
 
 EOF
 endfunction
 
+function! extropy#js#notifyBufferUpdated()
+
+if b:changedtick == b:extropy_change_tick
+    return
+endif
+
+let b:extropy_change_tick = b:changedtick
+
+python << EOF
+import vim
+import json
+
+currentBuffer = vim.eval("expand('%:p')")
+serverName = vim.eval("expand('v:servername')")
+
+lines = []
+for line in vim.current.buffer:
+    lines.append(line)
+
+args = {
+"currentBuffer": currentBuffer,
+"lines": lines
+}
+
+request = Request("/api/plugin/" + serverName + "/omnicomplete/update", args);
+request.send()
+
+EOF
+endfunction
 
