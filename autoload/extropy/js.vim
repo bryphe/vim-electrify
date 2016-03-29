@@ -1,3 +1,4 @@
+let g:extropy_nodejs_enabled = 0
 let s:plugindir = expand('<sfile>:p:h:h:h')
 let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
 let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
@@ -6,6 +7,9 @@ let s:extropy_is_enabled = 1
 let b:extropy_change_tick = -1
 
 function! extropy#js#start()
+if extropy#js#isEnabled() == 0
+    return
+endif
 
 python << EOF
 import urllib2
@@ -40,6 +44,10 @@ EOF
 endfunction
 
 function! extropy#js#initializeEventListeners()
+    if extropy#js#isEnabled() == 0
+        return
+    endif
+
     augroup ExtropyEventListeners
         autocmd!
         autocmd! CursorHold * :call extropy#js#notifyBufferUpdated()
@@ -93,7 +101,7 @@ class Request:
 EOF
 
 function! extropy#js#executeRemoteCommand(path)
-if s:extropy_is_enabled == 0
+if extropy#js#isEnabled() == 0
     return
 endif
 python << EOF
@@ -120,7 +128,7 @@ endfunction
 
 function! extropy#js#notifyBufferUpdated()
 
-if s:extropy_is_enabled == 0
+if extropy#js#isEnabled() == 0
     return
 endif
 
@@ -150,6 +158,10 @@ request = Request("/api/plugin/" + serverName + "/omnicomplete/update", args);
 request.send()
 
 EOF
+endfunction
+
+function! extropy#js#isEnabled() 
+    return 0
 endfunction
 
 function! extropy#js#disable()
