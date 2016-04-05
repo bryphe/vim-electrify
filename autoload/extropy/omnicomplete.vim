@@ -5,6 +5,20 @@ let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableAutocomplete()
     set omnifunc=extropy#omnicomplete#complete
+    set completeopt=longest,menuone,preview
+
+    inoremap <silent> <Plug>(extropy_nodejs_start_completion) <C-x><C-o>
+
+    augroup ExtropyNodeAutoCompleteGroup
+        autocmd!
+        autocmd CursorMovedI * :call extropy#omnicomplete#refreshOmnicomplete()
+    augroup END
+endfunction
+
+function! extropy#omnicomplete#refreshOmnicomplete()
+    if mode() == "i"
+        call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+    endif
 endfunction
 
 function! extropy#omnicomplete#startAutocomplete()
