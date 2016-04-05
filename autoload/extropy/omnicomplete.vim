@@ -2,6 +2,11 @@ let s:isAutoCompleting = 0
 let s:lastCompletion = { 'line': -1, 'col': -1 }
 
 let s:cachedCompletion = []
+
+function! extropy#omnicomplete#enableAutocomplete()
+    set omnifunc=extropy#omnicomplete#complete
+endfunction
+
 function! extropy#omnicomplete#startAutocomplete()
     call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/omnicomplete/start")
     let s:isAutoCompleting = 0
