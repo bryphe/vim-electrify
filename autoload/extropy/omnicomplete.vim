@@ -1,3 +1,4 @@
+let g:extropy_omnicomplete_debugdata = { }
 let s:isAutoCompleting = 0
 let s:lastCompletion = { 'line': -1, 'col': -1 }
 
@@ -5,21 +6,34 @@ let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableAutocomplete()
     set omnifunc=extropy#omnicomplete#complete
-    set completeopt=longest,menuone,preview
+    set completeopt=menuone,preview
 
     inoremap <silent> <Plug>(extropy_nodejs_start_completion) <C-x><C-o>
 
     augroup ExtropyNodeAutoCompleteGroup
         autocmd!
-        autocmd CursorMovedI * :call extropy#omnicomplete#refreshOmnicomplete()
+        autocmd CursorMovedI * :call extropy#omnicomplete#refreshOmnicomplete(0)
     augroup END
 endfunction
 
-function! extropy#omnicomplete#refreshOmnicomplete()
-    if mode() == "i"
-        call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+
+function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
+    let shouldRefresh = !pumvisible() || a:forceRefresh
+    echom shouldRefresh
+    if mode() == "i" && shouldRefresh
+        " Get delta between current column and completion base. Make sure the
+        " user has typed some amount of characters
+        execute("let base = " . &omnifunc . "(1, 0)")
+        let currentColumn = col('.')
+        let delta = currentColumn - base
+        " echom "Delta: " . delta
+        if delta >= 2
+            call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+        endif
     endif
 endfunction
+
+
 
 function! extropy#omnicomplete#startAutocomplete()
     call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/omnicomplete/start")
@@ -27,7 +41,7 @@ function! extropy#omnicomplete#startAutocomplete()
 endfunction
 
 function! extropy#omnicomplete#completeEnd()
-    let s:isAutoCompleting = 1
+    " let s:isAutoCompleting = 1
 endfunction
 
 function! extropy#omnicomplete#setCachedCompletion(completionEntries)
@@ -37,10 +51,10 @@ function! extropy#omnicomplete#setCachedCompletion(completionEntries)
 
     execute "let s:cachedCompletion = ". splitted
     let s:completionEntries = s:cachedCompletion
-    for entry in s:cachedCompletion
-        call complete_add(entry)
-    endfor
-    let s:isAutoCompleting = 1
+    " for entry in s:cachedCompletion
+    "     call complete_add(entry)
+    " endfor
+    " let s:isAutoCompleting = 1
     " echom string(s:cachedCompletion)
     " call feedkeys("\<Esc>")
     " call feedkeys("a")
@@ -92,34 +106,37 @@ function! extropy#omnicomplete#complete(findstart, base)
             " Not valid, new completion
             let s:completionEntries = []
             let s:isAutoCompleting = 0
-        endif
-
-        let s:lastCompletion.line = lineNumber
-        let s:lastCompletion.col = start
-        return start
-    else
-        " TODO: Refactor to use common state code
-        if s:isAutoCompleting == 0
             call extropy#js#notifyBufferUpdated()
             call extropy#omnicomplete#startAutocomplete()
         endif
 
-        while s:isAutoCompleting == 0
-            call complete_check()
-            sleep 1m^I
-        endwhile
-
-        " echom string(s:completionEntries)
-        for completion in s:completionEntries
-            " echom string(completion)
-            if completion =~ '^' .a:base
-                call complete_add(completion)
-            endif
-        endfor
-        return []
+        let s:lastCompletion.line = lineNumber
+        let s:lastCompletion.col = start
+        let g:extropy_omnicomplete_debugdata.start = start
+        let g:extropy_omnicomplete_debugdata.line = lineNumber
+        let g:extropy_omnicomplete_debugdata.col = col
+        return start
+    else
+        let ret = []
+            call add(ret, a:base)
+        " TODO: Refactor to use common state code
+        if len(s:completionEntries) == 0
+            call add(ret, a:base."...")
+        else
+            " echom string(s:completionEntries)
+            for completion in s:completionEntries
+                " echom string(completion)
+                if completion =~ '^' .a:base
+                    call add(ret, completion)
+                    " call complete_add(completion)
+                endif
+            endfor
+        endif
+        let g:extropy_omnicomplete_debugdata.lastBase = a:base
+        let g:extropy_omnicomplete_debugdata.lastCompletions = ret
+        return ret
     endif
 endfun
-
 
 
 
@@ -149,7 +166,7 @@ function! extropy#omnicomplete#test_completion(findstart, base)
         else
             let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
             let omniCompleteState.base = a:base
-            call extropy#omnicomplete#startAutocomplete(omniCompleteState)
+            call extropy#omnicomplete#startAutocomplete()
             call complete_add(a:base)
             call complete_add(a:base."...")
             return [a:base, a:base."..."]

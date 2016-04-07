@@ -24,6 +24,12 @@ export default class Vim extends events.EventEmitter {
         stdin.on("data",  (commandInfo) =>  {
             this._handleCommand(commandInfo);
         });
+        
+        window.location.reload();
+        window.location.reload();
+        
+        st
+        
     }
 
     public get serverName(): string {
