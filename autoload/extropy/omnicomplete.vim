@@ -118,7 +118,11 @@ function! extropy#omnicomplete#complete(findstart, base)
         return start
     else
         let ret = []
-            call add(ret, a:base)
+        if len(a:base) <= 0
+            return ret
+        endif
+        call add(ret, a:base)
+
         " TODO: Refactor to use common state code
         if len(s:completionEntries) == 0
             call add(ret, a:base."...")
