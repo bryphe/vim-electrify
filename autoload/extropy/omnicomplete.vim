@@ -5,7 +5,6 @@ let s:lastCompletion = { 'line': -1, 'col': -1 }
 let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableKeywordAutocompletion()
-    set completeopt=longest,menuone,preview
     call extropy#omnicomplete#enableAutocomplete("<C-p>")
 endfunction
 
@@ -14,12 +13,12 @@ function! extropy#omnicomplete#enableOmniAutocompletion()
 endfunction
 
 function! extropy#omnicomplete#enableNodeAutocompletion()
-    set completeopt=longest,menuone,preview
     set omnifunc=extropy#omnicomplete#complete
     call extropy#omnicomplete#enableOmniAutocompletion()
 endfunction
 
 function! extropy#omnicomplete#enableAutocomplete(completionKeys)
+    set completeopt=noinsert,menuone,preview
     execute("inoremap <silent> <Plug>(extropy_nodejs_start_completion) ". a:completionKeys)
 
     augroup ExtropyNodeAutoCompleteGroup
@@ -28,26 +27,40 @@ function! extropy#omnicomplete#enableAutocomplete(completionKeys)
     augroup END
 endfunction
 
+let g:extropy_max_refresh = 1
+let s:lastRefreshInfo = { 'line': -1, 'col': -1, 'count': 0 }
+
 function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
     let shouldRefresh = !pumvisible() || a:forceRefresh
-    echom shouldRefresh
     if mode() == "i" && shouldRefresh
+        let line = line(".")
+        let currentColumn = col('.')
+        
+        if line == s:lastRefreshInfo.line && currentColumn == s:lastRefreshInfo.col
+            if s:lastRefreshInfo.count > g:extropy_max_refresh
+                return
+            else
+                let s:lastRefreshInfo.count = s:lastRefreshInfo.count + 1
+            endif
+        else
+            let s:lastRefreshInfo = { 'line': line, 'col': currentColumn, 'count': 0 }
+        endif
+
         " Get delta between current column and completion base. Make sure the
         " user has typed some amount of characters
-        let currentColumn = col('.')
         if extropy#omnicomplete#hasomni()
             execute("let base = " . &omnifunc . "(1, 0)")
         else
             let base = extropy#omnicomplete#getDefaultMeet()
         endif
-            let delta = currentColumn - base
 
-        if delta >= 2
+        let delta = currentColumn - base
+
+        if delta >= 2 || a:forceRefresh
             call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
         endif
     endif
 endfunction
-
 
 function! extropy#omnicomplete#hasomni()
     return &omnifunc != ""
@@ -58,25 +71,16 @@ function! extropy#omnicomplete#startAutocomplete()
     let s:isAutoCompleting = 0
 endfunction
 
-function! extropy#omnicomplete#completeEnd()
-    " let s:isAutoCompleting = 1
-endfunction
-
 function! extropy#omnicomplete#setCachedCompletion(completionEntries)
-    echom "cached completion".a:completionEntries
-
     let splitted = join(split(a:completionEntries, "\\"), "")
 
     execute "let s:cachedCompletion = ". splitted
     let s:completionEntries = s:cachedCompletion
-    " for entry in s:cachedCompletion
-    "     call complete_add(entry)
-    " endfor
-    " let s:isAutoCompleting = 1
-    " echom string(s:cachedCompletion)
-    " call feedkeys("\<Esc>")
-    " call feedkeys("a")
 
+    " Force refresh, because we have updated autocomplete values
+    " 
+    " Seems like this is causing problems with indenting - disabling for now.
+    call extropy#omnicomplete#refreshOmnicomplete(1)
 endfunction
 
 
@@ -87,12 +91,6 @@ function! extropy#omnicomplete#completeAdd(completionEntries)
 
     execute "let localDerp=".splitted
     let s:completionEntries = localDerp
-    " for completion in localDerp
-        " echom "Calling completeadd"
-        " call complete_add(completion)
-    " endfor
-
-    call extropy#omnicomplete#completeEnd()
 endfunction
 
 function! extropy#omnicomplete#getDefaultMeet()
@@ -106,9 +104,9 @@ function! extropy#omnicomplete#getDefaultMeet()
 
     " Don't autocomplete starting a string
     if start > 0
-        if line[start] == '"' || line[start] == "'"
-            echom "HIT THIS CASE"
-            let start = -1
+        if line[start] == '"' || line[start] == "'" || line[start] == "(" || line[start] == ")" || line[start-1] == ";"
+            " -3 says to leave completion mode
+            let start = -3
         endif
     endif
     return start
@@ -132,8 +130,10 @@ function! extropy#omnicomplete#complete(findstart, base)
             " Not valid, new completion
             let s:completionEntries = []
             let s:isAutoCompleting = 0
-            call extropy#js#notifyBufferUpdated()
-            call extropy#omnicomplete#startAutocomplete()
+            if start >= 0
+                call extropy#js#notifyBufferUpdated()
+                call extropy#omnicomplete#startAutocomplete()
+            endif
         endif
 
         let s:lastCompletion.line = lineNumber
@@ -144,7 +144,7 @@ function! extropy#omnicomplete#complete(findstart, base)
         return start
     else
         let ret = []
-        if len(a:base) <= 0
+        if len(a:base) < 0
             return ret
         endif
 
@@ -153,10 +153,14 @@ function! extropy#omnicomplete#complete(findstart, base)
             call add(ret, a:base)
             call add(ret, a:base."...")
         else
-            " echom string(s:completionEntries)
             for completion in s:completionEntries
-                " echom string(completion)
-                if completion =~# '^' .a:base
+                if type(completion) == 1
+                    let testWord = completion
+                else 
+                    let testWord = completion.word
+                endif
+
+                if testWord =~# '^' .a:base
                     call add(ret, completion)
                     " call complete_add(completion)
                 endif
@@ -165,41 +169,5 @@ function! extropy#omnicomplete#complete(findstart, base)
         let g:extropy_omnicomplete_debugdata.lastBase = a:base
         let g:extropy_omnicomplete_debugdata.lastCompletions = ret
         return ret
-    endif
-endfun
-
-
-
-function! extropy#omnicomplete#test_completion(findstart, base)
-    let line = getline('.')
-    let lineNumber = line(".")
-    let col = col('.')
-    if a:findstart
-        " locate the start of the word
-        let start = col - 1
-        while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
-            let start -= 1
-        endwhile
-
-        if s:lastCompletion.line == lineNumber  && s:lastCompletion.col == start
-        else
-            let s:cachedCompletion = []
-        endif
-
-        let s:lastCompletion.line = lineNumber
-        let s:lastCompletion.col = start
-        return start
-    else
-        if len(s:cachedCompletion) > 0
-            echom "Got cached completion"
-            return s:cachedCompletion
-        else
-            let omniCompleteState = { "currentBuffer": expand("%:p"), "line": line, "col": col, "byte": line2byte(lineNumber) + col }
-            let omniCompleteState.base = a:base
-            call extropy#omnicomplete#startAutocomplete()
-            call complete_add(a:base)
-            call complete_add(a:base."...")
-            return [a:base, a:base."..."]
-        endif
     endif
 endfun

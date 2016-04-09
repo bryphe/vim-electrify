@@ -34,7 +34,7 @@ export default class Plugin {
 
         // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
         // Instead of a separate process - maybe we could use the 'cluster' module?
-        this._pluginProcess = childProcess.spawn("node",  [pluginShimPath, "--apipath="+apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
+        this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
 
         this._rl = readline.createInterface({
             input: this._pluginProcess.stdout,
@@ -49,24 +49,30 @@ export default class Plugin {
         this._rl.on("line", (msg) => {
             console.log("Got rl line");
             var data = null;
-           try {
+            try {
                 data = JSON.parse(msg);
-           } catch(ex) { }
+            } catch (ex) { }
 
-           if(data && data.type) {
-               if(data.type == "command") {
+            if (data && data.type) {
+                if (data.type == "command") {
 
-                var command = data.command.split("\"").join("\\\"");
-                console.log("got command: " + command);
-                var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore"});
-                return;
-                   } else if(data.type == "log") {
+                    var command = data.command.split("\"").join("\\\"");
+                    console.log("got command: " + command);
+                    try {
+
+                        var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
+                    }
+                    catch(ex) {
+                        console.log("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
+                    }
+                    return;
+                } else if (data.type == "log") {
                     console.log("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
                     return;
-                   }
-           }
+                }
+            }
 
-           console.log(colors.red("UNHANDLED MESSAGE: " + msg));
+            console.log(colors.red("UNHANDLED MESSAGE: " + msg));
         });
 
         this._pluginProcess.on("exit", () => {
