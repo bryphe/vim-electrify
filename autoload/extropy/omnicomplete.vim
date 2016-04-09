@@ -6,7 +6,7 @@ let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableAutocomplete()
     set omnifunc=extropy#omnicomplete#complete
-    set completeopt=menuone,preview
+    set completeopt=longest,menuone,preview
 
     inoremap <silent> <Plug>(extropy_nodejs_start_completion) <C-x><C-o>
 
@@ -121,16 +121,16 @@ function! extropy#omnicomplete#complete(findstart, base)
         if len(a:base) <= 0
             return ret
         endif
-        call add(ret, a:base)
 
         " TODO: Refactor to use common state code
         if len(s:completionEntries) == 0
+            call add(ret, a:base)
             call add(ret, a:base."...")
         else
             " echom string(s:completionEntries)
             for completion in s:completionEntries
                 " echom string(completion)
-                if completion =~ '^' .a:base
+                if completion =~# '^' .a:base
                     call add(ret, completion)
                     " call complete_add(completion)
                 endif
