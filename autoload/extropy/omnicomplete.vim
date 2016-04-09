@@ -4,11 +4,23 @@ let s:lastCompletion = { 'line': -1, 'col': -1 }
 
 let s:cachedCompletion = []
 
-function! extropy#omnicomplete#enableAutocomplete()
-    set omnifunc=extropy#omnicomplete#complete
+function! extropy#omnicomplete#enableKeywordAutocompletion()
     set completeopt=longest,menuone,preview
+    call extropy#omnicomplete#enableAutocomplete("<C-p>")
+endfunction
 
-    inoremap <silent> <Plug>(extropy_nodejs_start_completion) <C-x><C-o>
+function! extropy#omnicomplete#enableOmniAutocompletion()
+    call extropy#omnicomplete#enableAutocomplete("<C-x><C-o>")
+endfunction
+
+function! extropy#omnicomplete#enableNodeAutocompletion()
+    set completeopt=longest,menuone,preview
+    set omnifunc=extropy#omnicomplete#complete
+    call extropy#omnicomplete#enableOmniAutocompletion()
+endfunction
+
+function! extropy#omnicomplete#enableAutocomplete(completionKeys)
+    execute("inoremap <silent> <Plug>(extropy_nodejs_start_completion) ". a:completionKeys)
 
     augroup ExtropyNodeAutoCompleteGroup
         autocmd!
@@ -16,17 +28,20 @@ function! extropy#omnicomplete#enableAutocomplete()
     augroup END
 endfunction
 
-
 function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
     let shouldRefresh = !pumvisible() || a:forceRefresh
     echom shouldRefresh
     if mode() == "i" && shouldRefresh
         " Get delta between current column and completion base. Make sure the
         " user has typed some amount of characters
-        execute("let base = " . &omnifunc . "(1, 0)")
         let currentColumn = col('.')
-        let delta = currentColumn - base
-        " echom "Delta: " . delta
+        if extropy#omnicomplete#hasomni()
+            execute("let base = " . &omnifunc . "(1, 0)")
+        else
+            let base = extropy#omnicomplete#getDefaultMeet()
+        endif
+            let delta = currentColumn - base
+
         if delta >= 2
             call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
         endif
@@ -34,6 +49,9 @@ function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
 endfunction
 
 
+function! extropy#omnicomplete#hasomni()
+    return &omnifunc != ""
+endfunction
 
 function! extropy#omnicomplete#startAutocomplete()
     call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/omnicomplete/start")
@@ -77,6 +95,25 @@ function! extropy#omnicomplete#completeAdd(completionEntries)
     call extropy#omnicomplete#completeEnd()
 endfunction
 
+function! extropy#omnicomplete#getDefaultMeet()
+    " locate the start of the word
+    let line = getline('.')
+    let col = col('.')
+    let start = col - 1
+    while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
+        let start -= 1
+    endwhile
+
+    " Don't autocomplete starting a string
+    if start > 0
+        if line[start] == '"' || line[start] == "'"
+            echom "HIT THIS CASE"
+            let start = -1
+        endif
+    endif
+    return start
+endfunction
+
 function! extropy#omnicomplete#complete(findstart, base)
     let line = getline('.')
     let lineNumber = line(".")
@@ -85,18 +122,7 @@ function! extropy#omnicomplete#complete(findstart, base)
         call extropy#js#notifyBufferUpdated()
 
         " locate the start of the word
-        let start = col - 1
-        while start > 0 && line[start - 1] =~# '\v[a-zA-z0-9_]'
-            let start -= 1
-        endwhile
-
-        " Don't autocomplete starting a string
-        if start > 0
-            if line[start] == '"' || line[start] == "'"
-                echom "HIT THIS CASE"
-                let start = -1
-            endif
-        endif
+        let start = extropy#omnicomplete#getDefaultMeet()
 
         " If this isn't the same cached completion, relookup
         if s:lastCompletion.line == lineNumber  && s:lastCompletion.col == start

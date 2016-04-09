@@ -23,7 +23,3 @@ endif
 
 call extropy#js#initializeEventListeners()
 call extropy#js#start()
-
-if g:extropy_nodejs_enable_acp == 1
-    call extropy#omnicomplete#enableAutocomplete()
-endif
