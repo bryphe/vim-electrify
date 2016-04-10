@@ -21,5 +21,7 @@ if !exists("g:extropy_nodejs_enable_acp")
     let g:extropy_nodejs_enable_acp = 1
 endif
 
+let g:extropy_nodeplugins_debugmode = 0
+
 call extropy#js#initializeEventListeners()
 call extropy#js#start()

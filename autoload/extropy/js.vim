@@ -14,6 +14,7 @@ import os
 import vim
 
 serverPath = vim.eval("s:serverJsPath")
+debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 
 def isServerActive():
     active = False
@@ -30,7 +31,8 @@ shouldStartServer = not isServerActive()
 if shouldStartServer == True:
 
     startupinfo = subprocess.STARTUPINFO()
-    startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+    if debugMode == "0":
+        startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 
     # TODO: Pass in port specified in config
     subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
