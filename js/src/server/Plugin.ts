@@ -38,6 +38,9 @@ export default class Plugin {
         this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
 
         log.info("Plugin created: " + this._pluginName + " | " + this._pluginProcess.pid);
+        log.info("-- Path: " + this._pluginPath);
+        log.info("-- Working directory: " + pluginWorkingDirectory);
+
         this._rl = readline.createInterface({
             input: this._pluginProcess.stdout,
             output: this._pluginProcess.stdin
