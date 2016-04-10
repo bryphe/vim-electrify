@@ -5,12 +5,13 @@ import os = require("os");
 
 import omni = require("./IOmniCompleter");
 
+declare var log;
+
 export default class Vim extends events.EventEmitter {
 
     private _serverName: string;
     private _commandNameToFunction = {};
     private _pluginName: string;
-    private _log = new Log();
 
     private _omniCompleters: omni.IOmniCompleter[] = [];
 
@@ -18,7 +19,6 @@ export default class Vim extends events.EventEmitter {
         super();
         this._serverName = serverName;
         this._pluginName = pluginName;
-
 
         var stdin = (<any>process).openStdin();
         stdin.on("data",  (commandInfo) =>  {
@@ -32,6 +32,7 @@ export default class Vim extends events.EventEmitter {
 
     public get pluginName(): string {
         return this._pluginName;
+
     }
 
     public addCommand(name: string, callbackFunction: Function): void {
@@ -57,13 +58,8 @@ export default class Vim extends events.EventEmitter {
         var commandToSend = {
             type: "command",
             command: command
-        }
-        this._sendCommand(commandToSend);
-    }
-
-    private _sendCommand(command: any) {
-        // The other process listens on stdin
-        console.log(JSON.stringify(command) + os.EOL);
+        };
+        Command.sendCommand(commandToSend);
     }
 
     private _executeEvent(command: any): void {
@@ -77,7 +73,7 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _startOmniCompletion(omniInfo: any): void {
-        this._log.verbose("Omnicompletion: starting");
+        log.verbose("Omnicompletion: starting");
         var promises = [];
 
         this._omniCompleters.forEach((completer) => {
@@ -91,20 +87,20 @@ export default class Vim extends events.EventEmitter {
             ret.forEach(r => {
                 allSuggestions = allSuggestions.concat(r);
             });
-            this._log.verbose(JSON.stringify(ret));
+            log.verbose(JSON.stringify(ret));
 
-
-            this._log.verbose("Omnicompletion: total values returned: " + allSuggestions.length);
+            log.info("Omnicompletion: total values returned: " + allSuggestions.length);
             this._rawExec("extropy#omnicomplete#setCachedCompletion('" + JSON.stringify(allSuggestions) + "')");
         });
     }
 
     private _updateOmniCompletion(omniInfo: any): void {
-        this._log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
+            log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
+            log.info("Received file update: " + omniInfo.lines.length + " lines.");
 
             var newContent = omniInfo.lines.join(os.EOL);
 
-            this._log.verbose(newContent);
+            log.verbose(newContent);
 
         this._omniCompleters.forEach((completer) => {
             completer.onFileUpdate(omniInfo.currentBuffer, newContent);
@@ -134,25 +130,50 @@ export default class Vim extends events.EventEmitter {
 }
 
 export class Log {
+
+    private _console;
+    constructor(console: any) {
+        this._console = console;
+    }
+
+    public debug(msg: string, properties?: any): void {
+        this._logCore(msg, "debug", properties);
+    }
+
     public verbose(msg: string, properties?: any): void {
-        
-        var commandToSend = {
-            type: "log",
-            logLevel: "verbose",
-            msg: msg,
-            properties: properties
-        }
-        console.log(JSON.stringify(commandToSend));
+        this._logCore(msg, "verbose", properties);
+    }
+
+    public info(msg: string, properties?: any): void {
+        this._logCore(msg, "info", properties);
+    }
+
+    public log(msg: string, properties?: any): void {
+        this._logCore(msg, "info", properties);
+    }
+
+    public warn(msg: string, properties?: any): void {
+        this._logCore(msg, "warn", properties);
     }
 
     public error(msg: string, properties?: any): void {
-
+        this._logCore(msg, "error", properties);
+    }
+    
+    private _logCore(msg: string, logLevel: string, properties?: any): void {
+        
         var commandToSend = {
             type: "log",
-            logLevel: "error",
+            logLevel: logLevel,
             msg: msg,
             properties: properties
         }
-        console.log(JSON.stringify(commandToSend));
+        Command.sendCommand(commandToSend);
+    }
+}
+
+export class Command {
+    public static sendCommand(commandToSend: any): void {
+        process.stdout.write(JSON.stringify(commandToSend) + os.EOL);
     }
 }

@@ -2,7 +2,7 @@ var express = require("express");
 var app = express();
 var os = require("os");
 var path = require("path");
-var log = require("winston");
+var log = require("./log");
 var bodyParser = require("body-parser");
 
 require("colors").enabled = true;
@@ -100,3 +100,12 @@ app.listen(3000, function () {
 });
 
 console.log("Server up-and-running4");
+
+
+process.on("error", (err) => {
+    console.log("error: ", err);
+});
+
+process.on("uncaughtException", (err) => {
+    console.log("error: ", err);
+});

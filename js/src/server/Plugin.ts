@@ -1,6 +1,7 @@
 import childProcess = require("child_process");
 import path = require("path");
 import readline = require("readline");
+import log = require("./log")
 
 var colors = require("colors/safe");
 
@@ -36,6 +37,7 @@ export default class Plugin {
         // Instead of a separate process - maybe we could use the 'cluster' module?
         this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
 
+        log.info("Plugin created: " + this._pluginName + " | " + this._pluginProcess.pid);
         this._rl = readline.createInterface({
             input: this._pluginProcess.stdout,
             output: this._pluginProcess.stdin
@@ -43,46 +45,47 @@ export default class Plugin {
 
         this._pluginProcess.stderr.on("data", (data, err) => {
             this._pluginProcess = null;
-            console.log("Error from process: " + data + "|" + err);
+            log.error("Error from process: " + data + "|" + err);
         });
 
         this._rl.on("line", (msg) => {
-            console.log("Got rl line");
             var data = null;
             try {
                 data = JSON.parse(msg);
-            } catch (ex) { }
+            } catch (ex) {
+                log.error(ex);
+            }
 
             if (data && data.type) {
                 if (data.type == "command") {
 
                     var command = data.command.split("\"").join("\\\"");
-                    console.log("got command: " + command);
+                    log.verbose("got command: " + command);
                     try {
-
                         var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
                     }
                     catch(ex) {
-                        console.log("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
+                        log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
                     }
                     return;
                 } else if (data.type == "log") {
-                    console.log("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
+                    var logLevel = data.logLevel || "warn";
+                    log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
                     return;
                 }
             }
 
-            console.log(colors.red("UNHANDLED MESSAGE: " + msg));
+            log.error(colors.red("UNHANDLED MESSAGE: " + msg));
         });
 
         this._pluginProcess.on("exit", () => {
             this._pluginProcess = null;
-            console.log("process disconnected");
+            log.error("process disconnected");
         });
     }
 
     public notifyEvent(eventName: string, eventArgs: any) {
-        console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
+        log.info(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
 
         var commandInfo = {
             type: "event",
