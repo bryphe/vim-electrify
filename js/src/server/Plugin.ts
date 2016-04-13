@@ -5,6 +5,7 @@ import log = require("./log")
 
 var colors = require("colors/safe");
 
+import IPluginConfiguration = require("./IPluginConfiguration");
 
 export default class Plugin {
 
@@ -13,11 +14,13 @@ export default class Plugin {
     private _pluginProcess: childProcess.ChildProcess;
     private _gvimServerName: string;
     private _rl: any;
+    private _config: IPluginConfiguration = null;
 
-    constructor(gvimServerName: string, pluginName: string, pluginPath: string) {
+    constructor(gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
+        this._config = config;
     }
 
     public start(): void {

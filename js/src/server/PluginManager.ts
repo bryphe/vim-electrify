@@ -4,6 +4,9 @@ import fs = require("fs");
 import glob = require("glob");
 import util = require("util");
 
+import IPluginConfiguration = require("./IPluginConfiguration");
+import PluginConfigurationParser = require("./PluginConfigurationParser");
+
 export default class PluginManager {
 
     private _gvimServerName: string;
@@ -31,15 +34,17 @@ export default class PluginManager {
         var main = packageInfo.main;
         var name = packageInfo.name;
         var version = packageInfo.version;
-        util.format("Loading plugin: %s %s %s", name, version, main);
+        var config = PluginConfigurationParser.getVimConfig(packageInfo);
+        console.log(util.format("Loading plugin: %s %s %s", name, version, main));
+        console.log("-Supported files: " + config.supportedFiles);
 
-        this.start(name, path.join(packageFilePath, "..", main))
+        this.start(name, path.join(packageFilePath, "..", main), config)
     }
 
-    public start(pluginName: string, pluginFilePath: string): void {
+    public start(pluginName: string, pluginFilePath: string, config: IPluginConfiguration): void {
         if(!this._pluginNameToInstance[pluginName]) {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
-            var plugin = new Plugin(this._gvimServerName, pluginName, pluginFilePath);
+            var plugin = new Plugin(this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
             this._pluginNameToInstance[pluginName] = plugin;
             return;
