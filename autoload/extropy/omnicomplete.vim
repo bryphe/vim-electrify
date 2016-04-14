@@ -2,6 +2,7 @@ let g:extropy_omnicomplete_debugdata = { }
 let s:isAutoCompleting = 0
 let s:lastCompletion = { 'line': -1, 'col': -1 }
 
+let s:dontStartAutocomplete = 0
 let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableKeywordAutocompletion()
@@ -35,6 +36,7 @@ function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
     if mode() == "i" && shouldRefresh
         let line = line(".")
         let currentColumn = col('.')
+        let lineText = getline('.')
         
         if line == s:lastRefreshInfo.line && currentColumn == s:lastRefreshInfo.col
             if s:lastRefreshInfo.count > g:extropy_max_refresh
@@ -49,14 +51,20 @@ function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
         " Get delta between current column and completion base. Make sure the
         " user has typed some amount of characters
         if extropy#omnicomplete#hasomni()
+            let s:dontStartAutocomplete = 1
             execute("let base = " . &omnifunc . "(1, 0)")
+            let s:dontStartAutocomplete = 0
         else
             let base = extropy#omnicomplete#getDefaultMeet()
         endif
 
         let delta = currentColumn - base
+        let currentCharacter = lineText[currentColumn-2]
+        " echom "Line: [" .lineText."] Character: ".currentCharacter." Column ".currentColumn. " Delta ".delta. " ForceRefresh ".a:forceRefresh
 
-        if delta >= 2 || a:forceRefresh
+        " TODO: Factor out into trigger characters
+        if delta > 1 || currentCharacter == "." || a:forceRefresh > 0
+            echom "Feeding keys"
             call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
         endif
     endif
@@ -121,6 +129,10 @@ function! extropy#omnicomplete#complete(findstart, base)
 
         " locate the start of the word
         let start = extropy#omnicomplete#getDefaultMeet()
+
+        if s:dontStartAutocomplete == 1
+            return start
+        endif
 
         " If this isn't the same cached completion, relookup
         if s:lastCompletion.line == lineNumber  && s:lastCompletion.col == start
