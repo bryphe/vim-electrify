@@ -1,6 +1,8 @@
 let g:extropy_omnicomplete_debugdata = { }
+let g:extropy_omnicomplete_autocomplete = 1
+
 let s:isAutoCompleting = 0
-let s:lastCompletion = { 'line': -1, 'col': -1 }
+let s:lastCompletion = {'base': '-2', 'line': -1, 'col': -1 }
 
 let s:dontStartAutocomplete = 0
 let s:cachedCompletion = []
@@ -19,7 +21,7 @@ function! extropy#omnicomplete#enableNodeAutocompletion()
 endfunction
 
 function! extropy#omnicomplete#enableAutocomplete(completionKeys)
-    set completeopt=noinsert,menuone,preview
+    set completeopt=noselect,noinsert,menuone,preview
     execute("inoremap <silent> <Plug>(extropy_nodejs_start_completion) ". a:completionKeys)
 
     augroup ExtropyNodeAutoCompleteGroup
@@ -29,7 +31,7 @@ function! extropy#omnicomplete#enableAutocomplete(completionKeys)
 endfunction
 
 let g:extropy_max_refresh = 1
-let s:lastRefreshInfo = { 'line': -1, 'col': -1, 'count': 0 }
+let s:lastRefreshInfo = {'base': '-2', 'line': -1, 'col': -1 }
 
 function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
     let shouldRefresh = !pumvisible() || a:forceRefresh
@@ -37,16 +39,6 @@ function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
         let line = line(".")
         let currentColumn = col('.')
         let lineText = getline('.')
-        
-        if line == s:lastRefreshInfo.line && currentColumn == s:lastRefreshInfo.col
-            if s:lastRefreshInfo.count > g:extropy_max_refresh
-                return
-            else
-                let s:lastRefreshInfo.count = s:lastRefreshInfo.count + 1
-            endif
-        else
-            let s:lastRefreshInfo = { 'line': line, 'col': currentColumn, 'count': 0 }
-        endif
 
         " Get delta between current column and completion base. Make sure the
         " user has typed some amount of characters
@@ -58,14 +50,27 @@ function! extropy#omnicomplete#refreshOmnicomplete(forceRefresh)
             let base = extropy#omnicomplete#getDefaultMeet()
         endif
 
+        " Don't re-load omnicomplete if we've started for that same base
+        if line == s:lastRefreshInfo.line && currentColumn == s:lastRefreshInfo.col
+            if s:lastRefreshInfo.count > g:extropy_max_refresh
+                return
+            else
+                let s:lastRefreshInfo.count = s:lastRefreshInfo.count + 1
+            endif
+        else
+            let s:lastRefreshInfo = { 'base': base, 'line': line, 'col': currentColumn, 'count': 0 }
+        endif
+
         let delta = currentColumn - base
         let currentCharacter = lineText[currentColumn-2]
-        " echom "Line: [" .lineText."] Character: ".currentCharacter." Column ".currentColumn. " Delta ".delta. " ForceRefresh ".a:forceRefresh
 
         " TODO: Factor out into trigger characters
-        if delta > 1 || currentCharacter == "." || a:forceRefresh > 0
-            echom "Feeding keys"
-            call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+        " Delta == 2 is important
+        if delta == 2 || currentCharacter == "." || a:forceRefresh > 0
+            call extropy#debug#logInfo("Feeding keys: Line: [" .lineText."] Character: ".currentCharacter." Column ".currentColumn. " Delta ".delta. " ForceRefresh ".a:forceRefresh ."pumvisible".pumvisible())
+            if g:extropy_omnicomplete_autocomplete == 1
+                call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+            endif
         endif
     endif
 endfunction
