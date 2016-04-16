@@ -21,7 +21,7 @@ export default class Vim extends events.EventEmitter {
         this._pluginName = pluginName;
 
         var stdin = (<any>process).openStdin();
-        stdin.on("data",  (commandInfo) =>  {
+        stdin.on("data", (commandInfo) => {
             this._handleCommand(commandInfo);
         });
     }
@@ -32,7 +32,6 @@ export default class Vim extends events.EventEmitter {
 
     public get pluginName(): string {
         return this._pluginName;
-
     }
 
     public addCommand(name: string, callbackFunction: Function): void {
@@ -81,7 +80,6 @@ export default class Vim extends events.EventEmitter {
         });
 
         Promise.all(promises).then((ret) => {
-
             var allSuggestions = [];
             ret = ret || [];
             ret.forEach(r => {
@@ -90,17 +88,27 @@ export default class Vim extends events.EventEmitter {
             log.verbose(JSON.stringify(ret));
 
             log.info("Omnicompletion: total values returned: " + allSuggestions.length);
-            this._rawExec("extropy#omnicomplete#setCachedCompletion('" + JSON.stringify(allSuggestions) + "')");
+
+            this._rawExec("extropy#omnicomplete#startRemoteCompletion()");
+            var batchSize = 100;
+
+            while (allSuggestions.length > 0) {
+                var suggestions = allSuggestions.splice(0, batchSize);
+                this._rawExec("extropy#omnicomplete#addRemoteCompletion('" + JSON.stringify(suggestions) + "')");
+                log.info("--Sending batch of size: " + suggestions.length);
+            }
+
+            this._rawExec("extropy#omnicomplete#endRemoteCompletion()");
         });
     }
 
     private _updateOmniCompletion(omniInfo: any): void {
-            log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
-            log.info("Received file update: " + omniInfo.lines.length + " lines.");
+        log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
+        log.info("Received file update: " + omniInfo.lines.length + " lines.");
 
-            var newContent = omniInfo.lines.join(os.EOL);
+        var newContent = omniInfo.lines.join(os.EOL);
 
-            log.verbose(newContent);
+        log.verbose(newContent);
 
         this._omniCompleters.forEach((completer) => {
             completer.onFileUpdate(omniInfo.currentBuffer, newContent);
@@ -111,19 +119,19 @@ export default class Vim extends events.EventEmitter {
         var command = null;
         try {
             command = JSON.parse(commandInfo);
-        } catch(ex) { 
+        } catch (ex) {
             console.log("Invalid data from server: " + commandInfo + "|" + ex);
         }
-        
-        if(command) {
 
-            if(command.type === "execute")
+        if (command) {
+
+            if (command.type === "execute")
                 this._executeCommand(command);
-            else if(command.type === "event")
+            else if (command.type === "event")
                 this._executeEvent(command);
-            else if(command.type === "omnicomplete")
+            else if (command.type === "omnicomplete")
                 this._startOmniCompletion(command.arguments);
-            else if(command.type === "omnicomplete-update")
+            else if (command.type === "omnicomplete-update")
                 this._updateOmniCompletion(command.arguments);
         }
     }
@@ -159,9 +167,9 @@ export class Log {
     public error(msg: string, properties?: any): void {
         this._logCore(msg, "error", properties);
     }
-    
+
     private _logCore(msg: string, logLevel: string, properties?: any): void {
-        
+
         var commandToSend = {
             type: "log",
             logLevel: logLevel,

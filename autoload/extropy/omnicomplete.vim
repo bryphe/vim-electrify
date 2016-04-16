@@ -5,7 +5,6 @@ let s:isAutoCompleting = 0
 let s:lastCompletion = {'base': '-2', 'line': -1, 'col': -1 }
 
 let s:dontStartAutocomplete = 0
-let s:cachedCompletion = []
 
 function! extropy#omnicomplete#enableKeywordAutocompletion()
     call extropy#omnicomplete#enableAutocomplete("<C-p>")
@@ -84,26 +83,21 @@ function! extropy#omnicomplete#startAutocomplete()
     let s:isAutoCompleting = 0
 endfunction
 
-function! extropy#omnicomplete#setCachedCompletion(completionEntries)
-    let splitted = join(split(a:completionEntries, "\\"), "")
-
-    execute "let s:cachedCompletion = ". splitted
-    let s:completionEntries = s:cachedCompletion
-
-    " Force refresh, because we have updated autocomplete values
-    " 
-    " Seems like this is causing problems with indenting - disabling for now.
-    call extropy#omnicomplete#refreshOmnicomplete(1)
+function! extropy#omnicomplete#startRemoteCompletion()
+    echom "Start"
+    let s:completionEntries = []
 endfunction
 
-
-
-function! extropy#omnicomplete#completeAdd(completionEntries)
-
+function! extropy#omnicomplete#addRemoteCompletion(completionEntries)
     let splitted = join(split(a:completionEntries, "\\"), "")
 
-    execute "let localDerp=".splitted
-    let s:completionEntries = localDerp
+    execute "let remoteCompletion = ". splitted
+    let s:completionEntries = s:completionEntries + remoteCompletion
+endfunction
+
+function! extropy#omnicomplete#endRemoteCompletion()
+    " Force refresh, because we have updated autocomplete values
+    call extropy#omnicomplete#refreshOmnicomplete(1)
 endfunction
 
 function! extropy#omnicomplete#getDefaultMeet()
