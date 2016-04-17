@@ -3,7 +3,7 @@
 " Set of commands that the node-vim interop layer can call back into
 
 function! extropy#command#execute(command)
-    :echom "Executing: ".a:command
+    call extropy#debug#logInfo("Executing: ".a:command)
     :execute a:command
     :redraw
 endfunction
@@ -13,7 +13,7 @@ function! extropy#command#echo(msg)
 endfunction
 
 function! extropy#command#createCommand(pluginName, commandName) 
-    echom "CreateCommand: " . a:pluginName . a:commandName
+    call extropy#debug#logInfo("CreateCommand: " . a:pluginName . a:commandName)
     execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"
 endfunction
 

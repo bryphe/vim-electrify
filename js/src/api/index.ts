@@ -4,6 +4,7 @@ import events = require("events");
 import os = require("os");
 
 import omni = require("./IOmniCompleter");
+import loclist = require("./ILocListEntry");
 
 declare var log;
 
@@ -51,6 +52,10 @@ export default class Vim extends events.EventEmitter {
 
     public echo(msg: string): void {
         this._rawExec("extropy#command#echo('" + msg + "')");
+    }
+
+    public setErrors(errors: loclist.ILocListEntry[]) {
+        this._rawExec("extropy#errors#set('" + JSON.stringify(errors) + "')")
     }
 
     private _rawExec(command: string) {

@@ -89,9 +89,7 @@ function! extropy#omnicomplete#startRemoteCompletion()
 endfunction
 
 function! extropy#omnicomplete#addRemoteCompletion(completionEntries)
-    let splitted = join(split(a:completionEntries, "\\"), "")
-
-    execute "let remoteCompletion = ". splitted
+    let remoteCompletion = extropy#js#deserialize(a:completionEntries)
     let s:completionEntries = s:completionEntries + remoteCompletion
 endfunction
 

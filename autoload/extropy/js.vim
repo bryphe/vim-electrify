@@ -107,11 +107,13 @@ python << EOF
 import vim
 path = vim.eval("a:path")
 currentBuffer = vim.eval("expand('%:p')")
+currentBufferNumber = vim.eval("bufnr('%')")
 line = vim.eval("line('.')")
 col = vim.eval("col('.')")
 byte = vim.eval("line2byte(line('.')) + col('.')")
 
 values = {
+"currentBufferNumber": currentBufferNumber,
 "currentBuffer": currentBuffer,
 "line": line,
 "col": col,
@@ -145,6 +147,7 @@ python << EOF
 import vim
 import json
 
+currentBufferNumber = vim.eval("bufnr('%')")
 currentBuffer = vim.eval("expand('%:p')")
 serverName = vim.eval("v:servername")
 
@@ -153,6 +156,7 @@ for line in vim.current.buffer:
     lines.append(line)
 
 args = {
+"currentBufferNumber": currentBufferNumber,
 "currentBuffer": currentBuffer,
 "lines": lines
 }
@@ -161,6 +165,12 @@ request = Request("/api/plugin/" + serverName + "/omnicomplete/update", args);
 request.send()
 
 EOF
+endfunction
+
+function! extropy#js#deserialize(obj)
+    let splitted = join(split(a:obj, "\\"), "")
+    execute "let remoteCompletion = ".splitted
+    return remoteCompletion
 endfunction
 
 function! extropy#js#isEnabled() 
