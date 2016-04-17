@@ -1,4 +1,3 @@
-
 export interface ILocListEntry {
     bufnr: number,
     lnum: number,
