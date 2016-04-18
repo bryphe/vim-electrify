@@ -52,7 +52,7 @@ function! extropy#js#initializeEventListeners()
         autocmd! CursorHoldI * :call extropy#js#notifyBufferUpdated()
         autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
         autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
-        autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved");
+        autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved")
         autocmd! CursorMovedI * :call extropy#js#notifyBufferEvent("CursorMovedI")
     augroup END
 endfunction
