@@ -13,7 +13,8 @@ function! extropy#command#echo(msg)
 endfunction
 
 function! extropy#command#echohl(msg, highlightGroup)
-    echohl a:highlightGroup
+    call extropy#debug#logInfo("echohl: ".a:msg. "|".a:highlightGroup)
+    execute "echohl ".a:highlightGroup
     echom a:msg
     echohl NONE
 endfunction

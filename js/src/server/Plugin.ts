@@ -2,6 +2,7 @@ import childProcess = require("child_process");
 import path = require("path");
 import readline = require("readline");
 import log = require("./log")
+import minimatch = require("minimatch");
 
 var colors = require("colors/safe");
 
@@ -82,7 +83,7 @@ export default class Plugin {
                     try {
                         var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
                     }
-                    catch(ex) {
+                    catch (ex) {
                         log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
                     }
                     return;
@@ -103,7 +104,7 @@ export default class Plugin {
     }
 
     public notifyEvent(eventName: string, eventArgs: any) {
-        log.info(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
+        log.verbose(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
 
         var commandInfo = {
             type: "event",
@@ -111,7 +112,7 @@ export default class Plugin {
             callContext: eventArgs
         };
 
-        this._writeToPlugin(commandInfo);
+        this._writeToPlugin(commandInfo, eventArgs.currentBuffer);
     }
 
     public startOmniComplete(omniCompletionArgs: any): void {
@@ -120,7 +121,7 @@ export default class Plugin {
             arguments: omniCompletionArgs
         };
 
-        this._writeToPlugin(commandInfo);
+        this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
     }
 
     public updateOmniComplete(updateOmniCompletionArgs: any): void {
@@ -129,7 +130,7 @@ export default class Plugin {
             arguments: updateOmniCompletionArgs
         };
 
-        this._writeToPlugin(commandInfo);
+        this._writeToPlugin(commandInfo, updateOmniCompletionArgs.currentBuffer);
     }
 
     public execute(commandName: string, callContext: any) {
@@ -138,11 +139,32 @@ export default class Plugin {
             command: commandName,
             callContext: callContext
         };
-        this._writeToPlugin(commandInfo);
+        this._writeToPlugin(commandInfo, callContext.currentBuffer);
     }
 
-    private _writeToPlugin(command: any): void {
-        if (this._pluginProcess)
-            this._pluginProcess.stdin.write(JSON.stringify(command));
+    private _writeToPlugin(command: any, bufferName: string): void {
+        if (this._pluginProcess) {
+
+            if (this._isCommandHandled(bufferName)) {
+                this._pluginProcess.stdin.write(JSON.stringify(command));
+            } else {
+                log.info("Command ignored for buffer: " + command.callContext.currentBuffer);
+            }
+        }
     }
+
+    private _isCommandHandled(bufferName: string): boolean {
+        if (!bufferName)
+            return false;
+
+        if (this._config.supportedFiles) {
+            var anyMatches = false;
+
+            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(bufferName, fileFilter, { matchBase: true }));
+            return matches.length > 0;
+        } else {
+            return true;
+        }
+    }
+
 }
