@@ -54,6 +54,10 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("extropy#command#echo('" + msg + "')");
     }
 
+    public echohl(msg: string, highlightGroup: string): void {
+        this._rawExec("extropy#command#echohl('" + msg + "', '" + highlightGroup + "')");
+    }
+
     public setErrors(errors: loclist.ILocListEntry[]) {
         this._rawExec("extropy#errors#set('" + JSON.stringify(errors) + "')")
     }

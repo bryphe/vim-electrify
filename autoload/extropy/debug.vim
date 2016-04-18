@@ -24,3 +24,8 @@ function! extropy#debug#logInfo(msg)
     call extropy#debug#_log(3, a:msg)
 endfunction
 
+function! extropy#debug#restartInDebugMode()
+    let g:extropy_nodeplugins_debugmode = 1
+    call extropy#js#restartServer()
+endfunction
+

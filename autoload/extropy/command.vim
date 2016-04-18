@@ -12,6 +12,12 @@ function! extropy#command#echo(msg)
     echom a:msg
 endfunction
 
+function! extropy#command#echohl(msg, highlightGroup)
+    echohl a:highlightGroup
+    echom a:msg
+    echohl NONE
+endfunction
+
 function! extropy#command#createCommand(pluginName, commandName) 
     call extropy#debug#logInfo("CreateCommand: " . a:pluginName . a:commandName)
     execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"

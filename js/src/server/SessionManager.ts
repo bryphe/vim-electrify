@@ -18,6 +18,14 @@ export default class SessionManager {
         return newSession;
     }
 
+    public getSession(sessionName: string): Session {
+        if (!this._sessions[sessionName]) {
+            return null;
+        }
+
+        return this._sessions[sessionName];
+    }
+
     public endSession(sessionName: string): void {
         // TODO: Clean up all plugins and close gracefully. 
         // Need to make sure the results don't conflict with another session

@@ -64,6 +64,22 @@ app.post("/api/plugin/:serverName/omnicomplete/start", (req, res) => {
     res.send("done");
 });
 
+app.get("/api/plugin/:serverName", (req, res) => {
+
+    var session = sessionManager.getSession(req.params.serverName);
+    var plugins = session.plugins.getAllPlugins();
+
+    var out = "";
+    plugins.forEach((plugin) => {
+        out += plugin.pluginName + os.EOL;
+        out += "** Path: " + plugin.pluginPath + os.EOL;
+        out += "** Process: " + plugin.process.pid + os.EOL;
+        out += os.EOL;
+    });
+
+    res.send(out);
+});
+
 // Notify omnicompletion that a file has been updated
 app.post("/api/plugin/:serverName/omnicomplete/update", (req, res) => {
     console.log("update omnicomplete");

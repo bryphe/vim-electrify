@@ -16,6 +16,18 @@ export default class Plugin {
     private _rl: any;
     private _config: IPluginConfiguration = null;
 
+    public get process(): childProcess.ChildProcess {
+        return this._pluginProcess;
+    }
+
+    public get pluginName(): string {
+        return this._pluginName;
+    }
+
+    public get pluginPath(): string {
+        return this._pluginPath;
+    }
+
     constructor(gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
