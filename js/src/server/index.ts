@@ -4,6 +4,7 @@ var os = require("os");
 var path = require("path");
 var log = require("./log");
 var bodyParser = require("body-parser");
+var io = require("socket.io");
 
 require("colors").enabled = true;
 
@@ -117,6 +118,11 @@ app.listen(3000, function () {
 
 console.log("Server up-and-running4");
 
+// io.listen("3001");
+
+// io.sockets.on("connection", (socket) => {
+//     console.log("A user connected!");
+// });
 
 process.on("error", (err) => {
     console.log("error: ", err);

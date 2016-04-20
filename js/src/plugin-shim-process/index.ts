@@ -1,5 +1,13 @@
 import fs = require("fs");
 
+var socket = require("socket.io-client")("http://localhost:3001");
+
+socket.on("connect", () => {
+
+});
+
+socket.emit("test");
+
 var argv = require("minimist")(process.argv.slice(2));
 
 var serverName = argv.servername;

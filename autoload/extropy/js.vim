@@ -2,6 +2,9 @@ let s:plugindir = expand('<sfile>:p:h:h:h')
 let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
 let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 
+" Tracking if there was an error connecting to the server
+let s:isServerError = 0
+
 function! extropy#js#start()
     if extropy#js#isEnabled() == 0
         return
@@ -70,6 +73,7 @@ endfunction
 
 function! extropy#js#restartServer()
     call extropy#js#stopServer()
+    let s:isServerError = 0
     call extropy#js#start()
 endfunction
 
@@ -88,6 +92,7 @@ class Request:
         self._arguments = arguments
 
     def send(self):
+        ret = 1
         headers = { "Content-Type": "application/json"}
 
         data = json.dumps(self._arguments)
@@ -96,15 +101,24 @@ class Request:
             req = urllib2.Request("http://127.0.0.1:3000" + self._path, data, headers)
             response = urllib2.urlopen(req)
         except:
-            print "NodeJS: There was an error communicating with NodeJS plugin server"
+            ret = 0
             pass
+
+        return ret
 EOF
 
 function! extropy#js#executeRemoteCommand(path)
+    call extropy#debug#logInfo("executeRemoteCommand: ".a:path)
     if extropy#js#isEnabled() == 0
+        call extropy#debug#logInfo("--disabled")
         return
-
     endif
+
+    if extropy#js#checkIfErrorAndShowMessage() == 1
+        call extropy#debug#logInfo("--error state")
+        return
+    endif
+
 python << EOF
 import vim
 path = vim.eval("a:path")
@@ -123,27 +137,34 @@ values = {
 }
 
 request = Request(path, values)
-request.send()
+sendResult = request.send()
+wasError = 0 if sendResult == 1 else 1
 
+vim.command("let s:isServerError = " + str(wasError))
 
 EOF
+call extropy#debug#logInfo("Error state after call:".s:isServerError)
 endfunction
 
 function! extropy#js#notifyBufferUpdated()
 
-if extropy#js#isEnabled() == 0
-    return
-endif
+    if extropy#js#isEnabled() == 0
+        return
+    endif
 
-if !exists("b:extropy_change_tick")
-    let b:extropy_change_tick = -1
-endif
+    if extropy#js#checkIfErrorAndShowMessage() == 1
+        return
+    endif
 
-if b:changedtick == b:extropy_change_tick
-    return
-endif
+    if !exists("b:extropy_change_tick")
+        let b:extropy_change_tick = -1
+    endif
 
-let b:extropy_change_tick = b:changedtick
+    if b:changedtick == b:extropy_change_tick
+        return
+    endif
+
+    let b:extropy_change_tick = b:changedtick
 
 python << EOF
 import vim
@@ -177,4 +198,17 @@ endfunction
 
 function! extropy#js#isEnabled() 
     return g:extropy_nodejs_enabled
+endfunction
+
+function! extropy#js#clearError()
+    let s:isServerError = 0
+endfunction
+
+function! extropy#js#checkIfErrorAndShowMessage()
+    if s:isServerError == 1
+        echohl WarningMsg
+        echom "ExNodeJs: There was a problem connecting to the server."
+        echohl NONE
+    endif
+    return s:isServerError
 endfunction

@@ -17,7 +17,7 @@ function! extropy#debug#openLogs()
 endfunction
 
 function! extropy#debug#_log(level, msg)
-    call add(s:logs, { 'level': a:level, 'message': a:msg})
+    call add(s:logs, { 'level': a:level, 'message': a:msg."|".expand("%:p")})
 endfunction
 
 function! extropy#debug#logInfo(msg)

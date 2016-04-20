@@ -148,7 +148,7 @@ export default class Plugin {
             if (this._isCommandHandled(bufferName)) {
                 this._pluginProcess.stdin.write(JSON.stringify(command));
             } else {
-                log.info("Command ignored for buffer: " + command.callContext.currentBuffer);
+                log.info("Command ignored for buffer: " + bufferName);
             }
         }
     }
