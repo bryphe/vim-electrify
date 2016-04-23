@@ -73,8 +73,12 @@ endfunction
 
 function! extropy#js#restartServer()
     call extropy#js#stopServer()
-    let s:isServerError = 0
+    call extropy#js#clearServerError()
     call extropy#js#start()
+endfunction
+
+function! extropy#js#clearServerError() 
+    let s:isServerError = 0
 endfunction
 
 function! extropy#js#stopServer()

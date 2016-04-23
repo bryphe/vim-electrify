@@ -16,6 +16,7 @@ export default class Plugin {
     private _gvimServerName: string;
     private _rl: any;
     private _config: IPluginConfiguration = null;
+    private _io: any;
 
     public get process(): childProcess.ChildProcess {
         return this._pluginProcess;
@@ -29,12 +30,36 @@ export default class Plugin {
         return this._pluginPath;
     }
 
-    constructor(gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+    constructor(io: any, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
         this._config = config;
+        this._io = io;
+
+        // this._io.on("message", (message) => this._handleMessage(message));
     }
+
+    // public handleMessage(message: any) {
+    //     if (data && data.type) {
+    //         if (data.type == "command") {
+
+    //             var command = data.command.split("\"").join("\\\"");
+    //             log.verbose("got command: " + command);
+    //             try {
+    //                 var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
+    //             }
+    //             catch (ex) {
+    //                 log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
+    //             }
+    //             return;
+    //         } else if (data.type == "log") {
+    //             var logLevel = data.logLevel || "warn";
+    //             log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
+    //             return;
+    //         }
+    //     }
+    // }
 
     public start(): void {
         if (this._pluginProcess)
@@ -57,6 +82,13 @@ export default class Plugin {
         log.info("-- Path: " + this._pluginPath);
         log.info("-- Working directory: " + pluginWorkingDirectory);
 
+        var nsp = this._io.of("/" + this._pluginProcess.pid);
+        nsp.on("connection", (socket) => {
+            console.log("nsp connection"); 
+            socket.on("message", () => {
+                console.log("nsp message");
+            });
+        });
         this._rl = readline.createInterface({
             input: this._pluginProcess.stdout,
             output: this._pluginProcess.stdin
@@ -146,7 +178,8 @@ export default class Plugin {
         if (this._pluginProcess) {
 
             if (this._isCommandHandled(bufferName)) {
-                this._pluginProcess.stdin.write(JSON.stringify(command));
+                this._io.sockets.in(this._pluginProcess.pid).emit("command", command);
+                // this._pluginProcess.stdin.write(JSON.stringify(command));
             } else {
                 log.info("Command ignored for buffer: " + bufferName);
             }

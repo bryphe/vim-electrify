@@ -11,9 +11,12 @@ export default class PluginManager {
 
     private _gvimServerName: string;
     private _pluginNameToInstance = {};
+    private _io: any;
 
-    constructor(gvimServerName: string) {
+    constructor(gvimServerName: string, io: any) {
         this._gvimServerName = gvimServerName;
+        this._io = io;
+
         this.loadGlobalPlugins();
     }
 
@@ -44,7 +47,7 @@ export default class PluginManager {
     public start(pluginName: string, pluginFilePath: string, config: IPluginConfiguration): void {
         if(!this._pluginNameToInstance[pluginName]) {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
-            var plugin = new Plugin(this._gvimServerName, pluginName, pluginFilePath, config);
+            var plugin = new Plugin(this._io, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
             this._pluginNameToInstance[pluginName] = plugin;
             return;

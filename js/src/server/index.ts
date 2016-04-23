@@ -1,16 +1,17 @@
 var express = require("express");
 var app = express();
+var server = require("http").createServer(app);
+var io = require("socket.io")(server, { path: "/vim-node-plugins/socket.io" });
 var os = require("os");
 var path = require("path");
 var log = require("./log");
 var bodyParser = require("body-parser");
-var io = require("socket.io");
 
 require("colors").enabled = true;
 
 import SessionManager from "./SessionManager"
 
-var sessionManager = new SessionManager();
+var sessionManager = new SessionManager(io);
 
 // TODO: Handle creating session
 
@@ -112,17 +113,16 @@ app.post("/api/stop", function(req, res) {
     process.exit();
 });
 
-app.listen(3000, function () {
-    console.log("Listening on 3000");
+
+io.on("connection", (socket) => {
+    log.info("A socket connected.");
+
+    socket.on("room", (room) => {
+        log.info("Socket joining room: " + room);
+        socket.join(room);
+    });
+
 });
-
-console.log("Server up-and-running4");
-
-// io.listen("3001");
-
-// io.sockets.on("connection", (socket) => {
-//     console.log("A user connected!");
-// });
 
 process.on("error", (err) => {
     console.log("error: ", err);
@@ -131,3 +131,6 @@ process.on("error", (err) => {
 process.on("uncaughtException", (err) => {
     console.log("error: ", err);
 });
+
+server.listen(3000);
+console.log("Server up-and-running|" + process.pid);

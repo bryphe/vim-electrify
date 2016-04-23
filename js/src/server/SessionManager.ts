@@ -4,7 +4,12 @@ var log = require("winston");
 
 export default class SessionManager {
 
+    private _io: any;
     private _sessions = {};
+
+    constructor(io: any) {
+        this._io = io;
+    }
 
     public getOrCreateSession(sessionName: string): Session {
         if (this._sessions[sessionName]) {
@@ -13,7 +18,7 @@ export default class SessionManager {
         }
 
         log.info("Creating new session: " + sessionName);
-        var newSession = new Session(sessionName);
+        var newSession = new Session(sessionName, this._io);
         this._sessions[sessionName] = newSession;
         return newSession;
     }

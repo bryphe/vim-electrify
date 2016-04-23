@@ -6,6 +6,9 @@ import os = require("os");
 import omni = require("./IOmniCompleter");
 import loclist = require("./ILocListEntry");
 
+// TODO: Take in port
+var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io"});
+
 declare var log;
 
 export default class Vim extends events.EventEmitter {
@@ -21,10 +24,18 @@ export default class Vim extends events.EventEmitter {
         this._serverName = serverName;
         this._pluginName = pluginName;
 
-        var stdin = (<any>process).openStdin();
-        stdin.on("data", (commandInfo) => {
-            this._handleCommand(commandInfo);
+        socket.on("connect", () => {
+            socket.emit("room", process.pid);
         });
+
+        socket.on("command", (args) => {
+            console.log("Received command: " + args.type);
+            this._handleCommand(args);
+        });
+
+        setInterval(() => {
+            socket.emit("message", "test");
+        }, 3000);
     }
 
     public get serverName(): string {
@@ -124,16 +135,8 @@ export default class Vim extends events.EventEmitter {
         });
     }
 
-    private _handleCommand(commandInfo: any): void {
-        var command = null;
-        try {
-            command = JSON.parse(commandInfo);
-        } catch (ex) {
-            console.log("Invalid data from server: " + commandInfo + "|" + ex);
-        }
-
+    private _handleCommand(command: any): void {
         if (command) {
-
             if (command.type === "execute")
                 this._executeCommand(command);
             else if (command.type === "event")
