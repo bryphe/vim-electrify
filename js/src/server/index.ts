@@ -6,6 +6,7 @@ var os = require("os");
 var path = require("path");
 var log = require("./log");
 var bodyParser = require("body-parser");
+var net = require("net");
 
 require("colors").enabled = true;
 
@@ -134,3 +135,23 @@ process.on("uncaughtException", (err) => {
 
 server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
+
+var tcpServer = net.createServer((tcpSocket) => {
+    console.log("tcp: client connected");
+
+    tcpSocket.on("data", (data) => {
+        var dataAsString = data.toString("utf8");
+        console.log("tcp: received data: " + data);
+    });
+
+    tcpSocket.on("close", () => {
+        console.log("tcp: close");
+    });
+
+    tcpSocket.on("error", (err) => {
+        console.log("tcp: disconnect");
+    });
+
+});
+
+tcpServer.listen(4001, "127.0.0.1");

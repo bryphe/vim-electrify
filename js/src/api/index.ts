@@ -7,7 +7,7 @@ import omni = require("./IOmniCompleter");
 import loclist = require("./ILocListEntry");
 
 // TODO: Take in port
-var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io"});
+var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io" });
 
 declare var log;
 
@@ -31,7 +31,6 @@ export default class Vim extends events.EventEmitter {
         socket.on("disconnect", () => {
             process.exit();
         });
-
 
         socket.on("command", (args) => {
             console.log("Received command: " + args.type);
