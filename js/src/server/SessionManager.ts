@@ -37,6 +37,9 @@ export default class SessionManager {
         
         log.info("Deleting session: " + sessionName);
         if (this._sessions[sessionName]) {
+            var session = this._sessions[sessionName];
+            session.dispose();
+            session = null;
             delete this._sessions[sessionName];
         }
     }

@@ -100,4 +100,9 @@ export default class PluginManager {
             plugin.notifyEvent(eventName, eventArgs);
         });
     }
+
+    public dispose(): void {
+        this.getAllPlugins()
+            .forEach((plugin) => plugin.dispose());
+    }
 }

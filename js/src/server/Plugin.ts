@@ -17,6 +17,7 @@ export default class Plugin {
     private _config: IPluginConfiguration = null;
     private _io: any;
     private _nsp: any;
+    private _sockets: any[] = [];
 
     public get process(): childProcess.ChildProcess {
         return this._pluginProcess;
@@ -62,6 +63,7 @@ export default class Plugin {
         this._nsp = this._io.of("/" + this._pluginProcess.pid);
         this._nsp.on("connection", (socket) => {
             log.info("--Established socket connection to: " + this._pluginProcess.pid);
+            this._sockets.push(socket);
             socket.on("message", (msg) => {
                 this._handleMessage(msg);
             });
@@ -167,4 +169,13 @@ export default class Plugin {
         }
     }
 
+    public dispose(): void {
+        if(this._nsp) {
+            this._nsp = null;
+            log.info("Disconnecting sockets: " + this._sockets.length);
+            this._sockets.forEach((socket) => socket.disconnect());
+
+            this._pluginProcess = null;
+        }
+    }
 }

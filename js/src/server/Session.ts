@@ -17,4 +17,9 @@ export default class Session {
     public notifyEvent(eventName: string, eventArgs: any) {
         this._pluginManager.notifyEvent(eventName, eventArgs);
     }
+
+    public dispose(): void {
+        this._pluginManager.dispose();
+        this._pluginManager = null;
+    }
 }
