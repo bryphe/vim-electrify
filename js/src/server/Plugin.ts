@@ -14,9 +14,9 @@ export default class Plugin {
     private _pluginName: string;
     private _pluginProcess: childProcess.ChildProcess;
     private _gvimServerName: string;
-    private _rl: any;
     private _config: IPluginConfiguration = null;
     private _io: any;
+    private _nsp: any;
 
     public get process(): childProcess.ChildProcess {
         return this._pluginProcess;
@@ -36,30 +36,7 @@ export default class Plugin {
         this._pluginPath = pluginPath;
         this._config = config;
         this._io = io;
-
-        // this._io.on("message", (message) => this._handleMessage(message));
     }
-
-    // public handleMessage(message: any) {
-    //     if (data && data.type) {
-    //         if (data.type == "command") {
-
-    //             var command = data.command.split("\"").join("\\\"");
-    //             log.verbose("got command: " + command);
-    //             try {
-    //                 var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
-    //             }
-    //             catch (ex) {
-    //                 log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
-    //             }
-    //             return;
-    //         } else if (data.type == "log") {
-    //             var logLevel = data.logLevel || "warn";
-    //             log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
-    //             return;
-    //         }
-    //     }
-    // }
 
     public start(): void {
         if (this._pluginProcess)
@@ -82,57 +59,47 @@ export default class Plugin {
         log.info("-- Path: " + this._pluginPath);
         log.info("-- Working directory: " + pluginWorkingDirectory);
 
-        var nsp = this._io.of("/" + this._pluginProcess.pid);
-        nsp.on("connection", (socket) => {
-            console.log("nsp connection"); 
-            socket.on("message", () => {
-                console.log("nsp message");
+        this._nsp = this._io.of("/" + this._pluginProcess.pid);
+        this._nsp.on("connection", (socket) => {
+            log.info("--Established socket connection to: " + this._pluginProcess.pid);
+            socket.on("message", (msg) => {
+                this._handleMessage(msg);
             });
-        });
-        this._rl = readline.createInterface({
-            input: this._pluginProcess.stdout,
-            output: this._pluginProcess.stdin
         });
 
         this._pluginProcess.stderr.on("data", (data, err) => {
-            this._pluginProcess = null;
-            log.error("Error from process: " + data + "|" + err);
-        });
-
-        this._rl.on("line", (msg) => {
-            var data = null;
-            try {
-                data = JSON.parse(msg);
-            } catch (ex) {
-                log.error(ex);
-            }
-
-            if (data && data.type) {
-                if (data.type == "command") {
-
-                    var command = data.command.split("\"").join("\\\"");
-                    log.verbose("got command: " + command);
-                    try {
-                        var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
-                    }
-                    catch (ex) {
-                        log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|Exception]" + ex);
-                    }
-                    return;
-                } else if (data.type == "log") {
-                    var logLevel = data.logLevel || "warn";
-                    log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
-                    return;
-                }
-            }
-
-            log.error(colors.red("UNHANDLED MESSAGE: " + msg));
+            this._logError(data + "|" + err);
         });
 
         this._pluginProcess.on("exit", () => {
             this._pluginProcess = null;
             log.error("process disconnected");
         });
+    }
+
+    private _handleMessage(data): void {
+        if (data && data.type) {
+            if (data.type == "command") {
+
+                var command = data.command.split("\"").join("\\\"");
+                log.verbose("got command: " + command);
+                try {
+                    var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
+                }
+                catch (ex) {
+                    this._logError(ex);
+                }
+                return;
+            } else if (data.type == "log") {
+                var logLevel = data.logLevel || "warn";
+                log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
+                return;
+            }
+        }
+    }
+
+    private _logError(err) {
+        log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|" + colors.red("err") + "]" + err);
     }
 
     public notifyEvent(eventName: string, eventArgs: any) {
@@ -178,7 +145,7 @@ export default class Plugin {
         if (this._pluginProcess) {
 
             if (this._isCommandHandled(bufferName)) {
-                this._io.sockets.in(this._pluginProcess.pid).emit("command", command);
+                this._nsp.emit("command", command);
                 // this._pluginProcess.stdin.write(JSON.stringify(command));
             } else {
                 log.info("Command ignored for buffer: " + bufferName);

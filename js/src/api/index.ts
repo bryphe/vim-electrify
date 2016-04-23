@@ -28,14 +28,11 @@ export default class Vim extends events.EventEmitter {
             socket.emit("room", process.pid);
         });
 
+
         socket.on("command", (args) => {
             console.log("Received command: " + args.type);
             this._handleCommand(args);
         });
-
-        setInterval(() => {
-            socket.emit("message", "test");
-        }, 3000);
     }
 
     public get serverName(): string {
@@ -194,6 +191,6 @@ export class Log {
 
 export class Command {
     public static sendCommand(commandToSend: any): void {
-        process.stdout.write(JSON.stringify(commandToSend) + os.EOL);
+        socket.emit("message", commandToSend);
     }
 }
