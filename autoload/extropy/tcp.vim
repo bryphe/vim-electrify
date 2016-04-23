@@ -8,11 +8,22 @@ EOF
 
 function! extropy#tcp#connect(ipAddress, port)
 python << EOF
+import json
+
 if socket == None:
     ipAddress = vim.eval("a:ipAddress")
     port = int(vim.eval("a:port"))
+    serverName = vim.eval("v:servername")
     socket = SocketListener(ipAddress, port)
     socket.connect()
+
+    initialMessage = {
+        'type': 'connect',
+        'args': {
+            'serverName': serverName
+        }
+    }
+    socket.sendMessage(json.dumps(initialMessage))
 EOF
 endfunction
 

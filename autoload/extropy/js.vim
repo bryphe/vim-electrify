@@ -10,6 +10,8 @@ function! extropy#js#start()
         return
     endif
 
+    call extropy#tcp#connect("127.0.0.1", 4001)
+
 python << EOF
 import urllib2
 import subprocess
@@ -82,6 +84,7 @@ function! extropy#js#clearServerError()
 endfunction
 
 function! extropy#js#stopServer()
+    call extropy#tcp#disconnect()
     call extropy#js#executeRemoteCommand("/api/stop")
 endfunction
 
