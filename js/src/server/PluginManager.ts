@@ -6,16 +6,19 @@ import util = require("util");
 
 import IPluginConfiguration = require("./IPluginConfiguration");
 import PluginConfigurationParser = require("./PluginConfigurationParser");
+import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 export default class PluginManager {
 
     private _gvimServerName: string;
     private _pluginNameToInstance = {};
     private _io: any;
+    private _commandExecutor: IRemoteCommandExecutor;
 
-    constructor(gvimServerName: string, io: any) {
+    constructor(gvimServerName: string, io: any, commandExecutor: IRemoteCommandExecutor) {
         this._gvimServerName = gvimServerName;
         this._io = io;
+        this._commandExecutor = commandExecutor;
 
         this.loadGlobalPlugins();
     }
@@ -47,7 +50,7 @@ export default class PluginManager {
     public start(pluginName: string, pluginFilePath: string, config: IPluginConfiguration): void {
         if(!this._pluginNameToInstance[pluginName]) {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
-            var plugin = new Plugin(this._io, this._gvimServerName, pluginName, pluginFilePath, config);
+            var plugin = new Plugin(this._io, this._commandExecutor, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
             this._pluginNameToInstance[pluginName] = plugin;
             return;

@@ -1,4 +1,5 @@
 import Session from "./Session";
+import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 var log = require("winston");
 
@@ -6,9 +7,11 @@ export default class SessionManager {
 
     private _io: any;
     private _sessions = {};
+    private _commandExecutor: IRemoteCommandExecutor;
 
-    constructor(io: any) {
+    constructor(io: any, commandExecutor: IRemoteCommandExecutor) {
         this._io = io;
+        this._commandExecutor = commandExecutor;
     }
 
     public getOrCreateSession(sessionName: string): Session {
@@ -18,7 +21,7 @@ export default class SessionManager {
         }
 
         log.info("Creating new session: " + sessionName);
-        var newSession = new Session(sessionName, this._io);
+        var newSession = new Session(sessionName, this._io, this._commandExecutor);
         this._sessions[sessionName] = newSession;
         return newSession;
     }

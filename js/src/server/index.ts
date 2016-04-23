@@ -11,8 +11,10 @@ var net = require("net");
 require("colors").enabled = true;
 
 import SessionManager from "./SessionManager"
+import CommandLineRemoteCommandExecutor from "./Commands/CommandLineRemoteCommandExecutor"
 
-var sessionManager = new SessionManager(io);
+var commandExecutor = new CommandLineRemoteCommandExecutor();
+var sessionManager = new SessionManager(io, commandExecutor);
 
 // TODO: Handle creating session
 

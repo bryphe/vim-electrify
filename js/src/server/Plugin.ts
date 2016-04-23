@@ -7,6 +7,7 @@ import minimatch = require("minimatch");
 var colors = require("colors/safe");
 
 import IPluginConfiguration = require("./IPluginConfiguration");
+import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 export default class Plugin {
 
@@ -18,6 +19,7 @@ export default class Plugin {
     private _io: any;
     private _nsp: any;
     private _sockets: any[] = [];
+    private _commandExecutor: IRemoteCommandExecutor;
 
     public get process(): childProcess.ChildProcess {
         return this._pluginProcess;
@@ -31,12 +33,13 @@ export default class Plugin {
         return this._pluginPath;
     }
 
-    constructor(io: any, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+    constructor(io: any, commandExecutor: IRemoteCommandExecutor, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
         this._config = config;
         this._io = io;
+        this._commandExecutor = commandExecutor;
     }
 
     public start(): void {
@@ -85,17 +88,10 @@ export default class Plugin {
 
                 var command = data.command.split("\"").join("\\\"");
                 log.verbose("got command: " + command);
-                try {
-                    var vimProcess = childProcess.spawn("vim", ["--servername", this._gvimServerName, "--remote-expr", command], { detached: true, stdio: "ignore" });
-                }
-                catch (ex) {
-                    this._logError(ex);
-                }
-                return;
+                this._commandExecutor.executeCommand(this._gvimServerName, command);
             } else if (data.type == "log") {
                 var logLevel = data.logLevel || "warn";
                 log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
-                return;
             }
         }
     }

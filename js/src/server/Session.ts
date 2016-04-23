@@ -1,13 +1,16 @@
 import PluginManager from "./PluginManager";
+import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 export default class Session {
 
     private _session: string;
     private _pluginManager: PluginManager;
+    private _commandExecutor: IRemoteCommandExecutor;
 
-    constructor(session: string, io: any) {
+    constructor(session: string, io: any, commandExecutor: IRemoteCommandExecutor) {
         this._session = session;
-        this._pluginManager = new PluginManager(session, io);
+        this._commandExecutor = commandExecutor;
+        this._pluginManager = new PluginManager(session, io, this._commandExecutor);
     }
 
     public get plugins(): PluginManager {
