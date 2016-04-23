@@ -60,6 +60,15 @@ function! extropy#js#initializeEventListeners()
         autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved")
         autocmd! CursorMovedI * :call extropy#js#notifyBufferEvent("CursorMovedI")
     augroup END
+
+    augroup ExtropyLifecycleListeners
+        autocmd!
+        autocmd! VimLeave * :call extropy#js#disconnectTcp()
+    augroup END
+endfunction
+
+function! extropy#js#disconnectTcp()
+    call extropy#tcp#disconnect()
 endfunction
 
 function! extropy#js#notifyBufferEvent(eventName)
