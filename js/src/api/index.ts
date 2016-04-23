@@ -28,6 +28,10 @@ export default class Vim extends events.EventEmitter {
             socket.emit("room", process.pid);
         });
 
+        socket.on("disconnect", () => {
+            process.exit();
+        });
+
 
         socket.on("command", (args) => {
             console.log("Received command: " + args.type);
