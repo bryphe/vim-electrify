@@ -142,6 +142,7 @@ var tcpServer = net.createServer((tcpSocket) => {
     tcpSocket.on("data", (data) => {
         var dataAsString = data.toString("utf8");
         console.log("tcp: received data: " + data);
+        tcpSocket.write("echo|" + data + "\n");
     });
 
     tcpSocket.on("close", () => {
