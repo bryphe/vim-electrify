@@ -10,7 +10,6 @@ function! extropy#js#start()
         return
     endif
 
-    call extropy#tcp#connect("127.0.0.1", 4001)
 
 python << EOF
 import urllib2
@@ -44,6 +43,7 @@ if shouldStartServer == True:
 
 EOF
     call extropy#js#executeRemoteCommand("/api/start/".v:servername)
+    call extropy#tcp#connect("127.0.0.1", 4001)
 endfunction
 
 function! extropy#js#initializeEventListeners()
