@@ -12,8 +12,43 @@ require("colors").enabled = true;
 
 import SessionManager from "./SessionManager"
 import CommandLineRemoteCommandExecutor from "./Commands/CommandLineRemoteCommandExecutor"
+import TcpSocketRemoteCommandExecutor from "./Commands/TcpSocketRemoteCommandExecutor"
 
-var commandExecutor = new CommandLineRemoteCommandExecutor();
+// TCP Server
+var serverToSocket = {};
+var tcpServer = net.createServer((tcpSocket) => {
+    console.log("tcp: client connected");
+
+    tcpSocket.on("data", (data) => {
+        var dataAsString = data.toString("utf8");
+        console.log("tcp: received data: " + data);
+
+        var parsedData = null;
+        try {
+            parsedData = JSON.parse(data);
+        } catch(ex) {
+            log.error("tcp: error parsing data", { error: ex});
+        }
+
+        if(parsedData.type === "connect") {
+            log.info("Got connect event - registering server: " + parsedData.args.serverName);
+            serverToSocket[parsedData.args.serverName] = tcpSocket;
+        }
+    });
+
+    tcpSocket.on("close", () => {
+        console.log("tcp: close");
+    });
+
+    tcpSocket.on("error", (err) => {
+        console.log("tcp: disconnect");
+    });
+
+});
+
+tcpServer.listen(4001, "127.0.0.1");
+
+var commandExecutor = new TcpSocketRemoteCommandExecutor(serverToSocket);
 var sessionManager = new SessionManager(io, commandExecutor);
 
 // TODO: Handle creating session
@@ -138,23 +173,3 @@ process.on("uncaughtException", (err) => {
 server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
 
-var tcpServer = net.createServer((tcpSocket) => {
-    console.log("tcp: client connected");
-
-    tcpSocket.on("data", (data) => {
-        var dataAsString = data.toString("utf8");
-        console.log("tcp: received data: " + data);
-        tcpSocket.write("echo|" + data + "\n");
-    });
-
-    tcpSocket.on("close", () => {
-        console.log("tcp: close");
-    });
-
-    tcpSocket.on("error", (err) => {
-        console.log("tcp: disconnect");
-    });
-
-});
-
-tcpServer.listen(4001, "127.0.0.1");

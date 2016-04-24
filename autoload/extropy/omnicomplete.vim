@@ -157,10 +157,13 @@ function! extropy#omnicomplete#complete(findstart, base)
             return ret
         endif
 
+        call extropy#command#flushIncomingCommands()
+
         " TODO: Refactor to use common state code
         if len(s:completionEntries) == 0
-            call add(ret, a:base)
-            call add(ret, a:base."...")
+            " call add(ret, a:base)
+            " call add(ret, a:base."...")
+            return ret
         else
             for completion in s:completionEntries
                 if type(completion) == 1

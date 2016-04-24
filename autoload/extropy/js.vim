@@ -63,6 +63,10 @@ function! extropy#js#initializeEventListeners()
 
     augroup ExtropyLifecycleListeners
         autocmd!
+        autocmd! CursorHold * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorMoved * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorHoldI * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorMovedI * :call extropy#command#flushIncomingCommands()
         autocmd! VimLeave * :call extropy#js#disconnectTcp()
     augroup END
 endfunction
@@ -170,6 +174,10 @@ function! extropy#js#notifyBufferUpdated()
 
     if extropy#js#checkIfErrorAndShowMessage() == 1
         return
+    endif
+
+    if &ma == 0
+        call extropy#debug#logInfo("Ignore buffer update because buffer is not modifiable")
     endif
 
     if !exists("b:extropy_change_tick")

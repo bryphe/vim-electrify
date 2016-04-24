@@ -23,7 +23,7 @@ if socket == None:
             'serverName': serverName
         }
     }
-    socket.sendMessage(json.dumps(initialMessage))
+    socket.sendMessage(initialMessage)
 EOF
 endfunction
 
@@ -31,6 +31,7 @@ function! extropy#tcp#disconnect()
 python << EOF
 if socket != None:
     socket.disconnect()
+    socket = None
 EOF
 endfunction
 
@@ -43,7 +44,7 @@ EOF
 endfunction
 
 function! extropy#tcp#getMessages()
-ret = []
+let ret = []
 python << EOF
 import json
 if socket != None:

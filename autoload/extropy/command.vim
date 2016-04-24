@@ -9,6 +9,11 @@ function! extropy#command#execute(command)
 endfunction
 
 function! extropy#command#echo(msg)
+    redraw
+    echo a:msg
+endfunction
+
+function! extropy#command#echo(msg)
     echom a:msg
 endfunction
 
@@ -24,6 +29,13 @@ function! extropy#command#createCommand(pluginName, commandName)
     execute "command! -nargs=0 " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "')"
 endfunction
 
+function! extropy#command#flushIncomingCommands()
+    let commands = extropy#tcp#getMessages()
+    " echom "Flushing = " . string(len(commands))
+    for command in commands
+        call extropy#command#execute(command)
+    endfor
+endfunction
 
 
 " TODO:

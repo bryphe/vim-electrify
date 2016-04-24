@@ -35,9 +35,6 @@ export default class SessionManager {
     }
 
     public endSession(sessionName: string): void {
-        // TODO: Clean up all plugins and close gracefully. 
-        // Need to make sure the results don't conflict with another session
-        
         log.info("Deleting session: " + sessionName);
         if (this._sessions[sessionName]) {
             var session = this._sessions[sessionName];

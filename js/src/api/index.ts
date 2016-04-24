@@ -5,6 +5,7 @@ import os = require("os");
 
 import omni = require("./IOmniCompleter");
 import loclist = require("./ILocListEntry");
+import syntax = require("./ISyntaxHighlighting");
 
 // TODO: Take in port
 var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io" });
@@ -67,6 +68,10 @@ export default class Vim extends events.EventEmitter {
 
     public echohl(msg: string, highlightGroup: string): void {
         this._rawExec("extropy#command#echohl('" + msg + "', '" + highlightGroup + "')");
+    }
+
+    public setSyntaxHighlighting(syntaxHighlightingInfo: syntax.ISyntaxHighlighting) {
+        this._rawExec("extropy#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     }
 
     public setErrors(errors: loclist.ILocListEntry[]) {
