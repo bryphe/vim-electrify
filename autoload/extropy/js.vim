@@ -176,6 +176,10 @@ function! extropy#js#notifyBufferUpdated()
         return
     endif
 
+    if &ma == 0
+        call extropy#debug#logInfo("Ignore buffer update because buffer is not modifiable")
+    endif
+
     if !exists("b:extropy_change_tick")
         let b:extropy_change_tick = -1
     endif
