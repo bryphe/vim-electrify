@@ -71,15 +71,22 @@ class SocketListener:
     def _sendMessages(self):
         buffer = ""
         character = ""
+        characters = ""
         while (not self.stopEvent.is_set()):
             try:
-                character = self.sock.recv(1)
+                characters = self.sock.recv(1024)
             except:
+                # TODO: Set error flag
+                # print "Exception receiving characters"
                 pass
-            if '\n' in character:
-                self.receivedMessages.put(buffer)
-                buffer = ""
-            else:
-                buffer += character
+
+            for character in characters:
+                if '\n' in character:
+                    self.receivedMessages.put(buffer)
+                    # print "Got message: " + buffer
+                    buffer = ""
+                else:
+                    buffer += character
+
             self.stopEvent.wait(0.01)
 

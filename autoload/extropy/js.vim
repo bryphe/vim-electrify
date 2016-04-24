@@ -63,6 +63,10 @@ function! extropy#js#initializeEventListeners()
 
     augroup ExtropyLifecycleListeners
         autocmd!
+        autocmd! CursorHold * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorMoved * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorHoldI * :call extropy#command#flushIncomingCommands()
+        autocmd! CursorMovedI * :call extropy#command#flushIncomingCommands()
         autocmd! VimLeave * :call extropy#js#disconnectTcp()
     augroup END
 endfunction
