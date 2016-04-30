@@ -5,5 +5,4 @@ export interface ICompletionInfo {
 
 export interface IOmniCompleter {
     getCompletions(context: any): Promise<ICompletionInfo[]>
-    onFileUpdate(fileName: string, newContents: string): void;
 }

@@ -22,16 +22,25 @@ var tcpServer = net.createServer((tcpSocket) => {
     console.log("tcp: client connected");
 
     var session = null;
+    var currentBuffer = "";
 
     tcpSocket.on("data", (data) => {
         var dataAsString = data.toString("utf8");
-        console.log("tcp: received data: " + data);
+
+        console.log("tcp: received data of length: " + dataAsString.length + "|" + currentBuffer);
+        currentBuffer += dataAsString;
+        console.log("index of newline: " + dataAsString.indexOf("\n"));
+
+        if(currentBuffer.indexOf("\n") == -1)
+            return;
 
         var parsedData = null;
         try {
-            parsedData = JSON.parse(data);
+            parsedData = JSON.parse(currentBuffer);
+            currentBuffer = "";
         } catch(ex) {
-            log.error("tcp: error parsing data", { error: ex});
+            currentBuffer = "";
+            log.error("tcp: error parsing data: " + ex.toString(), { error: ex});
         }
 
         if(parsedData.type === "connect") {
@@ -56,6 +65,13 @@ var tcpServer = net.createServer((tcpSocket) => {
 
             var plugin = session.plugins.getPlugin(plugin);
             plugin.execute(command, context);
+        } else if(parsedData.type === "bufferChanged") {
+            var bufferName = parsedData.args.bufferName;
+            var lines = parsedData.args.lines;
+            console.log(JSON.stringify(lines));
+
+            console.log("BufferChanged: " + bufferName + "| Lines: " + lines.length);
+            session.plugins.onBufferChanged(parsedData.args);
         }
     });
 

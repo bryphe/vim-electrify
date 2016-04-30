@@ -206,26 +206,27 @@ function! extropy#js#notifyBufferUpdated()
 
 python << EOF
 import vim
-import json
-
-currentBufferNumber = vim.eval("bufnr('%')")
 currentBuffer = vim.eval("expand('%:p')")
-serverName = vim.eval("v:servername")
 
 lines = []
 for line in vim.current.buffer:
     lines.append(line)
 
 args = {
-"currentBufferNumber": currentBufferNumber,
-"currentBuffer": currentBuffer,
+"bufferName": currentBuffer,
 "lines": lines
 }
 
-request = Request("/api/plugin/" + serverName + "/omnicomplete/update", args);
-request.send()
+bufferChangedMessage = {
+    'type': 'bufferChanged',
+    'args': args,
+    'context': extropy_get_context()
+}
 
+extropy_tcp_sendMessage(bufferChangedMessage)
 EOF
+
+
 endfunction
 
 function! extropy#js#deserialize(obj)
