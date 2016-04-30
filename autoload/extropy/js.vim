@@ -10,7 +10,6 @@ function! extropy#js#start()
         return
     endif
 
-
 python << EOF
 import urllib2
 import subprocess
@@ -23,7 +22,7 @@ debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 def isServerActive():
     active = False
     try: 
-        output = urllib2.urlopen("http://127.0.0.1:3000/api/vim").read();
+        output = urllib2.urlopen("http://127.0.0.1:3000/").read();
         # TODO: Validate that this actually a proper server
         # TODO: Use port specified here
         active = True
@@ -42,7 +41,6 @@ if shouldStartServer == True:
     subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
 
 EOF
-    call extropy#js#executeRemoteCommand("/api/start/".v:servername)
     call extropy#tcp#connect("127.0.0.1", 4001)
 endfunction
 

@@ -33,6 +33,9 @@ EOF
 endfunction
 
 function! extropy#tcp#sendConnectMessage()
+python << EOF
+extropy_tcp_sendConnectMessage()
+EOF
 endfunction
 
 function! extropy#tcp#disconnect()

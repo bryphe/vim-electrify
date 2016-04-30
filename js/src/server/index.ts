@@ -16,8 +16,12 @@ import TcpSocketRemoteCommandExecutor from "./Commands/TcpSocketRemoteCommandExe
 
 // TCP Server
 var serverToSocket = {};
+var sessionManager;
+
 var tcpServer = net.createServer((tcpSocket) => {
     console.log("tcp: client connected");
+
+    var session = null;
 
     tcpSocket.on("data", (data) => {
         var dataAsString = data.toString("utf8");
@@ -32,24 +36,48 @@ var tcpServer = net.createServer((tcpSocket) => {
 
         if(parsedData.type === "connect") {
             log.info("Got connect event - registering server: " + parsedData.args.serverName);
-            serverToSocket[parsedData.args.serverName] = tcpSocket;
+            session = sessionManager.getOrCreateSession(parsedData.args.serverName);
+            serverToSocket[session.name] = tcpSocket;
+        } else if(parsedData.type === "command") {
+
+            if(!session) {
+                getServerName();
+                return;
+            }
+
+            console.log("Got command: " + session.name);
+
         }
     });
 
     tcpSocket.on("close", () => {
         console.log("tcp: close");
+        end();
     });
 
     tcpSocket.on("error", (err) => {
         console.log("tcp: disconnect");
+        end();
     });
+
+    function getServerName() {
+        console.log("No session... requesting connect.");
+        tcpSocket.write("extropy#tcp#sendConnectMessage()\n");
+    }
+
+    function end() {
+        if(session) {
+            sessionManager.endSession(session.name);
+            session = null;
+        }
+    }
 
 });
 
 tcpServer.listen(4001, "127.0.0.1");
 
 var commandExecutor = new TcpSocketRemoteCommandExecutor(serverToSocket);
-var sessionManager = new SessionManager(io, commandExecutor);
+sessionManager = new SessionManager(io, commandExecutor);
 
 // TODO: Handle creating session
 
@@ -57,18 +85,6 @@ app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
     res.send("Open for business");
-});
-
-app.post("/api/start/:serverName", (req, res) => {
-    console.log(req.params.serverName);
-    console.log(req.params.pluginName);
-    console.log("-pre body");
-    console.log(req.body);
-    console.log("-post body");
-
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-
-    res.send("done");
 });
 
 app.post("/api/log", (req, res) => {

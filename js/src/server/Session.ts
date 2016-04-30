@@ -7,6 +7,10 @@ export default class Session {
     private _pluginManager: PluginManager;
     private _commandExecutor: IRemoteCommandExecutor;
 
+    public get name(): string {
+        return this._session;
+    }
+
     constructor(session: string, io: any, commandExecutor: IRemoteCommandExecutor) {
         this._session = session;
         this._commandExecutor = commandExecutor;
