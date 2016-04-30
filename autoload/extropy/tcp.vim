@@ -4,6 +4,17 @@ execute 'pyfile '.s:path
 
 python << EOF
 extropy_tcp_socket = None;
+
+def extropy_tcp_sendConnectMessage():
+    if extropy_tcp_socket != None:
+        initialMessage = {
+            'type': 'connect',
+            'args': {
+                'serverName': serverName
+            }
+        }
+        extropy_tcp_socket.sendMessage(initialMessage)
+
 EOF
 
 function! extropy#tcp#connect(ipAddress, port)
@@ -17,14 +28,11 @@ if extropy_tcp_socket == None:
     extropy_tcp_socket = SocketListener(ipAddress, port)
     extropy_tcp_socket.connect()
 
-    initialMessage = {
-        'type': 'connect',
-        'args': {
-            'serverName': serverName
-        }
-    }
-    extropy_tcp_socket.sendMessage(initialMessage)
+extropy_tcp_sendConnectMessage()
 EOF
+endfunction
+
+function! extropy#tcp#sendConnectMessage()
 endfunction
 
 function! extropy#tcp#disconnect()

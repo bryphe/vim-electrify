@@ -46,31 +46,6 @@ EOF
     call extropy#tcp#connect("127.0.0.1", 4001)
 endfunction
 
-function! extropy#js#initializeEventListeners()
-    if extropy#js#isEnabled() == 0
-        return
-    endif
-
-    augroup ExtropyEventListeners
-        autocmd!
-        autocmd! CursorHold * :call extropy#js#notifyBufferUpdated()
-        autocmd! CursorHoldI * :call extropy#js#notifyBufferUpdated()
-        autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
-        autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
-        autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved")
-        autocmd! CursorMovedI * :call extropy#js#notifyBufferEvent("CursorMovedI")
-    augroup END
-
-    augroup ExtropyLifecycleListeners
-        autocmd!
-        autocmd! CursorHold * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorMoved * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorHoldI * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorMovedI * :call extropy#command#flushIncomingCommands()
-        autocmd! VimLeave * :call extropy#js#disconnectTcp()
-    augroup END
-endfunction
-
 function! extropy#js#disconnectTcp()
     call extropy#tcp#disconnect()
 endfunction
