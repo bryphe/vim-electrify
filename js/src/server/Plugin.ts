@@ -129,13 +129,12 @@ export default class Plugin {
         this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
     }
 
-    public updateOmniComplete(updateOmniCompletionArgs: any): void {
+    public onBufferChanged(bufferChangedEventArgs: any): void {
         var commandInfo = {
-            type: "omnicomplete-update",
-            arguments: updateOmniCompletionArgs
+            type: "bufferChanged",
+            arguments: bufferChangedEventArgs
         };
-
-        this._writeToPlugin(commandInfo, updateOmniCompletionArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, bufferChangedEventArgs.bufferName);
     }
 
     public execute(commandName: string, callContext: any) {

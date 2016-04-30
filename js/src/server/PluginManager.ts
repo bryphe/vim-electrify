@@ -83,17 +83,10 @@ export default class PluginManager {
         });
     }
 
-    public updateOmniComplete(updateOmniCompletionArgs: any): void {
-        var commandInfo = {
-            type: "omnicomplete-update",
-            arguments: updateOmniCompletionArgs
-        };
-
+    public onBufferChanged(bufferChangedArgs: any): void {
         Object.keys(this._pluginNameToInstance).forEach((key) => {
-            if(key.indexOf("typescript") >= 0)  {
-                var plugin = this._pluginNameToInstance[key];
-                plugin.updateOmniComplete(updateOmniCompletionArgs);
-            }
+            var plugin = this._pluginNameToInstance[key];
+            plugin.onBufferChanged(bufferChangedArgs);
         });
     }
 

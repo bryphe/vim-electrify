@@ -5,11 +5,31 @@ let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 " Tracking if there was an error connecting to the server
 let s:isServerError = 0
 
+python << EOF
+
+def extropy_get_context():
+    import vim
+    currentBuffer = vim.eval("expand('%:p')")
+    currentBufferNumber = vim.eval("bufnr('%')")
+    line = vim.eval("line('.')")
+    col = vim.eval("col('.')")
+    byte = vim.eval("line2byte(line('.')) + col('.')")
+
+    values = {
+    "currentBufferNumber": currentBufferNumber,
+    "currentBuffer": currentBuffer,
+    "line": line,
+    "col": col,
+    "byte": byte
+    }
+
+    return values
+EOF
+
 function! extropy#js#start()
     if extropy#js#isEnabled() == 0
         return
     endif
-
 
 python << EOF
 import urllib2
@@ -23,7 +43,7 @@ debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 def isServerActive():
     active = False
     try: 
-        output = urllib2.urlopen("http://127.0.0.1:3000/api/vim").read();
+        output = urllib2.urlopen("http://127.0.0.1:3000/").read();
         # TODO: Validate that this actually a proper server
         # TODO: Use port specified here
         active = True
@@ -42,33 +62,7 @@ if shouldStartServer == True:
     subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
 
 EOF
-    call extropy#js#executeRemoteCommand("/api/start/".v:servername)
     call extropy#tcp#connect("127.0.0.1", 4001)
-endfunction
-
-function! extropy#js#initializeEventListeners()
-    if extropy#js#isEnabled() == 0
-        return
-    endif
-
-    augroup ExtropyEventListeners
-        autocmd!
-        autocmd! CursorHold * :call extropy#js#notifyBufferUpdated()
-        autocmd! CursorHoldI * :call extropy#js#notifyBufferUpdated()
-        autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
-        autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
-        autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved")
-        autocmd! CursorMovedI * :call extropy#js#notifyBufferEvent("CursorMovedI")
-    augroup END
-
-    augroup ExtropyLifecycleListeners
-        autocmd!
-        autocmd! CursorHold * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorMoved * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorHoldI * :call extropy#command#flushIncomingCommands()
-        autocmd! CursorMovedI * :call extropy#command#flushIncomingCommands()
-        autocmd! VimLeave * :call extropy#js#disconnectTcp()
-    augroup END
 endfunction
 
 function! extropy#js#disconnectTcp()
@@ -76,14 +70,34 @@ function! extropy#js#disconnectTcp()
 endfunction
 
 function! extropy#js#notifyBufferEvent(eventName)
-    if a:eventName == "BufEnter"
-        let b:extropy_change_tick = -1
-    endif
-    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/event/".a:eventName)
+python << EOF
+message = {
+    'type': 'event',
+    'args': {
+        'eventName': vim.eval("a:eventName")
+    },
+    'context': extropy_get_context()
+}
+
+extropy_tcp_sendMessage(message)
+EOF
+
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/".a:pluginName."/".a:commandName)
+echom "PluginName: ".a:pluginName."Command:".a:commandName
+python << EOF
+jsFunctionMessage = {
+    'type': 'command',
+    'args': {
+        'plugin': vim.eval("a:pluginName"),
+        'command': vim.eval("a:commandName")
+    },
+    'context': extropy_get_context()
+}
+
+extropy_tcp_sendMessage(jsFunctionMessage)
+EOF
 endfunction
 
 function! extropy#js#restartServer()
@@ -192,26 +206,27 @@ function! extropy#js#notifyBufferUpdated()
 
 python << EOF
 import vim
-import json
-
-currentBufferNumber = vim.eval("bufnr('%')")
 currentBuffer = vim.eval("expand('%:p')")
-serverName = vim.eval("v:servername")
 
 lines = []
 for line in vim.current.buffer:
     lines.append(line)
 
 args = {
-"currentBufferNumber": currentBufferNumber,
-"currentBuffer": currentBuffer,
+"bufferName": currentBuffer,
 "lines": lines
 }
 
-request = Request("/api/plugin/" + serverName + "/omnicomplete/update", args);
-request.send()
+bufferChangedMessage = {
+    'type': 'bufferChanged',
+    'args': args,
+    'context': extropy_get_context()
+}
 
+extropy_tcp_sendMessage(bufferChangedMessage)
 EOF
+
+
 endfunction
 
 function! extropy#js#deserialize(obj)

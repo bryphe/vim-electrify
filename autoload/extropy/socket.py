@@ -46,7 +46,7 @@ class SocketListener:
 
     def sendMessage(self, msg):
         import json
-        msg = json.dumps(msg)
+        msg = json.dumps(msg) + "\n"
         self.messagesToSend.put(msg)
 
     def getMessages(self):

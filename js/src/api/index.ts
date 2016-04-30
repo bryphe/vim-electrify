@@ -127,17 +127,12 @@ export default class Vim extends events.EventEmitter {
         });
     }
 
-    private _updateOmniCompletion(omniInfo: any): void {
-        log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
-        log.info("Received file update: " + omniInfo.lines.length + " lines.");
-
-        var newContent = omniInfo.lines.join(os.EOL);
-
+    private _onBufferChanged(bufferChangeInfo: any): void {
+        log.info("Received file update: " + bufferChangeInfo.lines.length + " lines.");
+        var newContent = bufferChangeInfo.lines.join(os.EOL);
         log.verbose(newContent);
 
-        this._omniCompleters.forEach((completer) => {
-            completer.onFileUpdate(omniInfo.currentBuffer, newContent);
-        });
+        this.emit("BufferChanged", { fileName: bufferChangeInfo.bufferName, newContents: newContent });
     }
 
     private _handleCommand(command: any): void {
@@ -148,8 +143,8 @@ export default class Vim extends events.EventEmitter {
                 this._executeEvent(command);
             else if (command.type === "omnicomplete")
                 this._startOmniCompletion(command.arguments);
-            else if (command.type === "omnicomplete-update")
-                this._updateOmniCompletion(command.arguments);
+            else if (command.type === "bufferChanged")
+                this._onBufferChanged(command.arguments);
         }
     }
 }
