@@ -38,14 +38,6 @@ var tcpServer = net.createServer((tcpSocket) => {
             log.info("Got connect event - registering server: " + parsedData.args.serverName);
             session = sessionManager.getOrCreateSession(parsedData.args.serverName);
             serverToSocket[session.name] = tcpSocket;
-        } else if(parsedData.type === "command") {
-
-            // if(!session) {
-            //     getServerName();
-            //     return;
-            // }
-
-            console.log("Got command: " + session.name);
         } else if(parsedData.type === "event") {
             var eventName = parsedData.args.eventName;
             var context = parsedData.context;
@@ -55,6 +47,15 @@ var tcpServer = net.createServer((tcpSocket) => {
             if(eventName === "VimLeave") {
                 end();
             }
+        } else if(parsedData.type === "command") {
+            var plugin = parsedData.args.plugin;
+            var command = parsedData.args.command;
+            var context = parsedData.context;
+
+            console.log("Got command: " + command);
+
+            var plugin = session.plugins.getPlugin(plugin);
+            plugin.execute(command, context);
         }
     });
 

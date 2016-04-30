@@ -70,7 +70,6 @@ function! extropy#js#disconnectTcp()
 endfunction
 
 function! extropy#js#notifyBufferEvent(eventName)
-
 python << EOF
 message = {
     'type': 'event',
@@ -86,7 +85,19 @@ EOF
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/".a:pluginName."/".a:commandName)
+echom "PluginName: ".a:pluginName."Command:".a:commandName
+python << EOF
+jsFunctionMessage = {
+    'type': 'command',
+    'args': {
+        'plugin': vim.eval("a:pluginName"),
+        'command': vim.eval("a:commandName")
+    },
+    'context': extropy_get_context()
+}
+
+extropy_tcp_sendMessage(jsFunctionMessage)
+EOF
 endfunction
 
 function! extropy#js#restartServer()
