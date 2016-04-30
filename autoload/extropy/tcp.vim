@@ -15,6 +15,9 @@ def extropy_tcp_sendConnectMessage():
         }
         extropy_tcp_socket.sendMessage(initialMessage)
 
+def extropy_tcp_sendMessage(message):
+    if extropy_tcp_socket != None:
+        extropy_tcp_socket.sendMessage(message)
 EOF
 
 function! extropy#tcp#connect(ipAddress, port)

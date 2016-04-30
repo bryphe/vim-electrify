@@ -40,13 +40,21 @@ var tcpServer = net.createServer((tcpSocket) => {
             serverToSocket[session.name] = tcpSocket;
         } else if(parsedData.type === "command") {
 
-            if(!session) {
-                getServerName();
-                return;
-            }
+            // if(!session) {
+            //     getServerName();
+            //     return;
+            // }
 
             console.log("Got command: " + session.name);
+        } else if(parsedData.type === "event") {
+            var eventName = parsedData.args.eventName;
+            var context = parsedData.context;
+            console.log("Got event: " + eventName);
+            session.notifyEvent(eventName, context)
 
+            if(eventName === "VimLeave") {
+                end();
+            }
         }
     });
 
@@ -91,23 +99,6 @@ app.post("/api/log", (req, res) => {
     console.log("[LOG]:" + JSON.stringify(req.body));
 });
 
-app.post("/api/plugin/:serverName/event/:eventName", (req, res) => {
-    log.info(req.params);
-    log.info(req.body);
-
-    var eventName = req.params.eventName;
-
-    var state = req.body;
-    log.info("Received event: " + eventName + " data:" + JSON.stringify(state));
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.notifyEvent(eventName, state)
-
-    if(eventName === "VimLeave") {
-        sessionManager.endSession(req.params.serverName);
-    }
-
-    res.send("done");
-});
 
 app.post("/api/plugin/:serverName/omnicomplete/start", (req, res) => {
     console.log("start omnicomplete");

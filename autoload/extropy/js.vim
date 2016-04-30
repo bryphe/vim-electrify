@@ -5,6 +5,27 @@ let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 " Tracking if there was an error connecting to the server
 let s:isServerError = 0
 
+python << EOF
+
+def extropy_get_context():
+    import vim
+    currentBuffer = vim.eval("expand('%:p')")
+    currentBufferNumber = vim.eval("bufnr('%')")
+    line = vim.eval("line('.')")
+    col = vim.eval("col('.')")
+    byte = vim.eval("line2byte(line('.')) + col('.')")
+
+    values = {
+    "currentBufferNumber": currentBufferNumber,
+    "currentBuffer": currentBuffer,
+    "line": line,
+    "col": col,
+    "byte": byte
+    }
+
+    return values
+EOF
+
 function! extropy#js#start()
     if extropy#js#isEnabled() == 0
         return
@@ -49,10 +70,19 @@ function! extropy#js#disconnectTcp()
 endfunction
 
 function! extropy#js#notifyBufferEvent(eventName)
-    if a:eventName == "BufEnter"
-        let b:extropy_change_tick = -1
-    endif
-    call extropy#js#executeRemoteCommand("/api/plugin/".v:servername."/event/".a:eventName)
+
+python << EOF
+message = {
+    'type': 'event',
+    'args': {
+        'eventName': vim.eval("a:eventName")
+    },
+    'context': extropy_get_context()
+}
+
+extropy_tcp_sendMessage(message)
+EOF
+
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
