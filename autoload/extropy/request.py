@@ -7,15 +7,10 @@ class Request:
         self._path = path
 
     def send(self, arguments=None):
-        headers = { "Content-Type": "application/json"}
-
-        if arguments != None:
-            data = json.dumps(arguments)
-
         try:
-            req = urllib2.Request(self._path, data, headers)
+            req = urllib2.Request(self._path)
             response = urllib2.urlopen(req)
-            ret = response
+            ret = response.read()
         except:
             ret = None
             pass

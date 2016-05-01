@@ -46,6 +46,13 @@ response = request.send();
 if response == None:
     server = Server(serverPath, 3000)
     server.start(debugMode)
+
+    # Validate response after starting it
+    request = Request("http://127.0.0.1:3000")
+    response2 = request.send()
+
+    if response2 == None:
+        print "Issue starting up server - please report this issue."
 EOF
 
     call extropy#tcp#connect("127.0.0.1", 4001)
