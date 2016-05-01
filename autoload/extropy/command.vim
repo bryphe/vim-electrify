@@ -5,16 +5,16 @@
 function! extropy#command#execute(command)
     call extropy#debug#logInfo("Executing: ".a:command)
     :execute a:command
-    :redraw
 endfunction
 
-function! extropy#command#echo(msg)
-    redraw
-    echo a:msg
-endfunction
-
-function! extropy#command#echo(msg)
+function! extropy#command#echom(msg)
+    call extropy#debug#logInfo("echom: ".a:msg)
     echom a:msg
+endfunction
+
+function! extropy#command#echo(msg)
+    call extropy#debug#logInfo("echo: ".a:msg)
+    echo a:msg
 endfunction
 
 function! extropy#command#echohl(msg, highlightGroup)
@@ -32,10 +32,13 @@ endfunction
 function! extropy#command#flushIncomingCommands()
     let commands = extropy#tcp#getMessages()
     " echom "Flushing = " . string(len(commands))
+    call extropy#debug#logInfo("extropy#command#flushIncomingCommands: ".len(commands)." commands to flush.")
     for command in commands
         call extropy#command#execute(command)
     endfor
+    redraw
 endfunction
+
 
 
 " TODO:
