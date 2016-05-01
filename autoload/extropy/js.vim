@@ -16,13 +16,17 @@ def extropy_get_context():
     currentBuffer = vim.eval("expand('%:p')")
     currentBufferNumber = vim.eval("bufnr('%')")
     line = vim.eval("line('.')")
+    lineContents = vim.eval("getline('.')")
     col = vim.eval("col('.')")
     byte = vim.eval("line2byte(line('.')) + col('.')")
+    filetype = vim.eval("&filetype")
 
     values = {
     "currentBufferNumber": currentBufferNumber,
     "currentBuffer": currentBuffer,
+    "lineContents": lineContents,
     "line": line,
+    "filetype": filetype,
     "col": col,
     "byte": byte
     }
@@ -114,8 +118,6 @@ EOF
 endfunction
 
 function! extropy#js#notifyBufferUpdated()
-    echom "Notified"
-
     if extropy#js#isEnabled() == 0
         return
     endif

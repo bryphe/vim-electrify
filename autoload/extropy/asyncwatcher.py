@@ -6,7 +6,7 @@ import threading
 # limitations of CursorHold/CursorHoldI + updatetime.
 # This is designed to use remote-expr to flush commands
 class AsyncWatcher:
-    def __init__(self, serverName, sleepTimeInSeconds=0.1):
+    def __init__(self, serverName, sleepTimeInSeconds=0.25):
         self._serverName = serverName
         self._sleepTime = sleepTimeInSeconds
 
