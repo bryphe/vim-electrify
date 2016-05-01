@@ -114,6 +114,7 @@ EOF
 endfunction
 
 function! extropy#js#notifyBufferUpdated()
+    echom "Notified"
 
     if extropy#js#isEnabled() == 0
         return
@@ -132,6 +133,8 @@ function! extropy#js#notifyBufferUpdated()
     endif
 
     let b:extropy_change_tick = b:changedtick
+
+    call extropy#debug#logInfo("Sending update for change tick: ".b:changedtick)
 
 python << EOF
 import vim

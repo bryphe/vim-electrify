@@ -23,10 +23,18 @@ endif
 
 let g:extropy_nodeplugins_debugmode = 0
 
-augroup ExtropyEventListeners
-    autocmd!
+augroup ExtropyBufferUpdates
     autocmd! CursorHold * :call extropy#js#notifyBufferUpdated()
     autocmd! CursorHoldI * :call extropy#js#notifyBufferUpdated()
+    autocmd! InsertEnter * :call extropy#js#notifyBufferUpdated()
+    autocmd! InsertChange * :call extropy#js#notifyBufferUpdated()
+    autocmd! InsertLeave * :call extropy#js#notifyBufferUpdated()
+    autocmd! CursorMoved * :call extropy#js#notifyBufferUpdated()
+    autocmd! CursorMovedI * :call extropy#js#notifyBufferUpdated()
+augroup END
+
+augroup ExtropyEventListeners
+    autocmd!
     autocmd! BufEnter * :call extropy#js#notifyBufferEvent("BufEnter")
     autocmd! VimLeave * :call extropy#js#notifyBufferEvent("VimLeave")
     autocmd! CursorMoved * :call extropy#js#notifyBufferEvent("CursorMoved")
