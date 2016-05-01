@@ -43,3 +43,4 @@ augroup ExtropyLifecycleListeners
 augroup END
 
 call extropy#js#start()
+call extropy#command#startWatcher()

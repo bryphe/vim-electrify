@@ -175,7 +175,6 @@ app.post("/api/stop", function(req, res) {
     process.exit();
 });
 
-
 io.on("connection", (socket) => {
     log.info("A socket connected.");
 
@@ -196,4 +195,3 @@ process.on("uncaughtException", (err) => {
 
 server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
-

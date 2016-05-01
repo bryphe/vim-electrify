@@ -2,6 +2,10 @@ let s:plugindir = expand('<sfile>:p:h:h:h')
 let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
 let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 
+let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') 
+execute 'pyfile '.s:path. '\server.py'
+execute 'pyfile '.s:path. '\request.py'
+
 " Tracking if there was an error connecting to the server
 let s:isServerError = 0
 
@@ -32,36 +36,25 @@ function! extropy#js#start()
     endif
 
 python << EOF
-import urllib2
-import subprocess
-import os
 import vim
-
 serverPath = vim.eval("s:serverJsPath")
 debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 
-def isServerActive():
-    active = False
-    try: 
-        output = urllib2.urlopen("http://127.0.0.1:3000/").read();
-        # TODO: Validate that this actually a proper server
-        # TODO: Use port specified here
-        active = True
-    except:
-        pass
-    return active
+request = Request("http://127.0.0.1:3000/")
+response = request.send();
 
-shouldStartServer = not isServerActive()
-if shouldStartServer == True:
+if response == None:
+    server = Server(serverPath, 3000)
+    server.start(debugMode)
 
-    startupinfo = subprocess.STARTUPINFO()
-    if debugMode == "0":
-        startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
+    # Validate response after starting it
+    request = Request("http://127.0.0.1:3000")
+    response2 = request.send()
 
-    # TODO: Pass in port specified in config
-    subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
-
+    if response2 == None:
+        print "Issue starting up server - please report this issue."
 EOF
+
     call extropy#tcp#connect("127.0.0.1", 4001)
 endfunction
 
@@ -85,7 +78,8 @@ EOF
 endfunction
 
 function! extropy#js#callJsFunction(pluginName, commandName)
-echom "PluginName: ".a:pluginName."Command:".a:commandName
+call extropy#debug#logInfo("extropy#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName)
+call extropy#tcp#warnIfNotConnected()
 python << EOF
 jsFunctionMessage = {
     'type': 'command',
@@ -111,82 +105,17 @@ function! extropy#js#clearServerError()
 endfunction
 
 function! extropy#js#stopServer()
-    call extropy#tcp#disconnect()
-    call extropy#js#executeRemoteCommand("/api/stop")
-endfunction
 
+call extropy#tcp#disconnect()
 python << EOF
-import urllib2
-import json
-import vim
-
-class Request:
-    def __init__(self, path, arguments):
-        self._path = path
-        self._arguments = arguments
-
-    def send(self):
-        ret = 1
-        headers = { "Content-Type": "application/json"}
-
-        data = json.dumps(self._arguments)
-
-        try:
-            req = urllib2.Request("http://127.0.0.1:3000" + self._path, data, headers)
-            response = urllib2.urlopen(req)
-        except:
-            ret = 0
-            pass
-
-        return ret
+request = Request("http://127.0.0.1:3000/api/stop")
+response = request.send({});
 EOF
-
-function! extropy#js#executeRemoteCommand(path)
-    call extropy#debug#logInfo("executeRemoteCommand: ".a:path)
-    if extropy#js#isEnabled() == 0
-        call extropy#debug#logInfo("--disabled")
-        return
-    endif
-
-    if extropy#js#checkIfErrorAndShowMessage() == 1
-        call extropy#debug#logInfo("--error state")
-        return
-    endif
-
-python << EOF
-import vim
-path = vim.eval("a:path")
-currentBuffer = vim.eval("expand('%:p')")
-currentBufferNumber = vim.eval("bufnr('%')")
-line = vim.eval("line('.')")
-col = vim.eval("col('.')")
-byte = vim.eval("line2byte(line('.')) + col('.')")
-
-values = {
-"currentBufferNumber": currentBufferNumber,
-"currentBuffer": currentBuffer,
-"line": line,
-"col": col,
-"byte": byte
-}
-
-request = Request(path, values)
-sendResult = request.send()
-wasError = 0 if sendResult == 1 else 1
-
-vim.command("let s:isServerError = " + str(wasError))
-
-EOF
-call extropy#debug#logInfo("Error state after call:".s:isServerError)
 endfunction
 
 function! extropy#js#notifyBufferUpdated()
 
     if extropy#js#isEnabled() == 0
-        return
-    endif
-
-    if extropy#js#checkIfErrorAndShowMessage() == 1
         return
     endif
 
@@ -226,7 +155,6 @@ bufferChangedMessage = {
 extropy_tcp_sendMessage(bufferChangedMessage)
 EOF
 
-
 endfunction
 
 function! extropy#js#deserialize(obj)
@@ -237,17 +165,4 @@ endfunction
 
 function! extropy#js#isEnabled() 
     return g:extropy_nodejs_enabled
-endfunction
-
-function! extropy#js#clearError()
-    let s:isServerError = 0
-endfunction
-
-function! extropy#js#checkIfErrorAndShowMessage()
-    if s:isServerError == 1
-        echohl WarningMsg
-        echom "ExNodeJs: There was a problem connecting to the server."
-        echohl NONE
-    endif
-    return s:isServerError
 endfunction

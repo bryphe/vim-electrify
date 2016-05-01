@@ -35,6 +35,17 @@ extropy_tcp_sendConnectMessage()
 EOF
 endfunction
 
+function! extropy#tcp#isConnected()
+let connected = 0
+python << EOF
+import vim
+if extropy_tcp_socket != None:
+    if extropy_tcp_socket.isConnected():
+        vim.command("let connected = 1")
+EOF
+return connected
+endfunction
+
 function! extropy#tcp#sendConnectMessage()
 python << EOF
 extropy_tcp_sendConnectMessage()
@@ -49,7 +60,18 @@ if extropy_tcp_socket != None:
 EOF
 endfunction
 
+function! extropy#tcp#warnIfNotConnected()
+    if extropy#tcp#isConnected() == 0
+        echohl WarningMsg
+        echom "Warning: ExNodeJs server has been disconnected, javascript plugins will not work."
+        echohl NONE
+    endif
+endfunction
+
 function! extropy#tcp#sendMessage(message)
+
+call extropy#tcp#warnIfNotConnected()
+
 python << EOF
 message = vim.eval("a:message")
 if extropy_tcp_socket != None:
