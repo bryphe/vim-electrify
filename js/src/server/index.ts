@@ -175,7 +175,6 @@ app.post("/api/stop", function(req, res) {
     process.exit();
 });
 
-
 io.on("connection", (socket) => {
     log.info("A socket connected.");
 

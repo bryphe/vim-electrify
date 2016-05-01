@@ -1,6 +1,14 @@
+let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') . '\asyncwatcher.py'
+execute 'pyfile '.s:path
 " extropy#command
 "
 " Set of commands that the node-vim interop layer can call back into
+
+python << EOF
+serverName = vim.eval("v:servername")
+extropy_command_asyncWatcher = AsyncWatcher(serverName)
+extropy_command_asyncWatcher.start()
+EOF
 
 function! extropy#command#execute(command)
     call extropy#debug#logInfo("Executing: ".a:command)
@@ -36,7 +44,6 @@ function! extropy#command#flushIncomingCommands()
     for command in commands
         call extropy#command#execute(command)
     endfor
-    redraw
 endfunction
 
 
