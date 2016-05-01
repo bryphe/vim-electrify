@@ -5,9 +5,7 @@ execute 'pyfile '.s:path
 " Set of commands that the node-vim interop layer can call back into
 
 python << EOF
-serverName = vim.eval("v:servername")
-extropy_command_asyncWatcher = AsyncWatcher(serverName)
-extropy_command_asyncWatcher.start()
+extropy_command_asyncWatcher = None
 EOF
 
 function! extropy#command#execute(command)
@@ -44,6 +42,28 @@ function! extropy#command#flushIncomingCommands()
     for command in commands
         call extropy#command#execute(command)
     endfor
+endfunction
+
+function! extropy#command#startWatcher() 
+python << EOF
+serverName = vim.eval("v:servername")
+extropy_command_asyncWatcher = AsyncWatcher(serverName)
+extropy_command_asyncWatcher.start()
+EOF
+
+augroup ExtropyWatcherListeners
+    autocmd!
+    autocmd! VimLeave * :call extropy#command#stopWatcher()
+augroup END
+
+endfunction
+
+function! extropy#command#stopWatcher()
+python << EOF
+if extropy_command_asyncWatcher != None:
+    extropy_command_asyncWatcher.stop()
+    extropy_command_asyncWatcher = None
+EOF
 endfunction
 
 
