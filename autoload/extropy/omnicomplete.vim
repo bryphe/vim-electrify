@@ -3,7 +3,7 @@ let s:completionArgs = {
     \'column': -1,
     \'line': -1,
     \'base': -1,
-    \'completionEntries': []
+    \'items': []
 \}
 
 function! extropy#omnicomplete#initializeCompletion()
@@ -45,6 +45,11 @@ function! extropy#omnicomplete#openCompletionMenu(completionArgs)
     endif
 endfunction
 
+function! extropy#omnicomplete#initiateCompletion(completionArgsAsString)
+    let completionInfo = extropy#js#deserialize(a:completionArgsAsString)
+    call extropy#omnicomplete#openCompletionMenu(completionInfo)
+endfunction
+
 function! extropy#omnicomplete#complete(findstart, base)
     let line = getline('.')
     let lineNumber = line(".")
@@ -52,7 +57,7 @@ function! extropy#omnicomplete#complete(findstart, base)
     if a:findstart
         return s:completionArgs.base
     else
-        return s:completionArgs.completionEntries
+        return s:completionArgs.items
     endif
 endfunction
 

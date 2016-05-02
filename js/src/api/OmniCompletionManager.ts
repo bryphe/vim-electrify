@@ -32,24 +32,34 @@ export class OmniCompletionManager {
         // var column = eventContext.col;
         // var posi
         // abc...
+        // abc.c c
 
         log.info("--Linecontents: " + eventContext.lineContents);
         log.info("--Col: " + eventContext.col);
 
         var col = eventContext.col;
-        if(col <= 2)
+        if (col <= 2)
             return;
 
         var currentCharacter = eventContext.lineContents[col - 2];
         var previousCharacter = eventContext.lineContents[col - 3];
-        
-        if(currentCharacter == ".") {
+
+        if (currentCharacter == ".") {
 
             log.info("Trying to open completion menu")
-            this._vim.rawExec("extropy#omnicomplete#openCompletionMenu({'base': '" + (col-1).toString() + "', 'completionEntries': ['a', 'b', 'c']})");
-        } else if(currentCharacter.match(/[a-z]/i) && previousCharacter == " ") {
-            this._vim.rawExec("extropy#omnicomplete#openCompletionMenu({'base': '" + (col-2).toString() + "', 'completionEntries': ['a', 'b', 'c']})");
+            this._sendCompletion({
+                base: col - 1,
+                line: eventContext.line,
+                items: [{ word: "a"},{ word: "b"},{ word: "c" }]
+            });
+        } else if (currentCharacter.match(/[a-z]/i) && previousCharacter == " ") {
+            this._sendCompletion({
+                base: col - 2,
+                line: eventContext.line,
+                items: [{ word: "a1"},{ word: "b2"},{ word: "c3" }]
+            });
         }
+
 
         // var completers = this._omniCompleters[fileType];
 
@@ -61,9 +71,13 @@ export class OmniCompletionManager {
         // if (completers.length === 0)
         //     return;
 
+        // // TODO: Handle multiple completers?
+        // var firstCompleter = completers[0];
+    }
 
-
-        
+    private _sendCompletion(completionInfo: omni.ICompletionInfo) {
+        var serializedCompletion = JSON.stringify(completionInfo);
+        this._vim.rawExec("extropy#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
     }
 
     public register(fileType: string, omniCompleter: omni.IOmniCompleter): void {
