@@ -18,7 +18,6 @@ export class OmniCompletionManager {
     constructor(owner: Vim) {
         this._vim = owner;
 
-
         this._vim.on("CursorMovedI", (eventContext: context.ICommandContext) => {
             this._checkForCompletion(eventContext);
         })
@@ -27,21 +26,9 @@ export class OmniCompletionManager {
     private _checkForCompletion(eventContext: context.ICommandContext) {
         log.info("Checking for completion: " + eventContext.filetype);
 
-
-        // var line = eventContext.line;
-        // var column = eventContext.col;
-        // var posi
-        // abc...
-        // abc.c c
-
         var completers = this._omniCompleters[eventContext.filetype];
 
-        if (!completers)
-            return;
-
-        completers = completers.filter((completer) => completer.shouldComplete(eventContext));
-
-        if (completers.length === 0)
+        if (!completers || !completers.length)
             return;
 
         log.info("Got a completer");

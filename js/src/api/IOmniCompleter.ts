@@ -13,6 +13,5 @@ export interface ICompletionItem {
 }
 
 export interface IOmniCompleter {
-    shouldComplete(completionContext: context.ICommandContext): boolean;
     getCompletions(completionContext: context.ICommandContext): Promise<ICompletionInfo>
 }
