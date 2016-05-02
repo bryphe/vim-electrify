@@ -34,45 +34,27 @@ export class OmniCompletionManager {
         // abc...
         // abc.c c
 
-        log.info("--Linecontents: " + eventContext.lineContents);
-        log.info("--Col: " + eventContext.col);
+        var completers = this._omniCompleters[eventContext.filetype];
 
-        var col = eventContext.col;
-        if (col <= 2)
+        if (!completers)
             return;
 
-        var currentCharacter = eventContext.lineContents[col - 2];
-        var previousCharacter = eventContext.lineContents[col - 3];
+        completers = completers.filter((completer) => completer.shouldComplete(eventContext));
 
-        if (currentCharacter == ".") {
+        if (completers.length === 0)
+            return;
 
-            log.info("Trying to open completion menu")
-            this._sendCompletion({
-                base: col - 1,
-                line: eventContext.line,
-                items: [{ word: "a"},{ word: "b"},{ word: "c" }]
+        log.info("Got a completer");
+        // TODO: Handle multiple completers?
+        var firstCompleter = completers[0];
+
+        firstCompleter.getCompletions(eventContext)
+            .then((completionInfo: omni.ICompletionInfo) => {
+                if (completionInfo) {
+                    this._sendCompletion(completionInfo);
+                    log.info("Received completion results: " + completionInfo.base + "|" + completionInfo.items.length + " items");
+                }
             });
-        } else if (currentCharacter.match(/[a-z]/i) && previousCharacter == " ") {
-            this._sendCompletion({
-                base: col - 2,
-                line: eventContext.line,
-                items: [{ word: "a1"},{ word: "b2"},{ word: "c3" }]
-            });
-        }
-
-
-        // var completers = this._omniCompleters[fileType];
-
-        // if (!completers)
-        //     return;
-
-        // completers = completers.filter((completer) => completer.shouldComplete(eventContext));
-
-        // if (completers.length === 0)
-        //     return;
-
-        // // TODO: Handle multiple completers?
-        // var firstCompleter = completers[0];
     }
 
     private _sendCompletion(completionInfo: omni.ICompletionInfo) {
@@ -84,36 +66,4 @@ export class OmniCompletionManager {
         this._omniCompleters[fileType] = this._omniCompleters[fileType] || [];
         this._omniCompleters[fileType].push(omniCompleter);
     }
-
-    private _startOmniCompletion(omniInfo: any): void {
-        // log.verbose("Omnicompletion: starting");
-        // var promises = [];
-
-        // this._omniCompleters.forEach((completer) => {
-        //     promises.push(completer.getCompletions(omniInfo));
-        // });
-
-        // Promise.all(promises).then((ret) => {
-        //     var allSuggestions = [];
-        //     ret = ret || [];
-        //     ret.forEach(r => {
-        //         allSuggestions = allSuggestions.concat(r);
-        //     });
-        //     log.verbose(JSON.stringify(ret));
-
-        //     log.info("Omnicompletion: total values returned: " + allSuggestions.length);
-
-        //     this._rawExec("extropy#omnicomplete#startRemoteCompletion()");
-        //     var batchSize = 100;
-
-        //     while (allSuggestions.length > 0) {
-        //         var suggestions = allSuggestions.splice(0, batchSize);
-        //         this._rawExec("extropy#omnicomplete#addRemoteCompletion('" + JSON.stringify(suggestions) + "')");
-        //         log.info("--Sending batch of size: " + suggestions.length);
-        //     }
-
-        //     this._rawExec("extropy#omnicomplete#endRemoteCompletion()");
-        // });
-    }
-
 }
