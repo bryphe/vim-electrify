@@ -10,6 +10,10 @@ class SocketListener:
         self.sock = None
         self.ip = ip
         self.port = port
+        self.connected = False
+
+    def isConnected(self):
+        return self.connected
 
     def connect(self):
         import socket 
@@ -29,6 +33,7 @@ class SocketListener:
             self.sendThread = threading.Thread(target = self._sendMessages)
             self.receivedThread.start()
             self.sendThread.start()
+            self.connected = True
 
     def disconnect(self):
         import socket
@@ -43,10 +48,11 @@ class SocketListener:
         self.stopEvent.set()
         self.sock.close()
         self.sock = None
+        self.connected = False
 
     def sendMessage(self, msg):
         import json
-        msg = json.dumps(msg)
+        msg = json.dumps(msg) + "\n"
         self.messagesToSend.put(msg)
 
     def getMessages(self):
@@ -71,15 +77,25 @@ class SocketListener:
     def _sendMessages(self):
         buffer = ""
         character = ""
+        characters = ""
         while (not self.stopEvent.is_set()):
             try:
-                character = self.sock.recv(1)
+                characters = self.sock.recv(1024)
             except:
-                pass
-            if '\n' in character:
-                self.receivedMessages.put(buffer)
                 buffer = ""
-            else:
-                buffer += character
+                self.connected = False
+                # TODO: Set error flag
+                # print "Exception receiving characters"
+                pass
+
+            if self.connected == True:
+                for character in characters:
+                    if '\n' in character:
+                        self.receivedMessages.put(buffer)
+                        # print "Got message: " + buffer
+                        buffer = ""
+                    else:
+                        buffer += character
+
             self.stopEvent.wait(0.01)
 

@@ -8,5 +8,3 @@ winston.add(winston.transports.File, { filename: fileToLog, level: "debug", opti
 }});
 
 export = winston;
-
-

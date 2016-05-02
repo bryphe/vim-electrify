@@ -72,6 +72,10 @@ export default class Plugin {
             });
         });
 
+        this._pluginProcess.stderr.on("data", (data) => {
+            this._log("info", data);
+        });
+
         this._pluginProcess.stderr.on("data", (data, err) => {
             this._logError(data + "|" + err);
         });
@@ -91,9 +95,13 @@ export default class Plugin {
                 this._commandExecutor.executeCommand(this._gvimServerName, command);
             } else if (data.type == "log") {
                 var logLevel = data.logLevel || "warn";
-                log[logLevel]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + data.msg);
+                this._log(logLevel, data.msg);
             }
         }
+    }
+
+    private _log(level: string, message: string) {
+        log[level]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + message);
     }
 
     private _logError(err) {
@@ -121,13 +129,12 @@ export default class Plugin {
         this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
     }
 
-    public updateOmniComplete(updateOmniCompletionArgs: any): void {
+    public onBufferChanged(bufferChangedEventArgs: any): void {
         var commandInfo = {
-            type: "omnicomplete-update",
-            arguments: updateOmniCompletionArgs
+            type: "bufferChanged",
+            arguments: bufferChangedEventArgs
         };
-
-        this._writeToPlugin(commandInfo, updateOmniCompletionArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, bufferChangedEventArgs.bufferName);
     }
 
     public execute(commandName: string, callContext: any) {

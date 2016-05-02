@@ -3,8 +3,9 @@ import childProcess = require("child_process");
 import events = require("events");
 import os = require("os");
 
-import omni = require("./IOmniCompleter");
 import loclist = require("./ILocListEntry");
+import syntax = require("./ISyntaxHighlighting");
+import * as omni from "./OmniCompletionmanager"
 
 // TODO: Take in port
 var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io" });
@@ -17,12 +18,17 @@ export default class Vim extends events.EventEmitter {
     private _commandNameToFunction = {};
     private _pluginName: string;
 
-    private _omniCompleters: omni.IOmniCompleter[] = [];
+    private _omniCompletionManager: omni.OmniCompletionManager;
+
+    public get omniCompleters(): omni.OmniCompletionManager {
+        return this._omniCompletionManager;
+    }
 
     constructor(serverName: string, pluginName: string) {
         super();
         this._serverName = serverName;
         this._pluginName = pluginName;
+        this._omniCompletionManager = new omni.OmniCompletionManager(this);
 
         socket.on("connect", () => {
             socket.emit("room", process.pid);
@@ -53,12 +59,12 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("extropy#command#createCommand('" + this._pluginName + "', '" + name + "')")
     }
 
-    public addOmniCompleter(omniCompleter: omni.IOmniCompleter): void {
-        this._omniCompleters.push(omniCompleter);
-    }
-
     public exec(command: string) {
         this._rawExec("extropy#command#execute('" + command + "')");
+    }
+
+    public rawExec(command: string) {
+        this._rawExec(command);
     }
 
     public echo(msg: string): void {
@@ -67,6 +73,10 @@ export default class Vim extends events.EventEmitter {
 
     public echohl(msg: string, highlightGroup: string): void {
         this._rawExec("extropy#command#echohl('" + msg + "', '" + highlightGroup + "')");
+    }
+
+    public setSyntaxHighlighting(syntaxHighlightingInfo: syntax.ISyntaxHighlighting) {
+        this._rawExec("extropy#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     }
 
     public setErrors(errors: loclist.ILocListEntry[]) {
@@ -91,48 +101,12 @@ export default class Vim extends events.EventEmitter {
         this._commandNameToFunction[commandName](command.callContext);
     }
 
-    private _startOmniCompletion(omniInfo: any): void {
-        log.verbose("Omnicompletion: starting");
-        var promises = [];
-
-        this._omniCompleters.forEach((completer) => {
-            promises.push(completer.getCompletions(omniInfo));
-        });
-
-        Promise.all(promises).then((ret) => {
-            var allSuggestions = [];
-            ret = ret || [];
-            ret.forEach(r => {
-                allSuggestions = allSuggestions.concat(r);
-            });
-            log.verbose(JSON.stringify(ret));
-
-            log.info("Omnicompletion: total values returned: " + allSuggestions.length);
-
-            this._rawExec("extropy#omnicomplete#startRemoteCompletion()");
-            var batchSize = 100;
-
-            while (allSuggestions.length > 0) {
-                var suggestions = allSuggestions.splice(0, batchSize);
-                this._rawExec("extropy#omnicomplete#addRemoteCompletion('" + JSON.stringify(suggestions) + "')");
-                log.info("--Sending batch of size: " + suggestions.length);
-            }
-
-            this._rawExec("extropy#omnicomplete#endRemoteCompletion()");
-        });
-    }
-
-    private _updateOmniCompletion(omniInfo: any): void {
-        log.verbose("Omnicompletion: updating file: " + JSON.stringify(omniInfo));
-        log.info("Received file update: " + omniInfo.lines.length + " lines.");
-
-        var newContent = omniInfo.lines.join(os.EOL);
-
+    private _onBufferChanged(bufferChangeInfo: any): void {
+        log.info("Received file update: " + bufferChangeInfo.lines.length + " lines.");
+        var newContent = bufferChangeInfo.lines.join(os.EOL);
         log.verbose(newContent);
 
-        this._omniCompleters.forEach((completer) => {
-            completer.onFileUpdate(omniInfo.currentBuffer, newContent);
-        });
+        this.emit("BufferChanged", { fileName: bufferChangeInfo.bufferName, newContents: newContent });
     }
 
     private _handleCommand(command: any): void {
@@ -141,10 +115,8 @@ export default class Vim extends events.EventEmitter {
                 this._executeCommand(command);
             else if (command.type === "event")
                 this._executeEvent(command);
-            else if (command.type === "omnicomplete")
-                this._startOmniCompletion(command.arguments);
-            else if (command.type === "omnicomplete-update")
-                this._updateOmniCompletion(command.arguments);
+            else if (command.type === "bufferChanged")
+                this._onBufferChanged(command.arguments);
         }
     }
 }

@@ -12,9 +12,97 @@ require("colors").enabled = true;
 
 import SessionManager from "./SessionManager"
 import CommandLineRemoteCommandExecutor from "./Commands/CommandLineRemoteCommandExecutor"
+import TcpSocketRemoteCommandExecutor from "./Commands/TcpSocketRemoteCommandExecutor"
 
-var commandExecutor = new CommandLineRemoteCommandExecutor();
-var sessionManager = new SessionManager(io, commandExecutor);
+// TCP Server
+var serverToSocket = {};
+var sessionManager;
+
+var tcpServer = net.createServer((tcpSocket) => {
+    console.log("tcp: client connected");
+
+    var session = null;
+    var currentBuffer = "";
+
+    tcpSocket.on("data", (data) => {
+        var dataAsString = data.toString("utf8");
+
+        console.log("tcp: received data of length: " + dataAsString.length + "|" + currentBuffer);
+        currentBuffer += dataAsString;
+        console.log("index of newline: " + dataAsString.indexOf("\n"));
+
+        if(currentBuffer.indexOf("\n") == -1)
+            return;
+
+        var parsedData = null;
+        try {
+            parsedData = JSON.parse(currentBuffer);
+            currentBuffer = "";
+        } catch(ex) {
+            currentBuffer = "";
+            log.error("tcp: error parsing data: " + ex.toString(), { error: ex});
+        }
+
+        if(parsedData.type === "connect") {
+            log.info("Got connect event - registering server: " + parsedData.args.serverName);
+            session = sessionManager.getOrCreateSession(parsedData.args.serverName);
+            serverToSocket[session.name] = tcpSocket;
+        } else if(parsedData.type === "event") {
+            var eventName = parsedData.args.eventName;
+            var context = parsedData.context;
+            console.log("Got event: " + eventName);
+            session.notifyEvent(eventName, context)
+
+            if(eventName === "VimLeave") {
+                end();
+            }
+        } else if(parsedData.type === "command") {
+            var plugin = parsedData.args.plugin;
+            var command = parsedData.args.command;
+            var context = parsedData.context;
+
+            console.log("Got command: " + command);
+
+            var plugin = session.plugins.getPlugin(plugin);
+            plugin.execute(command, context);
+        } else if(parsedData.type === "bufferChanged") {
+            var bufferName = parsedData.args.bufferName;
+            var lines = parsedData.args.lines;
+            console.log(JSON.stringify(lines));
+
+            console.log("BufferChanged: " + bufferName + "| Lines: " + lines.length);
+            session.plugins.onBufferChanged(parsedData.args);
+        }
+    });
+
+    tcpSocket.on("close", () => {
+        console.log("tcp: close");
+        end();
+    });
+
+    tcpSocket.on("error", (err) => {
+        console.log("tcp: disconnect");
+        end();
+    });
+
+    function getServerName() {
+        console.log("No session... requesting connect.");
+        tcpSocket.write("extropy#tcp#sendConnectMessage()\n");
+    }
+
+    function end() {
+        if(session) {
+            sessionManager.endSession(session.name);
+            session = null;
+        }
+    }
+
+});
+
+tcpServer.listen(4001, "127.0.0.1");
+
+var commandExecutor = new TcpSocketRemoteCommandExecutor(serverToSocket);
+sessionManager = new SessionManager(io, commandExecutor);
 
 // TODO: Handle creating session
 
@@ -24,39 +112,10 @@ app.get("/", function (req, res) {
     res.send("Open for business");
 });
 
-app.post("/api/start/:serverName", (req, res) => {
-    console.log(req.params.serverName);
-    console.log(req.params.pluginName);
-    console.log("-pre body");
-    console.log(req.body);
-    console.log("-post body");
-
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-
-    res.send("done");
-});
-
 app.post("/api/log", (req, res) => {
     console.log("[LOG]:" + JSON.stringify(req.body));
 });
 
-app.post("/api/plugin/:serverName/event/:eventName", (req, res) => {
-    log.info(req.params);
-    log.info(req.body);
-
-    var eventName = req.params.eventName;
-
-    var state = req.body;
-    log.info("Received event: " + eventName + " data:" + JSON.stringify(state));
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.notifyEvent(eventName, state)
-
-    if(eventName === "VimLeave") {
-        sessionManager.endSession(req.params.serverName);
-    }
-
-    res.send("done");
-});
 
 app.post("/api/plugin/:serverName/omnicomplete/start", (req, res) => {
     console.log("start omnicomplete");
@@ -116,7 +175,6 @@ app.post("/api/stop", function(req, res) {
     process.exit();
 });
 
-
 io.on("connection", (socket) => {
     log.info("A socket connected.");
 
@@ -137,24 +195,3 @@ process.on("uncaughtException", (err) => {
 
 server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
-
-var tcpServer = net.createServer((tcpSocket) => {
-    console.log("tcp: client connected");
-
-    tcpSocket.on("data", (data) => {
-        var dataAsString = data.toString("utf8");
-        console.log("tcp: received data: " + data);
-        tcpSocket.write("echo|" + data + "\n");
-    });
-
-    tcpSocket.on("close", () => {
-        console.log("tcp: close");
-    });
-
-    tcpSocket.on("error", (err) => {
-        console.log("tcp: disconnect");
-    });
-
-});
-
-tcpServer.listen(4001, "127.0.0.1");
