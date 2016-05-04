@@ -34,10 +34,12 @@ endfunction
 function! extropy#omnicomplete#openCompletionMenu(completionArgs)
     let s:completionArgs = a:completionArgs
     if mode() == "i" && !pumvisible()
+        call UltiSnips#Anon("##", "derp")
 
         let s:originalCompleteOptions = &completeopt
         let s:originalOmnifunc = &omnifunc
 
+        " set completeopt=menuone
         set completeopt=noselect,noinsert,menuone,preview
         set omnifunc=extropy#omnicomplete#complete
 
@@ -70,6 +72,11 @@ function! extropy#omnicomplete#onCompleteDone()
     if exists("s:originalOmnifunc")
         execute("set omnifunc=".s:originalOmnifunc)
     endif
+
+    echom "Completed item: ".string(v:completed_item)
+    " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
+    " echom "Mode: " . mode()
+    " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
 endfunction
 
-
+i000

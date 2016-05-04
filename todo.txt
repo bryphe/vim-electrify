@@ -1,3 +1,26 @@
+Pop-up completion:
+1) Typescript side - see what the 'GetSignatureHelpItems' shows, and how we can map it to a snippet
+2) API side - add method to omnicompleter - 'GetFunctionCompletions'
+3) Turn off 'preview mode' - we'll use the 'info' for other stuff
+4) VIM side - add API like:
+extropy#omnicomplete#openSnippetCompletion(snippetCompletionArgs)
+snippetCompletionArgs = base
+items = [
+{ description: "Snippet description", contents: ["line 1", "line 2", etc]}
+]
+
+The method will call openCompleteMenu, with word: '', empty: 1, 'abbr': 'name', description': description, 'info': SomeSnippetIdentifier
+Save into script-local buffer, like s:pendingSnippets = map<identifier, contents>
+ 5) Create extropy#snippet#expandSnippet(lines)
+
+
+Other interesting things:
+http://vi.stackexchange.com/questions/2116/is-cpovim-a-special-syntax
+<C-y> - completes snippet
+maparg, mapcheck - see mapping
+
+
+
 1) Change omnifunc to a JS provider
 2) Create a node (server) process to run in background 
 3) Close node process when exiting
