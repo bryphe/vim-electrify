@@ -78,5 +78,3 @@ function! extropy#omnicomplete#onCompleteDone()
     " echom "Mode: " . mode()
     " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
 endfunction
-
-i000
