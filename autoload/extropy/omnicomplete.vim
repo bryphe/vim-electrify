@@ -1,4 +1,18 @@
+function! extropy#omnicomplete#onCompleteDone()
+    if exists("s:originalCompleteOptions")
+        execute("set completeopt=".s:originalCompleteOptions)
+        unlet s:originalCompleteOptions
+    endif
 
+    if exists("s:originalOmnifunc")
+        execute("set omnifunc=".s:originalOmnifunc)
+    endif
+
+    echom "Completed item: ".string(v:completed_item)
+    " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
+    " echom "Mode: " . mode()
+    " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
+endfunction
 let s:completionArgs = {
     \'column': -1,
     \'line': -1,
@@ -15,22 +29,6 @@ function! extropy#omnicomplete#initializeCompletion()
     augroup END
 endfunction
 
-
-function! extropy#omnicomplete#startRemoteCompletion()
-    echom "Start"
-    let s:completionEntries = []
-endfunction
-
-function! extropy#omnicomplete#addRemoteCompletion(completionEntries)
-    let remoteCompletion = extropy#js#deserialize(a:completionEntries)
-    let s:completionEntries = s:completionEntries + remoteCompletion
-endfunction
-
-function! extropy#omnicomplete#endRemoteCompletion()
-    " Force refresh, because we have updated autocomplete values
-    " call extropy#omnicomplete#openCompletionMenu()
-endfunction
-
 function! extropy#omnicomplete#openCompletionMenu(completionArgs)
     let s:completionArgs = a:completionArgs
     if mode() == "i" && !pumvisible()
@@ -40,7 +38,10 @@ function! extropy#omnicomplete#openCompletionMenu(completionArgs)
         let s:originalOmnifunc = &omnifunc
 
         " set completeopt=menuone
-        set completeopt=noselect,noinsert,menuone,preview
+        " No preview mode - the info flag is going to be used for rich
+        " behavior
+        set completeopt=noselect,noinsert,menuone
+        set completeopt-=preview
         set omnifunc=extropy#omnicomplete#complete
 
         call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
@@ -74,6 +75,7 @@ function! extropy#omnicomplete#onCompleteDone()
     endif
 
     echom "Completed item: ".string(v:completed_item)
+    call extropy#snippet#expandAnonymousSnippet(0)
     " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
     " echom "Mode: " . mode()
     " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")

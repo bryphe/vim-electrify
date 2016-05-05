@@ -21,6 +21,8 @@ def extropy_tcp_sendMessage(message):
 EOF
 
 function! extropy#tcp#connect(ipAddress, port)
+let s:previousIpAddress = a:ipAddress
+let s:previousPort = a:port
 python << EOF
 import json
 
@@ -58,6 +60,11 @@ if extropy_tcp_socket != None:
     extropy_tcp_socket.disconnect()
     extropy_tcp_socket = None
 EOF
+endfunction
+
+function! extropy#tcp#reconnect()
+    call extropy#tcp#disconnect()
+    call extropy#tcp#connect(s:previousIpAddress, s:previousPort)
 endfunction
 
 function! extropy#tcp#warnIfNotConnected()
