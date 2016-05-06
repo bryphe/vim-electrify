@@ -1,16 +1,4 @@
-Pop-up completion:
-1) Typescript side - see what the 'GetSignatureHelpItems' shows, and how we can map it to a snippet
-
-Looks like this:
-info: [vim-js-typescript-completion|35476]Signature help{"items":[{"isVariadic":true,"prefixDisplayParts":[{"text":"log","kind":"methodName"},{"text":"(","kind":"punctuation"}],"suffixDisplayParts":[{"text":")","kind":"punctuation"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"void","kind":"keyword"}],"separatorDisplayParts":[{"text":",","kind":"punctuation"},{"text":" ","kind":"space"}],"parameters":[{"name":"message","documentation":[],"displayParts":[{"text":"message","kind":"parameterName"},{"text":"?","kind":"punctuation"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"any","kind":"keyword"}],"isOptional":true},{"name":"optionalParams","documentation":[],"displayParts":[{"text":"...","kind":"punctuation"},{"text":"optionalParams","kind":"parameterName"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"any","kind":"keyword"},{"text":"[","kind":"punctuation"},{"text":"]","kind":"punctuation"}],"isOptional":false}],"documentation":[]}],"applicableSpan":{"start":{"line":32,"offset":21},"end":{"line":32,"offset":70}},"selectedItemIndex":0,"argumentIndex":0,"argumentCount":1}
-
-Could do something like concactenate all the 'parameters', with the type = parameterName as the replaceable pieces
-
-2) API side - add method to omnicompleter - 'GetFunctionCompletions'
-
-3) Turn off 'preview mode' - we'll use the 'info' for other stuff
-[DONE] - Remove preview flag
-
+Function completion:
 4) VIM side - add API like:
 extropy#omnicomplete#openSnippetCompletion(snippetCompletionArgs)
 snippetCompletionArgs = base
@@ -25,7 +13,26 @@ inoremap <expr> $ extropy#omnicomplete#openCompletionMenu({'base': col('.'), 'li
 The method will call openCompleteMenu, with word: '', empty: 1, 'abbr': 'name', description': description, 'info': SomeSnippetIdentifier
 Save into script-local buffer, like s:pendingSnippets = map<identifier, contents>
  5) Create extropy#snippet#expandSnippet(lines)
+[IN PROGRESS] - Added snippet.vim to handle this and prototyped - it works well with the omnicompelte
 
+6) Finish hooking up in the TS code- how to pass the completions down?
+-Need to get the types integrated - especially derived classes. How will that work?
+-New SnippetCompletion, new WordCompletion
+
+
+Pop-up completion:
+1) Typescript side - see what the 'GetSignatureHelpItems' shows, and how we can map it to a snippet
+
+Looks like this:
+info: [vim-js-typescript-completion|35476]Signature help{"items":[{"isVariadic":true,"prefixDisplayParts":[{"text":"log","kind":"methodName"},{"text":"(","kind":"punctuation"}],"suffixDisplayParts":[{"text":")","kind":"punctuation"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"void","kind":"keyword"}],"separatorDisplayParts":[{"text":",","kind":"punctuation"},{"text":" ","kind":"space"}],"parameters":[{"name":"message","documentation":[],"displayParts":[{"text":"message","kind":"parameterName"},{"text":"?","kind":"punctuation"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"any","kind":"keyword"}],"isOptional":true},{"name":"optionalParams","documentation":[],"displayParts":[{"text":"...","kind":"punctuation"},{"text":"optionalParams","kind":"parameterName"},{"text":":","kind":"punctuation"},{"text":" ","kind":"space"},{"text":"any","kind":"keyword"},{"text":"[","kind":"punctuation"},{"text":"]","kind":"punctuation"}],"isOptional":false}],"documentation":[]}],"applicableSpan":{"start":{"line":32,"offset":21},"end":{"line":32,"offset":70}},"selectedItemIndex":0,"argumentIndex":0,"argumentCount":1}
+
+Could do something like concactenate all the 'parameters', with the type = parameterName as the replaceable pieces
+
+2) API side - add method to omnicompleter - 'GetFunctionCompletions'
+[PROGRESS] - Is this actually needed? Why not just let the completer take a snippet completoin?
+
+3) Turn off 'preview mode' - we'll use the 'info' for other stuff
+[DONE] - Remove preview flag
 
 Other interesting things:
 http://vi.stackexchange.com/questions/2116/is-cpovim-a-special-syntax

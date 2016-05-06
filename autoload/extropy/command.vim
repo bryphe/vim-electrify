@@ -8,6 +8,9 @@ python << EOF
 extropy_command_asyncWatcher = None
 EOF
 
+" TODO: Better guard here to make sure extropy_tcp_getMessages is available
+call extropy#tcp#isConnected()
+
 function! extropy#command#execute(command)
     call extropy#debug#logInfo("Executing: ".a:command)
     :execute a:command
@@ -36,7 +39,7 @@ function! extropy#command#createCommand(pluginName, commandName)
 endfunction
 
 function! extropy#command#flushIncomingCommands()
-    let commands = extropy#tcp#getMessages()
+    let commands = extropy#command#getMessages()
     " echom "Flushing = " . string(len(commands))
     call extropy#debug#logInfo("extropy#command#flushIncomingCommands: ".len(commands)." commands to flush.")
     for command in commands
@@ -47,7 +50,7 @@ endfunction
 function! extropy#command#startWatcher() 
 python << EOF
 serverName = vim.eval("v:servername")
-extropy_command_asyncWatcher = AsyncWatcher(serverName)
+extropy_command_asyncWatcher = AsyncWatcher(serverName, extropy_tcp_getMessages)
 extropy_command_asyncWatcher.start()
 EOF
 
@@ -57,6 +60,19 @@ augroup ExtropyWatcherListeners
 augroup END
 
 endfunction
+
+function! extropy#command#getMessages()
+let ret = []
+python << EOF
+import json
+if extropy_command_asyncWatcher != None:
+    messages = extropy_command_asyncWatcher.getMessages()
+    messagesAsJson = json.dumps(messages)
+    vim.command("let ret = " + messagesAsJson)
+EOF
+return ret
+endfunction
+
 
 function! extropy#command#stopWatcher()
 python << EOF

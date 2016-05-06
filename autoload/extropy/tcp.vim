@@ -18,6 +18,12 @@ def extropy_tcp_sendConnectMessage():
 def extropy_tcp_sendMessage(message):
     if extropy_tcp_socket != None:
         extropy_tcp_socket.sendMessage(message)
+
+def extropy_tcp_getMessages():
+    if extropy_tcp_socket != None:
+        return extropy_tcp_socket.getMessages()
+    else:
+        return []
 EOF
 
 function! extropy#tcp#connect(ipAddress, port)
@@ -85,16 +91,3 @@ if extropy_tcp_socket != None:
     extropy_tcp_socket.sendMessage(message)
 EOF
 endfunction
-
-function! extropy#tcp#getMessages()
-let ret = []
-python << EOF
-import json
-if extropy_tcp_socket != None:
-    messages = extropy_tcp_socket.getMessages()
-    messagesAsJson = json.dumps(messages)
-    vim.command("let ret = " + messagesAsJson)
-EOF
-return ret
-endfunction
-

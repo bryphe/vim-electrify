@@ -75,7 +75,7 @@ function! extropy#omnicomplete#onCompleteDone()
     endif
 
     echom "Completed item: ".string(v:completed_item)
-    call extropy#snippet#expandAnonymousSnippet(0)
+    " call extropy#snippet#expandAnonymousSnippet(0)
     " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
     " echom "Mode: " . mode()
     " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
