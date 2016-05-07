@@ -7,7 +7,7 @@ import Queue
 # limitations of CursorHold/CursorHoldI + updatetime.
 # This is designed to use remote-expr to flush commands
 class AsyncWatcher:
-    def __init__(self, serverName, funcToGetMessages, sleepTimeInSeconds=0.25):
+    def __init__(self, serverName, funcToGetMessages, sleepTimeInSeconds=0.1):
         self._serverName = serverName
         self._funcToGetMessages = funcToGetMessages
         self._sleepTime = sleepTimeInSeconds
@@ -44,5 +44,6 @@ class AsyncWatcher:
                 startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
                 subprocess.Popen("vim --servername " + self._serverName + " --remote-expr extropy#command#flushIncomingCommands()", startupinfo=startupinfo)
                 # subprocess.Popen("vim --servername GVIM --remote-expr extropy#command#echo('derp3')", startupinfo=startupinfo)
-                self._stopEvent.wait(self._sleepTime)
+
+            self._stopEvent.wait(self._sleepTime)
 

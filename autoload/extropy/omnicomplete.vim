@@ -32,8 +32,6 @@ endfunction
 function! extropy#omnicomplete#openCompletionMenu(completionArgs)
     let s:completionArgs = a:completionArgs
     if mode() == "i" && !pumvisible()
-        call UltiSnips#Anon("##", "derp")
-
         let s:originalCompleteOptions = &completeopt
         let s:originalOmnifunc = &omnifunc
 
@@ -60,8 +58,43 @@ function! extropy#omnicomplete#complete(findstart, base)
     if a:findstart
         return s:completionArgs.base
     else
-        return s:completionArgs.items
+        let items = extropy#omnicomplete#filterItems(s:completionArgs.items)
+        return items
     endif
+endfunction
+
+function! extropy#omnicomplete#filterItems(items)
+    let ret = []
+
+    for item in a:items
+        if type(item) == type("")
+            call add(ret, item)
+            continue
+        endif
+
+        if type(item) != type({})
+            continue
+        endif
+
+        if has_key(item, "snippet")
+            let abbr = ''
+            if has_key(item, "abbr")
+                let abbr = item.abbr
+            endif
+
+            let description = ''
+            if has_key(item, "menu")
+                let description = item.menu
+            endif
+
+            let newItem = { 'word': '', 'empty': 1, 'kind': '[snippet]', 'abbr': abbr, 'menu': description, 'info': item.snippet }
+            call add(ret, newItem)
+        else
+            call add(ret, item)
+        endif
+    endfor
+
+    return ret
 endfunction
 
 function! extropy#omnicomplete#onCompleteDone()
@@ -75,6 +108,10 @@ function! extropy#omnicomplete#onCompleteDone()
     endif
 
     echom "Completed item: ".string(v:completed_item)
+
+    if v:completed_item.kind == "[snippet]" 
+        call extropy#snippet#expandAnonymousSnippet(v:completed_item.info)
+    endif
     " call extropy#snippet#expandAnonymousSnippet(0)
     " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
     " echom "Mode: " . mode()
