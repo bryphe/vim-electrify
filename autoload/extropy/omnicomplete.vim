@@ -109,8 +109,12 @@ function! extropy#omnicomplete#onCompleteDone()
 
     echom "Completed item: ".string(v:completed_item)
 
-    if v:completed_item.kind == "[snippet]" 
-        call extropy#snippet#expandAnonymousSnippet(v:completed_item.info)
+    if type(v:completed_item) == type({})
+        if has_key(v:completed_item, "kind")
+            if v:completed_item.kind == "[snippet]" 
+                call extropy#snippet#expandAnonymousSnippet(v:completed_item.info)
+            endif
+        endif
     endif
     " call extropy#snippet#expandAnonymousSnippet(0)
     " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
