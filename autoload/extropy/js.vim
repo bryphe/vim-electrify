@@ -66,6 +66,12 @@ function! extropy#js#disconnectTcp()
     call extropy#tcp#disconnect()
 endfunction
 
+function! extropy#js#reconnect()
+    call extropy#tcp#reconnect()
+    sleep 500m
+    call extropy#js#notifyBufferEvent("BufEnter")
+endfunction
+
 function! extropy#js#notifyBufferEvent(eventName)
 python << EOF
 message = {
