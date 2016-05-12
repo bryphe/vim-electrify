@@ -87,15 +87,16 @@ EOF
 
 endfunction
 
-function! extropy#js#callJsFunction(pluginName, commandName)
-call extropy#debug#logInfo("extropy#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName)
+function! extropy#js#callJsFunction(pluginName, commandName, qArgs)
+call extropy#debug#logInfo("extropy#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName." Args: ".a:qArgs)
 call extropy#tcp#warnIfNotConnected()
 python << EOF
 jsFunctionMessage = {
     'type': 'command',
     'args': {
         'plugin': vim.eval("a:pluginName"),
-        'command': vim.eval("a:commandName")
+        'command': vim.eval("a:commandName"),
+        'qargs': vim.eval("a:qArgs")
     },
     'context': extropy_get_context()
 }
