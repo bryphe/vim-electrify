@@ -41,6 +41,7 @@ function! extropy#js#start()
 
 python << EOF
 import vim
+import time
 serverPath = vim.eval("s:serverJsPath")
 debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 
@@ -50,6 +51,8 @@ response = request.send();
 if response == None:
     server = Server(serverPath, 3000)
     server.start(debugMode)
+
+    time.sleep(5)
 
     # Validate response after starting it
     request = Request("http://127.0.0.1:3000")
