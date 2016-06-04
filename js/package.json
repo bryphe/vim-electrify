@@ -22,6 +22,7 @@
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
     "colors": "^1.1.2",
+    "electron-prebuilt": "^1.2.1",
     "express": "^4.13.4",
     "glob": "^7.0.0",
     "minimatch": "^3.0.0",
