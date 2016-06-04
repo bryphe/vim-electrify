@@ -1,3 +1,17 @@
+const electron = require("electron");
+const electronApp = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+
+let mainWindow;
+
+
+let createWindow = () => {
+    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow.loadURL("http://www.google.com");
+};
+
+electronApp.on("ready", createWindow);
+
 var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
