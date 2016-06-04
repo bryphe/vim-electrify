@@ -17,8 +17,12 @@ class Server:
         if debugMode == "0":
             startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 
+        currentDir = os.path.dirname(os.path.realpath("__file__"))
+        currentDir = os.path.dirname(currentDir);
+        path = os.path.join(currentDir, "js", "node_modules", ".bin", "electron.cmd")
+
         # TODO: Pass in port specified in config
-        self._serverProcess = subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
+        self._serverProcess = subprocess.Popen(path + " " + serverPath, startupinfo=startupinfo)
 
     def stop(self):
         if self._serverProcess != None:
