@@ -1,3 +1,14 @@
+import * as Electron from "electron";
+
+const shouldQuit = Electron.app.makeSingleInstance((commandLine, workingDirectory) => {
+    console.log("Tried to start second instance");
+});
+
+if (shouldQuit) { 
+    console.log("Second instance... quitting.");
+    Electron.app.quit();
+}
+
 var express = require("express");
 var app = express();
 var server = require("http").createServer(app);

@@ -42,24 +42,12 @@ function! extropy#js#start()
 python << EOF
 import vim
 import time
+pluginDir = vim.eval("s:plugindir")
 serverPath = vim.eval("s:serverJsPath")
 debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
 
-request = Request("http://127.0.0.1:3000/")
-response = request.send();
-
-if response == None:
-    server = Server(serverPath, 3000)
-    server.start(debugMode)
-
-    time.sleep(5)
-
-    # Validate response after starting it
-    request = Request("http://127.0.0.1:3000")
-    response2 = request.send()
-
-    if response2 == None:
-        print "Issue starting up server - please report this issue."
+server = Server(pluginDir, serverPath, 3000)
+server.start(debugMode)
 EOF
 
     call extropy#tcp#connect("127.0.0.1", 4001)

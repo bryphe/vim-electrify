@@ -27,13 +27,18 @@ class SocketListener:
 
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            self.sock.connect((self.ip, self.port))
-
-            self.receivedThread = threading.Thread(target = self._listenForMessages)
-            self.sendThread = threading.Thread(target = self._sendMessages)
-            self.receivedThread.start()
-            self.sendThread.start()
-            self.connected = True
+            try:
+                self.sock.connect((self.ip, self.port))
+                self.receivedThread = threading.Thread(target = self._listenForMessages)
+                self.receivedThread.Daemon = True
+                self.sendThread = threading.Thread(target = self._sendMessages)
+                self.sendThread.Daemon = True
+                self.receivedThread.start()
+                self.sendThread.start()
+                self.connected = True
+            except:
+                self.sock = None
+                self.connected = False
 
     def disconnect(self):
         import socket
@@ -51,6 +56,9 @@ class SocketListener:
         self.connected = False
 
     def sendMessage(self, msg):
+        if self.connected == False:
+            self.connect()
+
         import json
         msg = json.dumps(msg) + "\n"
         self.messagesToSend.put(msg)

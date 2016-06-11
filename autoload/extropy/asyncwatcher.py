@@ -16,6 +16,7 @@ class AsyncWatcher:
     def start(self):
         self._stopEvent = threading.Event()
         self._watchThread = threading.Thread(target = self._triggerCommandFlush)
+        self._watchThread.Daemon = True
         self._watchThread.start()
 
     def getMessages(self):

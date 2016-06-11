@@ -1,6 +1,7 @@
 {
   "ambientDependencies": {
     "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
+    "github-electron": "registry:dt/github-electron#1.2.1+20160602155650",
     "glob": "github:DefinitelyTyped/DefinitelyTyped/glob/glob.d.ts#a14d724826174d1669d4df04c80f4838b7e71fdf",
     "minimatch": "github:DefinitelyTyped/DefinitelyTyped/minimatch/minimatch.d.ts#a3900b896f7b3361b79f9b503224777619907d53",
     "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#aee0039a2d6686ec78352125010ebb38a7a7d743",

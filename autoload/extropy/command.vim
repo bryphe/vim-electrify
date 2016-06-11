@@ -56,7 +56,7 @@ EOF
 
 augroup ExtropyWatcherListeners
     autocmd!
-    autocmd! VimLeave * :call extropy#command#stopWatcher()
+    autocmd! VimLeavePre * :call extropy#command#stopWatcher()
 augroup END
 
 endfunction

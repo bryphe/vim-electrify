@@ -4,10 +4,12 @@ import os
 import vim
 
 class Server:
-    def __init__(self, serverPath, port):
+    def __init__(self, pluginPath, serverPath, port):
         self._port = port
         self._started = False
         self._serverProcess = None
+        self._pluginPath = pluginPath
+        self._serverPath = serverPath
 
     def start(self, debugMode):
         if self.isRunning() == True:
@@ -17,8 +19,10 @@ class Server:
         if debugMode == "0":
             startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 
+        path = os.path.join(self._pluginPath, "js", "node_modules", ".bin", "electron.cmd")
+
         # TODO: Pass in port specified in config
-        self._serverProcess = subprocess.Popen("node " + serverPath, startupinfo=startupinfo)
+        self._serverProcess = subprocess.Popen(path + " " + self._serverPath, startupinfo=startupinfo)
 
     def stop(self):
         if self._serverProcess != None:
