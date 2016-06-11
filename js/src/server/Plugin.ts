@@ -4,6 +4,8 @@ import readline = require("readline");
 import log = require("./log")
 import minimatch = require("minimatch");
 
+import {BrowserWindow} from "electron";
+
 var colors = require("colors/safe");
 
 import IPluginConfiguration = require("./IPluginConfiguration");
@@ -54,6 +56,9 @@ export default class Plugin {
 
         // Get plugin shim path
         var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
+
+        let win = new BrowserWindow({width: 800, height: 600, show: false});
+        win["__extropy_data__"] = { 'derp': true};
 
         // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
         // Instead of a separate process - maybe we could use the 'cluster' module?
