@@ -12,8 +12,7 @@ export default class ContextMenuCreator {
 
         sessionManager.on("start", (session) => {
             this._rebuildContextMenu();
-        })
-
+        });
 
         this._rebuildContextMenu();
     }
@@ -23,8 +22,17 @@ export default class ContextMenuCreator {
 
       this._sessionManager.getSessions()
         .forEach((session) => {
+            var subMenu = new Electron.Menu();
+
+            session.plugins.getAllPlugins().forEach(plugin => {
+
+            var subMenuItem = new Electron.MenuItem({label: plugin.pluginName});
+            subMenu.append(subMenuItem);
+            });
+
             var sessionItem = new Electron.MenuItem({
-                label: session.name
+                label: session.name,
+                submenu: subMenu
             });
             contextMenu.append(sessionItem);
         });
@@ -38,7 +46,7 @@ export default class ContextMenuCreator {
       });
 
       contextMenu.append(menuItem);
-      
+
       this._trayMenu.setToolTip('This is my application.');
       this._trayMenu.setContextMenu(contextMenu);
     }
