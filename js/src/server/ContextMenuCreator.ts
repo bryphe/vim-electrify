@@ -9,11 +9,27 @@ export default class ContextMenuCreator {
     constructor(tray: Electron.Tray, sessionManager: SessionManager) {
         this._trayMenu = tray;
         this._sessionManager = sessionManager;
+
+        sessionManager.on("start", (session) => {
+            this._rebuildContextMenu();
+        })
+
+
         this._rebuildContextMenu();
     }
 
     private _rebuildContextMenu(): void {
       var contextMenu = new Electron.Menu();
+
+      this._sessionManager.getSessions()
+        .forEach((session) => {
+            var sessionItem = new Electron.MenuItem({
+                label: session.name
+            });
+            contextMenu.append(sessionItem);
+        });
+
+
       var menuItem = new Electron.MenuItem({
           label: "Quit",
           click: () => {

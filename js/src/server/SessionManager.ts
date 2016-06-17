@@ -21,6 +21,10 @@ export default class SessionManager extends EventEmitter {
         this._commandExecutor = commandExecutor;
     }
 
+    public getSessions(): Session[] {
+        return Object.keys(this._sessions).map((k) => (this._sessions[k]));
+    }
+
     public getOrCreateSession(sessionName: string): Session {
         if (this._sessions[sessionName]) {
             log.info("Session exists: " + sessionName);
