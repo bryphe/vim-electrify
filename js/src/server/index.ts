@@ -9,22 +9,6 @@ if (shouldQuit) {
     Electron.app.quit();
 }
 
-let appIcon = null;
-Electron.app.on('ready', () => {
-  appIcon = new Electron.Tray("D:\\32x32.png");
-  var contextMenu = new Electron.Menu();
-  var menuItem = new Electron.MenuItem({
-      label: "Quit",
-      click: () => {
-        Electron.app.quit();
-      }
-  });
-
-  contextMenu.append(menuItem);
-  
-  appIcon.setToolTip('This is my application.');
-  appIcon.setContextMenu(contextMenu);
-});
 
 var express = require("express");
 var app = express();
@@ -223,3 +207,12 @@ process.on("uncaughtException", (err) => {
 
 server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
+
+import ContextMenuCreator from "./ContextMenuCreator";
+
+let appIcon = null;
+Electron.app.on('ready', () => {
+  appIcon = new Electron.Tray("D:\\32x32.png");
+  var contextMenuCreator = new ContextMenuCreator(appIcon, sessionManager);
+});
+
