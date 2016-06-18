@@ -12,11 +12,12 @@ var colors = require("colors/safe");
 import IPluginConfiguration = require("./IPluginConfiguration");
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
+var CHANNEL = 1;
+
 export default class Plugin {
 
     private _pluginPath: string;
     private _pluginName: string;
-    private _pluginProcess: childProcess.ChildProcess;
     private _gvimServerName: string;
     private _config: IPluginConfiguration = null;
     private _io: any;
@@ -55,6 +56,7 @@ export default class Plugin {
         // Get plugin shim path
         var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
 
+        CHANNEL++;
         // let win = new BrowserWindow({width: 800, height: 600, show: false});
         // win["__extropy_data__"] = { 'derp': true};
         //
@@ -63,38 +65,39 @@ export default class Plugin {
             pluginpath: this._pluginPath,
             servername: this._gvimServerName,
             pluginname: this._pluginName,
-            cwd: pluginWorkingDirectory
+            cwd: pluginWorkingDirectory,
+            channel: CHANNEL.toString()
         });
 
         // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
         // Instead of a separate process - maybe we could use the 'cluster' module?
-        this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
+        // this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
 
-        log.info("Plugin created: " + this._pluginName + " | " + this._pluginProcess.pid);
-        log.info("-- Path: " + this._pluginPath);
-        log.info("-- Working directory: " + pluginWorkingDirectory);
+        // log.info("Plugin created: " + this._pluginName + " | " + this._pluginProcess.pid);
+        // log.info("-- Path: " + this._pluginPath);
+        // log.info("-- Working directory: " + pluginWorkingDirectory);
 
-        this._nsp = this._io.of("/" + this._pluginProcess.pid);
+        this._nsp = this._io.of("/" + CHANNEL);
         this._nsp.on("connection", (socket) => {
-            log.info("--Established socket connection to: " + this._pluginProcess.pid);
+            log.info("--Established socket connection to: " + CHANNEL.toString());
             this._sockets.push(socket);
             socket.on("message", (msg) => {
                 this._handleMessage(msg);
             });
         });
 
-        this._pluginProcess.stderr.on("data", (data) => {
-            this._log("info", data);
-        });
+        // this._pluginProcess.stderr.on("data", (data) => {
+        //     this._log("info", data);
+        // });
 
-        this._pluginProcess.stderr.on("data", (data, err) => {
-            this._logError(data + "|" + err);
-        });
+        // this._pluginProcess.stderr.on("data", (data, err) => {
+        //     this._logError(data + "|" + err);
+        // });
 
-        this._pluginProcess.on("exit", () => {
-            this._pluginProcess = null;
-            log.error("process disconnected");
-        });
+        // this._pluginProcess.on("exit", () => {
+        //     this._pluginProcess = null;
+        //     log.error("process disconnected");
+        // });
     }
 
     private _handleMessage(data): void {
@@ -112,11 +115,11 @@ export default class Plugin {
     }
 
     private _log(level: string, message: string) {
-        log[level]("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "]" + message);
+        log[level]("[" + colors.cyan(this._pluginName) + "]" + message);
     }
 
     private _logError(err) {
-        log.error("[" + colors.cyan(this._pluginName) + "|" + colors.yellow(this._pluginProcess.pid) + "|" + colors.red("err") + "]" + err);
+        log.error("[" + colors.cyan(this._pluginName) + "]" + colors.red("err") + "]" + err);
     }
 
     public notifyEvent(eventName: string, eventArgs: any) {
@@ -158,11 +161,9 @@ export default class Plugin {
     }
 
     private _writeToPlugin(command: any, bufferName: string): void {
-        if (this._pluginProcess) {
-
+        if (this._window) {
             if (this._isCommandHandled(bufferName)) {
                 this._nsp.emit("command", command);
-                // this._pluginProcess.stdin.write(JSON.stringify(command));
             } else {
                 log.info("Command ignored for buffer: " + bufferName);
             }
@@ -189,7 +190,8 @@ export default class Plugin {
             log.info("Disconnecting sockets: " + this._sockets.length);
             this._sockets.forEach((socket) => socket.disconnect());
 
-            this._pluginProcess = null;
+            // this._pluginProcess = null;
+            // TODO: Dispose of BrowserWindow
         }
     }
 }
