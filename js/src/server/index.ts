@@ -9,7 +9,6 @@ if (shouldQuit) {
     Electron.app.quit();
 }
 
-
 var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
@@ -212,7 +211,7 @@ import ContextMenuCreator from "./ContextMenuCreator";
 
 let appIcon = null;
 Electron.app.on('ready', () => {
-  appIcon = new Electron.Tray("D:\\32x32.png");
+  appIcon = new Electron.Tray(path.join(__dirname, "..", "assets", "32x32.png"));
   var contextMenuCreator = new ContextMenuCreator(appIcon, sessionManager);
 });
 
