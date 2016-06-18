@@ -1,7 +1,7 @@
 var path = require("path");
 import * as Electron from "electron";
 
-export default function(pathToModule: string, args?: any) {
+export default function(pathToModule: string, args?: any): Electron.BrowserWindow {
     var browserWindow = new Electron.BrowserWindow({width: 800, height: 600, show: false});
     browserWindow["__extropy_data__"] = {
         pathToModule: pathToModule,
@@ -12,4 +12,6 @@ export default function(pathToModule: string, args?: any) {
     browserWindow.loadURL(url);
     browserWindow.show();
     browserWindow.webContents.openDevTools();
+
+    return browserWindow;
 }
