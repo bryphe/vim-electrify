@@ -44,7 +44,7 @@ export default class Plugin {
     }
 
     public start(): void {
-        if (this._pluginProcess)
+        if (this._window)
             return;
 
         // Get absolute path to plugin
@@ -77,7 +77,7 @@ export default class Plugin {
         // log.info("-- Path: " + this._pluginPath);
         // log.info("-- Working directory: " + pluginWorkingDirectory);
 
-        this._nsp = this._io.of("/" + CHANNEL);
+        this._nsp = this._io.of("/" + CHANNEL.toString());
         this._nsp.on("connection", (socket) => {
             log.info("--Established socket connection to: " + CHANNEL.toString());
             this._sockets.push(socket);
