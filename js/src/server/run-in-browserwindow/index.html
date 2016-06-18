@@ -14,6 +14,12 @@
 
   <script>
     // You can also require other files to run in this process
-    require('./renderer.js')
+    // require('./renderer.js')
+
+    var browserWindow = require("electron").remote.getCurrentWindow();
+    var data = browserWindow["__extropy_data__"];
+    var moduleToLoad = data.pathToModule;
+    global.browserArgs = data.args;
+    require(moduleToLoad);
   </script>
 </html>

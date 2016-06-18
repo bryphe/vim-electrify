@@ -208,10 +208,13 @@ server.listen(3000);
 console.log("Server up-and-running|" + process.pid);
 
 import ContextMenuCreator from "./ContextMenuCreator";
+import runInBrowserWindow from "./run-in-browserwindow";
 
 let appIcon = null;
 Electron.app.on('ready', () => {
   appIcon = new Electron.Tray(path.join(__dirname, "..", "assets", "32x32.png"));
   var contextMenuCreator = new ContextMenuCreator(appIcon, sessionManager);
+
+    runInBrowserWindow("test1", {test: "derp"});
 });
 
