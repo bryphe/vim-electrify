@@ -29,6 +29,10 @@ tsProjects.forEach(function (project) {
     });
 });
 
+gulp.task("copy:html", () => {
+    return gulp.src(path.join(__dirname, "src", "server", "**", "*.html"))
+        .pipe(gulp.dest(path.join(__dirname, "lib", "server")));
+});
 gulp.task("copy:assets", () => {
     return gulp.src(path.join(__dirname, "src", "assets", "**", "*.*"))
         .pipe(gulp.dest(path.join(__dirname, "lib", "assets")));
@@ -39,6 +43,7 @@ var buildTasks = tsProjects.map(function (project) {
 });
 
 buildTasks.push("copy:assets");
+buildTasks.push("copy:html");
 
 var typingsTasks = tsProjects.map(function (project) {
     return "install-typings:" + project
