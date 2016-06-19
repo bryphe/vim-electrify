@@ -8,7 +8,8 @@ import syntax = require("./ISyntaxHighlighting");
 import * as omni from "./OmniCompletionmanager"
 
 // TODO: Take in port
-var socket = require("socket.io-client")("http://localhost:3000/" + process.pid, { path: "/vim-node-plugins/socket.io" });
+var channel = global["browserArgs"].channel;
+var socket = require("socket.io-client")("http://localhost:3000/" + channel, { path: "/vim-node-plugins/socket.io" });
 
 declare var log;
 
@@ -24,7 +25,7 @@ export default class Vim extends events.EventEmitter {
         return this._omniCompletionManager;
     }
 
-    constructor(serverName: string, pluginName: string) {
+    constructor(serverName: string, pluginName: string, channel: string) {
         super();
         this._serverName = serverName;
         this._pluginName = pluginName;
