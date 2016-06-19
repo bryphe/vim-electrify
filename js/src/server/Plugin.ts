@@ -100,6 +100,15 @@ export default class Plugin {
         // });
     }
 
+    public showDevTools(): void {
+        this._window.show();
+        this._window.webContents.openDevTools();
+    }
+
+    public hideDevTools(): void {
+        this._window.hide();
+    }
+
     private _handleMessage(data): void {
         if (data && data.type) {
             if (data.type == "command") {

@@ -10,8 +10,5 @@ export default function(pathToModule: string, args?: any): Electron.BrowserWindo
     
     var url = path.join(__dirname, "index.html");
     browserWindow.loadURL(url);
-    browserWindow.show();
-    browserWindow.webContents.openDevTools();
-
     return browserWindow;
 }
