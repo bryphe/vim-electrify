@@ -26,8 +26,12 @@ export default class ContextMenuCreator {
 
             session.plugins.getAllPlugins().forEach(plugin => {
 
-            var subMenuItem = new Electron.MenuItem({label: plugin.pluginName});
-            subMenu.append(subMenuItem);
+                var subMenuItem = new Electron.MenuItem({
+                    label: plugin.pluginName,
+                    click: () => {
+                        plugin.showDevTools();
+                    }});
+                subMenu.append(subMenuItem);
             });
 
             var sessionItem = new Electron.MenuItem({
