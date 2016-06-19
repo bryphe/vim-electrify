@@ -8,8 +8,7 @@ var pluginName = argv.pluginname;
 var apiPath = argv.apipath;
 var pluginPath = argv.pluginpath;
 
-// TODO:
-// process.cwd(argv.cwd);
+process.chdir(argv.cwd);
 
 var Vim = require(apiPath);
 global["vim"] = new Vim.default(serverName, pluginName);
