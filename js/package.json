@@ -4,6 +4,7 @@
   "description": "Interop layer to allow running node-powered JavaScript plugins for VIM",
   "main": "index.js",
   "scripts": {
+    "postinstall": "gulp install-typings",
     "start": "electron lib/server/index.js",
     "start-server": "node lib/server/index.js",
     "stop-server": "node lib/client/index.js --stop",
@@ -38,6 +39,6 @@
     "gulp-typescript": "^2.11.0",
     "q": "^1.4.1",
     "q-io": "^1.13.2",
-    "typings": "^0.6.8"
+    "typings": "1.3.0"
   }
 }

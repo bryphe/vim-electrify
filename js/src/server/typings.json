@@ -1,5 +1,5 @@
 {
-  "ambientDependencies": {
+  "globalDependencies": {
     "bluebird": "registry:dt/bluebird#2.0.0+20160319051630",
     "github-electron": "registry:dt/github-electron#1.2.1+20160602155650",
     "glob": "github:DefinitelyTyped/DefinitelyTyped/glob/glob.d.ts#a14d724826174d1669d4df04c80f4838b7e71fdf",
