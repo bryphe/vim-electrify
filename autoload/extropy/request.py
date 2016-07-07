@@ -1,3 +1,7 @@
+# Request.py
+# 
+# Helper class for making HTTP requests using Python
+
 import urllib2
 import json
 import vim
