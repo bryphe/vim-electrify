@@ -1,9 +1,6 @@
-let s:logs = []
+" Debug utilities for logging purposes
 
-function! extropy#debug#openServerLogs()
-    let logPath = expand("$TEMP") . "/extropy_node_plugins_vim.log"
-    execute(":e " .logPath)
-endfunction
+let s:logs = []
 
 function! extropy#debug#openLogs()
     execute(":new")
@@ -23,9 +20,3 @@ endfunction
 function! extropy#debug#logInfo(msg)
     call extropy#debug#_log(3, a:msg)
 endfunction
-
-function! extropy#debug#restartInDebugMode()
-    let g:extropy_nodeplugins_debugmode = 1
-    call extropy#js#restartServer()
-endfunction
-

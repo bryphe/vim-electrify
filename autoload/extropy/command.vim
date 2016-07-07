@@ -1,16 +1,19 @@
-let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') . '\asyncwatcher.py'
-execute 'pyfile '.s:path
 " extropy#command
 "
 " Set of commands that the node-vim interop layer can call back into
 
+" Import relevant python scripts
+let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') . '\asyncwatcher.py'
+execute 'pyfile '.s:path
+
+" Create global instance of async watcher
 python << EOF
 extropy_command_asyncWatcher = None
 EOF
 
-" TODO: Better guard here to make sure extropy_tcp_getMessages is available
 call extropy#tcp#isConnected()
 
+" Execute a command incoming from the JS integration
 function! extropy#command#execute(command)
     call extropy#debug#logInfo("Executing: ".a:command)
     :execute a:command
@@ -33,14 +36,15 @@ function! extropy#command#echohl(msg, highlightGroup)
     echohl NONE
 endfunction
 
+" Create a local vim command
 function! extropy#command#createCommand(pluginName, commandName) 
     call extropy#debug#logInfo("CreateCommand: " . a:pluginName . a:commandName)
     execute "command! -nargs=* " . a:commandName . " call extropy#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "', <q-args>)"
 endfunction
 
+" Callback from the remote server to execute the incoming commands
 function! extropy#command#flushIncomingCommands()
     let commands = extropy#command#getMessages()
-    " echom "Flushing = " . string(len(commands))
     call extropy#debug#logInfo("extropy#command#flushIncomingCommands: ".len(commands)." commands to flush.")
     for command in commands
         call extropy#command#execute(command)
@@ -81,14 +85,3 @@ if extropy_command_asyncWatcher != None:
     extropy_command_asyncWatcher = None
 EOF
 endfunction
-
-
-
-" TODO:
-" Add real 'start' method to the plugin
-" Callback if node client reports an error talking to the server
-" Load plugin as separate process
-" Add plugin-name argument to script file
-" Create plugin in vim-node-test-plugin that just does :TestRoundTrip and
-" calls extropy#js#exec("myPlugin", "myFunction", args)
-" Add logging to the server to see calls that came in

@@ -1,3 +1,5 @@
+" Tcp.vim
+" Utilities for integrating with the TCP server
 
 let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') . '\socket.py'
 execute 'pyfile '.s:path

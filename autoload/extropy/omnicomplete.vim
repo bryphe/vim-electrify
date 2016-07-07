@@ -1,18 +1,6 @@
-function! extropy#omnicomplete#onCompleteDone()
-    if exists("s:originalCompleteOptions")
-        execute("set completeopt=".s:originalCompleteOptions)
-        unlet s:originalCompleteOptions
-    endif
+" Omnicomplete.vim
+" Utilities for setting up omnicompletion integration
 
-    if exists("s:originalOmnifunc")
-        execute("set omnifunc=".s:originalOmnifunc)
-    endif
-
-    echom "Completed item: ".string(v:completed_item)
-    " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
-    " echom "Mode: " . mode()
-    " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
-endfunction
 let s:completionArgs = {
     \'column': -1,
     \'line': -1,
