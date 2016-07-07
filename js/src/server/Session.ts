@@ -1,6 +1,10 @@
 import PluginManager from "./PluginManager";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
+/**
+ * Session is a 1 <-> 1 map with a VIM/GVIM session.
+ * Each session has an associated set of active plugins.
+ */
 export default class Session {
 
     private _session: string;

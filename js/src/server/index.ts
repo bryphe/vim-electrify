@@ -40,7 +40,6 @@ var tcpServer = net.createServer((tcpSocket) => {
 
         console.log("tcp: received data of length: " + dataAsString.length + "|" + currentBuffer);
         currentBuffer += dataAsString;
-        console.log("index of newline: " + dataAsString.indexOf("\n"));
 
         if(currentBuffer.indexOf("\n") == -1)
             return;
@@ -115,28 +114,10 @@ tcpServer.listen(4001, "127.0.0.1");
 var commandExecutor = new TcpSocketRemoteCommandExecutor(serverToSocket);
 sessionManager = new SessionManager(io, commandExecutor);
 
-// TODO: Handle creating session
-
 app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
     res.send("Open for business");
-});
-
-app.post("/api/log", (req, res) => {
-    console.log("[LOG]:" + JSON.stringify(req.body));
-});
-
-
-app.post("/api/plugin/:serverName/omnicomplete/start", (req, res) => {
-    console.log("start omnicomplete");
-
-    var body = req.body;
-
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.plugins.startOmniComplete(body);
-
-    res.send("done");
 });
 
 app.get("/api/plugin/:serverName", (req, res) => {
@@ -155,31 +136,6 @@ app.get("/api/plugin/:serverName", (req, res) => {
     res.send(out);
 });
 
-// Notify omnicompletion that a file has been updated
-app.post("/api/plugin/:serverName/omnicomplete/update", (req, res) => {
-    console.log("update omnicomplete");
-
-    var body = req.body;
-
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-    session.plugins.updateOmniComplete(body);
-
-    res.send("done");
-});
-
-app.post("/api/plugin/:serverName/:pluginName/:commandName", (req, res) => {
-    log.info(req.params);
-    log.info(req.body);
-
-    var callContext = req.body;
-
-    var session = sessionManager.getOrCreateSession(req.params.serverName);
-    var plugin = session.plugins.getPlugin(req.params.pluginName);
-    plugin.execute(req.params.commandName, callContext);
-
-    res.send("done");
-});
-
 app.post("/api/stop", function(req, res) {
     console.log("stopping server");
     res.send("closing server.");
@@ -188,9 +144,11 @@ app.post("/api/stop", function(req, res) {
 
 io.on("connection", (socket) => {
     log.info("A socket connected.");
+    console.log("A socket connected.");
 
     socket.on("room", (room) => {
         log.info("Socket joining room: " + room);
+        console.log("Socket joining room: " + room);
         socket.join(room);
     });
 
