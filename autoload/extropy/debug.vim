@@ -1,3 +1,5 @@
+" Debug.vim
+"
 " Debug utilities for logging purposes
 
 let s:logs = []

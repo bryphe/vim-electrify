@@ -95,8 +95,6 @@ function! extropy#omnicomplete#onCompleteDone()
         execute("set omnifunc=".s:originalOmnifunc)
     endif
 
-    echom "Completed item: ".string(v:completed_item)
-
     if type(v:completed_item) == type({})
         if has_key(v:completed_item, "kind")
             if v:completed_item.kind == "[snippet]" 
@@ -104,8 +102,4 @@ function! extropy#omnicomplete#onCompleteDone()
             endif
         endif
     endif
-    " call extropy#snippet#expandAnonymousSnippet(0)
-    " execute("inoremap <silent> <Plug>(extropy_nodejs_execute_snippet) $$<C-R>=UltiSnips#Anon('derp${1:somestuff}derp${2:someotherstuff}')<cr>")
-    " echom "Mode: " . mode()
-    " call feedkeys("\<Plug>(extropy_nodejs_execute_snippet)")
 endfunction

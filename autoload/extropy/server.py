@@ -1,3 +1,7 @@
+# Server.py
+#
+# Helper class for creating the electron server, hosting the JS plugins
+
 import urllib2
 import subprocess
 import os
