@@ -1,4 +1,5 @@
-# vim-electrify: Write VIM plugins in JavaScript, powered by [Electron](#https://electron.atom.io)
+# vim-electrify
+Write VIM plugins in JavaScript, powered by [Electron](#https://electron.atom.io)
 ---------------------------------------------------
 
 - [Intro](#intro)
@@ -16,7 +17,7 @@
 Intro
 -----
 
-vim-node-plugins is a VIM plugin that enables the authoring of JavaScript plugins,
+vim-electrify is a VIM plugin that enables the authoring of JavaScript plugins,
 running in a Node/Electron environment. These plugins are asynchronous by nature.
 
 The motivation for me is I do most of work with front-end languages (JS, TS, etc),
