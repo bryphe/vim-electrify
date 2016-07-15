@@ -6,4 +6,4 @@ install:
     - cd js && npm install
 
 script:
-    - cd js && npm build
+    - npm build
