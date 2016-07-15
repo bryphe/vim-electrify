@@ -1,7 +1,6 @@
 import childProcess = require("child_process");
 import path = require("path");
 import readline = require("readline");
-import log = require("./log")
 import minimatch = require("minimatch");
 
 import * as Electron from "electron";
@@ -69,8 +68,7 @@ export default class Plugin {
 
         this._nsp = this._io.of("/" + CHANNEL.toString());
         this._nsp.on("connection", (socket) => {
-            console.log("Established socket connection to channel");
-            log.info("--Established socket connection to: " + CHANNEL.toString());
+            console.log("Established socket connection to channel"+ CHANNEL.toString());
             this._sockets.push(socket);
             socket.on("message", (msg) => {
                 this._handleMessage(msg);
@@ -100,21 +98,14 @@ export default class Plugin {
             if (data.type == "command") {
 
                 var command = data.command.split("\"").join("\\\"");
-                log.verbose("got command: " + command);
                 this._commandExecutor.executeCommand(this._gvimServerName, command);
-            } else if (data.type == "log") {
-                var logLevel = data.logLevel || "warn";
-                this._log(logLevel, data.msg);
             }
         }
     }
 
-    private _log(level: string, message: string) {
-        log[level]("[" + colors.cyan(this._pluginName) + "]" + message);
-    }
 
     public notifyEvent(eventName: string, eventArgs: any) {
-        log.verbose(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
+        console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
 
         var commandInfo = {
             type: "event",
@@ -157,7 +148,7 @@ export default class Plugin {
                 console.log("Writing to plugin: " + this._pluginName);
                 this._nsp.emit("command", command);
             } else {
-                log.info("Command ignored for buffer: " + bufferName);
+                console.log("Command ignored for buffer: " + bufferName);
             }
         }
     }
@@ -179,7 +170,7 @@ export default class Plugin {
     public dispose(): void {
         if(this._nsp) {
             this._nsp = null;
-            log.info("Disconnecting sockets: " + this._sockets.length);
+            console.log("Disconnecting sockets: " + this._sockets.length);
             this._sockets.forEach((socket) => socket.disconnect());
 
             // this._pluginProcess = null;

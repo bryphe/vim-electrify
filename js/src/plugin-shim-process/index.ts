@@ -16,7 +16,5 @@ process.chdir(argv.cwd);
 
 var Vim = require(apiPath);
 global["vim"] = new Vim.default(serverName, pluginName);
-var replacementConsole = new Vim.Log(console);
-global["log"] = replacementConsole;
 
 require(pluginPath);
