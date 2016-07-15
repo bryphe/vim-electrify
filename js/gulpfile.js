@@ -28,6 +28,18 @@ tsProjects.forEach(function (project) {
     });
 });
 
+gulp.task("build:test", function (cb) {
+    var tsConfigPath = path.join(__dirname, "test", "tsconfig.json");
+    var tsProject = ts.createProject(tsConfigPath);
+
+    var tsResult = tsProject.src()
+            .pipe(ts(tsProject));
+
+    return merge([
+            tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib_test")))
+    ]);
+});
+
 gulp.task("install-typings:test", function (cb) {
     installTypings(path.join(__dirname, "test"), cb);
 });
