@@ -3,6 +3,7 @@ var gulp = require("gulp");
 var exec = require("child_process").exec;
 var execSync = require("child_process").execSync;
 var ts = require("gulp-typescript");
+var merge = require("merge2");
 
 var tsProjects = [
     "server",
@@ -18,23 +19,45 @@ tsProjects.forEach(function (project) {
         var tsResult = tsProject.src()
             .pipe(ts(tsProject));
 
-        return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project)));
+        return merge([tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project))), tsResult.dts.pipe(gulp.dest(path.join(__dirname, "lib", project)))]);
     });
 
     gulp.task("install-typings:" + project, function (cb) {
-        console.log("Platform: " + process.platform);
-        var commandFile = "typings.cmd";
-        if(process.platform !== "win32") {
-            commandFile = "typings";
-        }
-        var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
-
-        var child = exec(typingsPath + " install", { cwd: path.join(__dirname, "src", project)});
-        child.stdout.pipe(process.stdout);
-        child.stderr.pipe(process.stderr);
-        cb();
+        var typingsPath = path.join(__dirname, "src", project);
+        installTypings(typingsPath, cb);
     });
 });
+
+gulp.task("build:test", function (cb) {
+    var tsConfigPath = path.join(__dirname, "test", "tsconfig.json");
+    var tsProject = ts.createProject(tsConfigPath);
+
+    var tsResult = tsProject.src()
+            .pipe(ts(tsProject));
+
+    return merge([
+            tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib_test")))
+    ]);
+});
+
+gulp.task("install-typings:test", function (cb) {
+    installTypings(path.join(__dirname, "test"), cb);
+});
+
+function installTypings(typingsConfigPath, cb) {
+    console.log("Platform: " + process.platform);
+    console.log("Typings path: " + typingsPath);
+    var commandFile = "typings.cmd";
+    if(process.platform !== "win32") {
+        commandFile = "typings";
+    }
+    var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
+
+    var child = exec(typingsPath + " install", { cwd: typingsConfigPath });
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    cb();
+}
 
 gulp.task("copy:html", () => {
     return gulp.src(path.join(__dirname, "src", "server", "**", "*.html"))
@@ -56,7 +79,9 @@ var typingsTasks = tsProjects.map(function (project) {
     return "install-typings:" + project
 });
 
-gulp.task("build", gulp.parallel(buildTasks));
+typingsTasks.push("install-typings:test");
+
+gulp.task("build", gulp.series(gulp.parallel(buildTasks), "build:test"));
 gulp.task("install-typings", gulp.parallel(typingsTasks));
 
 gulp.task("start-server", function(cb) {

@@ -1,4 +1,6 @@
 node_modules/
 typings/
 lib/
+lib_test/
+*.d.ts
 *.js
