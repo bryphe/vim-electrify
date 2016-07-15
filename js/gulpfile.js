@@ -44,15 +44,16 @@ gulp.task("install-typings:test", function (cb) {
     installTypings(path.join(__dirname, "test"), cb);
 });
 
-function installTypings(typingsPath, cb) {
+function installTypings(typingsConfigPath, cb) {
     console.log("Platform: " + process.platform);
+    console.log("Typings path: " + typingsPath);
     var commandFile = "typings.cmd";
     if(process.platform !== "win32") {
         commandFile = "typings";
     }
     var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
 
-    var child = exec(typingsPath + " install", { cwd: typingsPath });
+    var child = exec(typingsPath + " install", { cwd: typingsConfigPath });
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);
     cb();
