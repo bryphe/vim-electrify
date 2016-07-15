@@ -22,7 +22,13 @@ tsProjects.forEach(function (project) {
     });
 
     gulp.task("install-typings:" + project, function (cb) {
-        var typingsPath = path.join(__dirname, "node_modules", ".bin", "typings.cmd")
+        console.log("Platform: " + process.platform);
+        var commandFile = "typings.cmd";
+        if(process.platform !== "win32") {
+            commandFile = "typings";
+        }
+        var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
+
         var child = exec(typingsPath + " install", { cwd: path.join(__dirname, "src", project)});
         child.stdout.pipe(process.stdout);
         child.stderr.pipe(process.stderr);
