@@ -1,5 +1,6 @@
 # vim-electrify
 ###### Write VIM plugins in JavaScript, powered by [Electron](http://electron.atom.io)
+[![Build Status](https://travis-ci.org/extr0py/vim-electrify.svg?branch=master)](https://travis-ci.org/extr0py/vim-electrify)
 ---------------------------------------------------
 
 - [Intro](#intro)
