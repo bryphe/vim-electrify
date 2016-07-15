@@ -3,6 +3,7 @@ var gulp = require("gulp");
 var exec = require("child_process").exec;
 var execSync = require("child_process").execSync;
 var ts = require("gulp-typescript");
+var merge = require("merge2");
 
 var tsProjects = [
     "server",
@@ -18,7 +19,7 @@ tsProjects.forEach(function (project) {
         var tsResult = tsProject.src()
             .pipe(ts(tsProject));
 
-        return tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project)));
+        return merge([tsResult.js.pipe(gulp.dest(path.join(__dirname, "lib", project))), tsResult.dts.pipe(gulp.dest(path.join(__dirname, "lib", project)))]);
     });
 
     gulp.task("install-typings:" + project, function (cb) {
