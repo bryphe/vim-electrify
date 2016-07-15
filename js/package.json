@@ -9,7 +9,7 @@
     "start": "electron lib/server/index.js",
     "start-server": "node lib/server/index.js",
     "stop-server": "node lib/client/index.js --stop",
-    "test": "mocha lib_test --reporter nyan"
+    "test": "mocha lib_test"
   },
   "repository": {
     "type": "git",
