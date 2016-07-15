@@ -1,14 +1,17 @@
-# vim-electrify: Write VIM plugins in javascript, powered by Electron
-=====================================================================
+# vim-electrify
+###### Write VIM plugins in JavaScript, powered by [Electron](http://electron.atom.io)
+[![Build Status](https://travis-ci.org/extr0py/vim-electrify.svg?branch=master)](https://travis-ci.org/extr0py/vim-electrify)
+---------------------------------------------------
 
 - [Intro](#intro)
 - [Installation](#installation)
--   [Prerequisites](#prerequisites)
--   [Windows](#windows)
+    - [Prerequisites](#prerequisites)
+    - [Windows](#windows)
+    - [OSX](#osx)
 - [Guide](#guide)
--   [Architecture](#architecture)
--   [API](#api)
--   [Examples](#examples)
+    - [Architecture](#architecture)
+    - [API](#api)
+    - [Examples](#examples)
 - [FAQ](#faq)
 - [Contact](#contact)
 - [License](#license)
@@ -43,12 +46,12 @@ be some fixes required.
 ### Prerequisites
 
 Other requirements are:
-    - Vim 7.4 (>1087 patch) with +clientserver and python enabled
-    - Node v4.4.2 or higher
-    - NPM v1.4.2 or higher
+- Vim 7.4 (>1087 patch) with +clientserver and python enabled
+- Node v4.4.2 or higher
+- NPM v1.4.2 or higher
 
 Optional dependencies that improve the plugin:
-    - UltiSnips
+- UltiSnips
 
 ### Windows
 
@@ -57,7 +60,7 @@ Optional dependencies that improve the plugin:
     Run 'npm run install'
     Run 'npm run build'
 
-### OS X
+### OSX
 
 The plugin has not yet been tested on OS X.
 
