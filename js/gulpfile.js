@@ -23,19 +23,28 @@ tsProjects.forEach(function (project) {
     });
 
     gulp.task("install-typings:" + project, function (cb) {
-        console.log("Platform: " + process.platform);
-        var commandFile = "typings.cmd";
-        if(process.platform !== "win32") {
-            commandFile = "typings";
-        }
-        var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
-
-        var child = exec(typingsPath + " install", { cwd: path.join(__dirname, "src", project)});
-        child.stdout.pipe(process.stdout);
-        child.stderr.pipe(process.stderr);
-        cb();
+        var typingsPath = path.join(__dirname, "src", project);
+        installTypings(typingsPath, cb);
     });
 });
+
+gulp.task("install-typings:test", function (cb) {
+    installTypings(path.join(__dirname, "test"), cb);
+});
+
+function installTypings(typingsPath, cb) {
+    console.log("Platform: " + process.platform);
+    var commandFile = "typings.cmd";
+    if(process.platform !== "win32") {
+        commandFile = "typings";
+    }
+    var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
+
+    var child = exec(typingsPath + " install", { cwd: typingsPath });
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+    cb();
+}
 
 gulp.task("copy:html", () => {
     return gulp.src(path.join(__dirname, "src", "server", "**", "*.html"))
@@ -56,6 +65,8 @@ buildTasks.push("copy:html");
 var typingsTasks = tsProjects.map(function (project) {
     return "install-typings:" + project
 });
+
+typingsTasks.push("install-typings:test");
 
 gulp.task("build", gulp.parallel(buildTasks));
 gulp.task("install-typings", gulp.parallel(typingsTasks));
