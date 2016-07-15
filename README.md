@@ -1,5 +1,5 @@
-# vim-node-plugins: Write VIM plugins in javascript
-===================================================
+# vim-electrify: Write VIM plugins in JavaScript, powered by [Electron](#https://electron.atom.io)
+---------------------------------------------------
 
 - [Intro](#intro)
 - [Installation](#installation)
