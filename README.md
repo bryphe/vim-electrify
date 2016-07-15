@@ -38,12 +38,12 @@ be some fixes required.
 ### Prerequisites
 
 Other requirements are:
-    - Vim 7.4 (>1087 patch) with +clientserver and python enabled
-    - Node v4.4.2 or higher
-    - NPM v1.4.2 or higher
+- Vim 7.4 (>1087 patch) with +clientserver and python enabled
+- Node v4.4.2 or higher
+- NPM v1.4.2 or higher
 
 Optional dependencies that improve the plugin:
-    - UltiSnips
+- UltiSnips
 
 ### Windows
 
