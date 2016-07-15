@@ -6,6 +6,7 @@
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
     - [Windows](#windows)
+    - [OSX](#os x)
 - [Guide](#guide)
     - [Architecture](#architecture)
     - [API](#api)
