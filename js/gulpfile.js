@@ -80,7 +80,7 @@ var typingsTasks = tsProjects.map(function (project) {
 
 typingsTasks.push("install-typings:test");
 
-gulp.task("build", gulp.parallel(buildTasks));
+gulp.task("build", gulp.series(gulp.parallel(buildTasks), "build:test"));
 gulp.task("install-typings", gulp.parallel(typingsTasks));
 
 gulp.task("start-server", function(cb) {
