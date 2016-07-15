@@ -1,6 +1,10 @@
+/**
+ * Plugin-Shim-Process
+ *
+ * This brings 'Vim' into the global scope, and
+ * then loads the plugin code
+ */
 import fs = require("fs");
-
-// var argv = require("minimist")(process.argv.slice(2));
 var argv = global["browserArgs"];
 
 var serverName = argv.servername;
@@ -12,7 +16,5 @@ process.chdir(argv.cwd);
 
 var Vim = require(apiPath);
 global["vim"] = new Vim.default(serverName, pluginName);
-var replacementConsole = new Vim.Log(console);
-global["log"] = replacementConsole;
 
 require(pluginPath);

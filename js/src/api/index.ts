@@ -9,9 +9,7 @@ import * as omni from "./OmniCompletionmanager"
 
 // TODO: Take in port
 var channel = global["browserArgs"].channel;
-var socket = require("socket.io-client")("http://localhost:3000/" + channel, { path: "/vim-node-plugins/socket.io" });
-
-declare var log;
+var socket = require("socket.io-client")("http://localhost:3000/" + channel, { path: "/vim-node-plugins/socket.io", transports: ["websocket"] });
 
 export default class Vim extends events.EventEmitter {
 
@@ -37,6 +35,10 @@ export default class Vim extends events.EventEmitter {
 
         socket.on("disconnect", () => {
             process.exit();
+        });
+
+        socket.on("connect_error", (err) => {
+            console.log("Error connecting to socket server: " + err.toString());
         });
 
         socket.on("command", (args) => {
@@ -103,9 +105,8 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _onBufferChanged(bufferChangeInfo: any): void {
-        log.info("Received file update: " + bufferChangeInfo.lines.length + " lines.");
+        console.log("Received file update: " + bufferChangeInfo.lines.length + " lines.");
         var newContent = bufferChangeInfo.lines.join(os.EOL);
-        log.verbose(newContent);
 
         this.emit("BufferChanged", { fileName: bufferChangeInfo.bufferName, newContents: newContent });
     }
@@ -119,49 +120,6 @@ export default class Vim extends events.EventEmitter {
             else if (command.type === "bufferChanged")
                 this._onBufferChanged(command.arguments);
         }
-    }
-}
-
-export class Log {
-
-    private _console;
-    constructor(console: any) {
-        this._console = console;
-    }
-
-    public debug(msg: string, properties?: any): void {
-        this._logCore(msg, "debug", properties);
-    }
-
-    public verbose(msg: string, properties?: any): void {
-        this._logCore(msg, "verbose", properties);
-    }
-
-    public info(msg: string, properties?: any): void {
-        this._logCore(msg, "info", properties);
-    }
-
-    public log(msg: string, properties?: any): void {
-        this._logCore(msg, "info", properties);
-    }
-
-    public warn(msg: string, properties?: any): void {
-        this._logCore(msg, "warn", properties);
-    }
-
-    public error(msg: string, properties?: any): void {
-        this._logCore(msg, "error", properties);
-    }
-
-    private _logCore(msg: string, logLevel: string, properties?: any): void {
-
-        var commandToSend = {
-            type: "log",
-            logLevel: logLevel,
-            msg: msg,
-            properties: properties
-        }
-        Command.sendCommand(commandToSend);
     }
 }
 

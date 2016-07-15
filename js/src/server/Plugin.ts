@@ -1,7 +1,6 @@
 import childProcess = require("child_process");
 import path = require("path");
 import readline = require("readline");
-import log = require("./log")
 import minimatch = require("minimatch");
 
 import * as Electron from "electron";
@@ -57,9 +56,7 @@ export default class Plugin {
         var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
 
         CHANNEL++;
-        // let win = new BrowserWindow({width: 800, height: 600, show: false});
-        // win["__extropy_data__"] = { 'derp': true};
-        //
+
         this._window = runInBrowserWindow(pluginShimPath, {
             apipath: apiPath,
             pluginpath: this._pluginPath,
@@ -69,35 +66,22 @@ export default class Plugin {
             channel: CHANNEL.toString()
         });
 
-        // TODO: The spawn window is flashing very quickly. Previously, with exec, it was staying open, so this is an improvement... but still needs to be addressed.
-        // Instead of a separate process - maybe we could use the 'cluster' module?
-        // this._pluginProcess = childProcess.spawn("node", [pluginShimPath, "--apipath=" + apiPath, "--pluginpath=" + this._pluginPath, "--servername=" + this._gvimServerName, "--pluginname=" + this._pluginName], { cwd: pluginWorkingDirectory, detached: true });
-
-        // log.info("Plugin created: " + this._pluginName + " | " + this._pluginProcess.pid);
-        // log.info("-- Path: " + this._pluginPath);
-        // log.info("-- Working directory: " + pluginWorkingDirectory);
-
         this._nsp = this._io.of("/" + CHANNEL.toString());
         this._nsp.on("connection", (socket) => {
-            log.info("--Established socket connection to: " + CHANNEL.toString());
+            console.log("Established socket connection to channel"+ CHANNEL.toString());
             this._sockets.push(socket);
             socket.on("message", (msg) => {
                 this._handleMessage(msg);
             });
         });
 
-        // this._pluginProcess.stderr.on("data", (data) => {
-        //     this._log("info", data);
-        // });
+        this._nsp.on("connect_error", () => {
+            console.log("Error connecting to plugin socket.");
+        });
 
-        // this._pluginProcess.stderr.on("data", (data, err) => {
-        //     this._logError(data + "|" + err);
-        // });
-
-        // this._pluginProcess.on("exit", () => {
-        //     this._pluginProcess = null;
-        //     log.error("process disconnected");
-        // });
+        this._nsp.on("error", () => {
+            console.log("Error connecting to socket");
+        });
     }
 
     public showDevTools(): void {
@@ -114,25 +98,14 @@ export default class Plugin {
             if (data.type == "command") {
 
                 var command = data.command.split("\"").join("\\\"");
-                log.verbose("got command: " + command);
                 this._commandExecutor.executeCommand(this._gvimServerName, command);
-            } else if (data.type == "log") {
-                var logLevel = data.logLevel || "warn";
-                this._log(logLevel, data.msg);
             }
         }
     }
 
-    private _log(level: string, message: string) {
-        log[level]("[" + colors.cyan(this._pluginName) + "]" + message);
-    }
-
-    private _logError(err) {
-        log.error("[" + colors.cyan(this._pluginName) + "]" + colors.red("err") + "]" + err);
-    }
 
     public notifyEvent(eventName: string, eventArgs: any) {
-        log.verbose(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
+        console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
 
         var commandInfo = {
             type: "event",
@@ -172,9 +145,10 @@ export default class Plugin {
     private _writeToPlugin(command: any, bufferName: string): void {
         if (this._window) {
             if (this._isCommandHandled(bufferName)) {
+                console.log("Writing to plugin: " + this._pluginName);
                 this._nsp.emit("command", command);
             } else {
-                log.info("Command ignored for buffer: " + bufferName);
+                console.log("Command ignored for buffer: " + bufferName);
             }
         }
     }
@@ -196,7 +170,7 @@ export default class Plugin {
     public dispose(): void {
         if(this._nsp) {
             this._nsp = null;
-            log.info("Disconnecting sockets: " + this._sockets.length);
+            console.log("Disconnecting sockets: " + this._sockets.length);
             this._sockets.forEach((socket) => socket.disconnect());
 
             // this._pluginProcess = null;

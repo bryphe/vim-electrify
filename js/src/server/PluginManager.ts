@@ -41,6 +41,7 @@ export default class PluginManager {
         var name = packageInfo.name;
         var version = packageInfo.version;
         var config = PluginConfigurationParser.getVimConfig(packageInfo);
+
         console.log(util.format("Loading plugin: %s %s %s", name, version, main));
         console.log("-Supported files: " + config.supportedFiles);
 
@@ -53,10 +54,9 @@ export default class PluginManager {
             var plugin = new Plugin(this._io, this._commandExecutor, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
             this._pluginNameToInstance[pluginName] = plugin;
-            return;
+        } else {
+            console.log("Plugin [" + pluginName + "] already started.")
         }
-
-        console.log("Plugin [" + pluginName + "] already started.")
     }
 
     public getPlugin(pluginName: string) {

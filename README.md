@@ -22,12 +22,19 @@ Intro
 vim-electrify is a VIM plugin that enables the authoring of JavaScript plugins,
 running in a Node/Electron environment. These plugins are asynchronous by nature.
 
-The motivation for me is I do most of work with front-end languages (JS, TS, etc),
-and I preferred authoring plugins in those languages, if possible. In particular,
-a rich OmniComplete API is provided, which allows easy integration and authoring
-of completers. 
+The personal motivation for this project is to avoid using VimScript and leverage
+the same technology I use for my day job (JS, TS, etc) in order to enhance the editor.
+I prefer using VIM as opposed to Sublime, VSCode, Atom, Visual Studio, even with VIM-like
+plugins, but I miss features like autocomplete and the ease of extending some of these features.
+
+The project simply started as an engine for TS completion, but grew into something that could
+be more generalized.
 
 This plugin is experimental and currently in a prototyping stage.
+
+It will not appeal to everyone, especially those who prefer a minimalist VIM install and plugins
+with no dependencies. However, if you use Node/NPM and related technologies on a day-to-day basis,
+I hope that you find this useful.
 
 Installation
 ------------
@@ -62,9 +69,18 @@ Guide
 
 ### Architecture
 
+Diagram
+Vim -> Send Events to Python -> TCP client talking to TCP server
+
+TCP Server -> Send response to TCP client -> Execute asynchronously using the 'remote-execute' functionality
+
 ### API
 
+TODO
+
 ### Examples
+
+TODO
 
 FAQ
 ===

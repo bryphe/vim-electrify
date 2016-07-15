@@ -1,16 +1,16 @@
+" Js.vim
+" Core utilities for integrating with the external server
+
 let s:plugindir = expand('<sfile>:p:h:h:h')
-let s:clientJsPath = s:plugindir . "/js/lib/client/index.js"
 let s:serverJsPath = s:plugindir . "/js/lib/server/index.js"
 
 let s:path = fnamemodify(resolve(expand('<sfile>:p')), ':h') 
 execute 'pyfile '.s:path. '\server.py'
 execute 'pyfile '.s:path. '\request.py'
 
-" Tracking if there was an error connecting to the server
-let s:isServerError = 0
-
+" Get context for messages to send to the server
+" Every call made to the server will have this data available
 python << EOF
-
 def extropy_get_context():
     import vim
     currentBuffer = vim.eval("expand('%:p')")
@@ -98,12 +98,7 @@ endfunction
 
 function! extropy#js#restartServer()
     call extropy#js#stopServer()
-    call extropy#js#clearServerError()
     call extropy#js#start()
-endfunction
-
-function! extropy#js#clearServerError() 
-    let s:isServerError = 0
 endfunction
 
 function! extropy#js#stopServer()

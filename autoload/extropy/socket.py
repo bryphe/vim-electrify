@@ -1,3 +1,7 @@
+# Socket.py
+# 
+# TCP socket client implemented in python
+
 import threading
 import Queue
 import socket
