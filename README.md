@@ -1,5 +1,5 @@
 # vim-electrify
-Write VIM plugins in JavaScript, powered by [Electron](#https://electron.atom.io)
+###### Write VIM plugins in JavaScript, powered by [Electron](https://electron.atom.io)
 ---------------------------------------------------
 
 - [Intro](#intro)
