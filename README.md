@@ -6,7 +6,7 @@
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
     - [Windows](#windows)
-    - [OSX](#os x)
+    - [OSX](#osx)
 - [Guide](#guide)
     - [Architecture](#architecture)
     - [API](#api)
@@ -52,7 +52,7 @@ Optional dependencies that improve the plugin:
     Run 'npm run install'
     Run 'npm run build'
 
-### OS X
+### OSX
 
 The plugin has not yet been tested on OS X.
 
