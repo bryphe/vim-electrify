@@ -1,5 +1,7 @@
 1) Set up custom port
-2) Remove extraneous logging (winston and etc in plugins)
+2) Set up qflist API - use for 'find references" TS'
+3) Command for debugging
+4) Snippet integration - VSCode style
 
 
 Function completion:
