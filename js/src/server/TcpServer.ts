@@ -4,14 +4,15 @@
  * and pushing data to the server.
  */
 
-var net = require("net");
-
+import * as net from "net";
 import SessionManager from "./SessionManager";
+import Session from "./Session";
+import TcpSocketInstance from "./TcpSocketInstance";
 
 export default class TcpServer {
     private _serverToSocket = {};
     private _sessionManager: SessionManager;
-    private _tcpServer: any;
+    private _tcpServer: net.Server;
 
     public start(sessionManager: SessionManager, port: number): void {
         this._tcpServer = this._createTcpServer();
@@ -23,85 +24,19 @@ export default class TcpServer {
         return this._serverToSocket[serverName].write(data);
     }
 
-    private _createTcpServer(): any {
+    private _createTcpServer(): net.Server {
         return net.createServer((tcpSocket) => {
+
             console.log("tcp: client connected");
+            var socketInstance = new TcpSocketInstance(tcpSocket, this._sessionManager);
 
-            var session = null;
-            var currentBuffer = "";
-
-            tcpSocket.on("data", (data) => {
-                var dataAsString = data.toString("utf8");
-
-                console.log("tcp: received data of length: " + dataAsString.length + "|" + currentBuffer);
-                currentBuffer += dataAsString;
-
-                if(currentBuffer.indexOf("\n") == -1)
-                    return;
-
-                var parsedData = null;
-                try {
-                    parsedData = JSON.parse(currentBuffer);
-                    currentBuffer = "";
-                } catch(ex) {
-                    currentBuffer = "";
-                    console.error("tcp: error parsing data: " + ex.toString(), { error: ex});
-                }
-
-                if(parsedData.type === "connect") {
-                    console.log("Got connect event - registering server: " + parsedData.args.serverName);
-                    session = this._sessionManager.getOrCreateSession(parsedData.args.serverName);
-                    this._serverToSocket[session.name] = tcpSocket;
-                } else if(parsedData.type === "event") {
-                    var eventName = parsedData.args.eventName;
-                    var context = parsedData.context;
-                    console.log("Got event: " + eventName);
-                    session.notifyEvent(eventName, context)
-
-                    if(eventName === "VimLeave") {
-                        end();
-                    }
-                } else if(parsedData.type === "command") {
-                    var plugin = parsedData.args.plugin;
-                    var command = parsedData.args.command;
-                    var context = parsedData.context;
-
-                    console.log("Got command: " + command);
-
-                    var plugin = session.plugins.getPlugin(plugin);
-                    plugin.execute(command, context);
-                } else if(parsedData.type === "bufferChanged") {
-                    var bufferName = parsedData.args.bufferName;
-                    var lines = parsedData.args.lines;
-                    console.log(JSON.stringify(lines));
-
-                    console.log("BufferChanged: " + bufferName + "| Lines: " + lines.length);
-                    session.plugins.onBufferChanged(parsedData.args);
-                }
+            socketInstance.on("connect", (session: Session) => {
+                this._serverToSocket[session.name] = tcpSocket;
             });
 
-            tcpSocket.on("close", () => {
-                console.log("tcp: close");
-                end();
+            socketInstance.on("end", (session: Session)  => {
+                this._sessionManager.endSession(session.name);
             });
-
-            tcpSocket.on("error", (err) => {
-                console.log("tcp: disconnect");
-                end();
-            });
-
-            function getServerName() {
-                console.log("No session... requesting connect.");
-                tcpSocket.write("electrify#tcp#sendConnectMessage()\n");
-            }
-
-            function end() {
-                if(session) {
-                    this._sessionManager.endSession(session.name);
-                    session = null;
-                }
-            }
-
         });
     }
 }
