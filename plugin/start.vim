@@ -15,11 +15,17 @@ if !has("python")
     finish
 endif
 
-if !exists("g:electrify_nodejs_enabled")
-    let g:electrify_nodejs_enabled = 1
+if !exists("g:electrify_enabled")
+    let g:electrify_enabled = 1
 endif
 
-let g:electrify_nodeplugins_debugmode = 0
+if !exists("g:electrify_tcp_port")
+    let g:electrify_tcp_port = 4001
+endif
+
+if !exists("g:electrify_ws_port")
+    let g:electrify_ws_port = 4002
+endif
 
 augroup ElectrifyBufferUpdates
     autocmd! CursorHold * :call electrify#js#notifyBufferUpdated()

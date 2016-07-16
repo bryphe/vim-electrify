@@ -11,11 +11,13 @@ export default class SessionManager extends EventEmitter {
     private _io: any;
     private _sessions = {};
     private _commandExecutor: IRemoteCommandExecutor;
+    private _port: number;
 
-    constructor(io: any, commandExecutor: IRemoteCommandExecutor) {
+    constructor(io: any, commandExecutor: IRemoteCommandExecutor, port: number) {
         super();
 
         this._io = io;
+        this._port = port;
         this._commandExecutor = commandExecutor;
     }
 
@@ -30,7 +32,7 @@ export default class SessionManager extends EventEmitter {
         }
 
         console.log("Creating new session: " + sessionName);
-        var newSession = new Session(sessionName, this._io, this._commandExecutor);
+        var newSession = new Session(sessionName, this._io, this._commandExecutor, this._port);
 
         this._sessions[sessionName] = newSession;
 

@@ -14,11 +14,13 @@ export default class PluginManager {
     private _pluginNameToInstance = {};
     private _io: any;
     private _commandExecutor: IRemoteCommandExecutor;
+    private _port: number;
 
-    constructor(gvimServerName: string, io: any, commandExecutor: IRemoteCommandExecutor) {
+    constructor(gvimServerName: string, io: any, commandExecutor: IRemoteCommandExecutor, port: number) {
         this._gvimServerName = gvimServerName;
         this._io = io;
         this._commandExecutor = commandExecutor;
+        this._port = port;
 
         this.loadGlobalPlugins();
     }
@@ -51,7 +53,7 @@ export default class PluginManager {
     public start(pluginName: string, pluginFilePath: string, config: IPluginConfiguration): void {
         if(!this._pluginNameToInstance[pluginName]) {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
-            var plugin = new Plugin(this._io, this._commandExecutor, this._gvimServerName, pluginName, pluginFilePath, config);
+            var plugin = new Plugin(this._io, this._commandExecutor, this._port, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
             this._pluginNameToInstance[pluginName] = plugin;
         } else {
