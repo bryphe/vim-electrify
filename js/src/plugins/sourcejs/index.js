@@ -1,5 +1,13 @@
 var fs = require("fs");
 vim.addCommand("SourceJS", (context) => {
+    handleSourceCommand(context);
+});
+
+vim.addCommand("SoJS", (context) => {
+    handleSourceCommand(context);
+});
+
+function handleSourceCommand(context) {
     var sourceFile = context.currentBuffer;
 
     if (context.qargs) {
@@ -14,4 +22,4 @@ vim.addCommand("SourceJS", (context) => {
         delete require.cache[require.resolve(sourceFile)];
         require(sourceFile);
     }
-});
+}
