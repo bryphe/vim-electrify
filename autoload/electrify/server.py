@@ -21,6 +21,7 @@ class Server:
             self.stop()
 
         startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 
         # TODO: Remove 'cmd' in non-windows platforms
         path = os.path.join(self._pluginPath, "js", "node_modules", ".bin", "electron.cmd")
