@@ -54,10 +54,6 @@ EOF
     call electrify#tcp#connect("127.0.0.1", g:electrify_tcp_port)
 endfunction
 
-function! electrify#js#disconnectTcp()
-    call electrify#tcp#disconnect()
-endfunction
-
 function! electrify#js#reconnect()
     call electrify#tcp#reconnect()
     sleep 500m

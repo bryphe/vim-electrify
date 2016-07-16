@@ -3,15 +3,11 @@ import path = require("path");
 import readline = require("readline");
 import minimatch = require("minimatch");
 
-import * as Electron from "electron";
-import runInBrowserWindow from "./run-in-browserwindow";
-
-var colors = require("colors/safe");
-
 import IPluginConfiguration = require("./IPluginConfiguration");
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
-var CHANNEL = 1;
+import { IPluginHost } from "./IPluginHost";
+import { IPluginHostFactory } from "./IPluginHostFactory";
 
 export default class Plugin {
 
@@ -19,12 +15,10 @@ export default class Plugin {
     private _pluginName: string;
     private _gvimServerName: string;
     private _config: IPluginConfiguration = null;
-    private _io: any;
-    private _nsp: any;
-    private _port: number;
-    private _sockets: any[] = [];
     private _commandExecutor: IRemoteCommandExecutor;
-    private _window: Electron.BrowserWindow;
+
+    private _pluginHost: IPluginHost;
+    private _pluginHostFactory: IPluginHostFactory;
 
     public get pluginName(): string {
         return this._pluginName;
@@ -34,66 +28,33 @@ export default class Plugin {
         return this._pluginPath;
     }
 
-    constructor(io: any, commandExecutor: IRemoteCommandExecutor, port: number, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+    constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
         this._config = config;
-        this._io = io;
-        this._port = port;
         this._commandExecutor = commandExecutor;
+        this._pluginHostFactory = pluginHostFactory;
     }
 
     public start(): void {
-        if (this._window)
+        if (this._pluginHost)
             return;
 
-        // Get absolute path to plugin
-        var pluginWorkingDirectory = path.resolve(path.dirname(this._pluginPath));
+        this._pluginHost = this._pluginHostFactory.createPluginHost();
+        this._pluginHost.start(this._gvimServerName, this._pluginName, this._pluginPath);
 
-        // Get api path
-        var apiPath = path.resolve(path.join(__dirname, "..", "api", "index.js"));
-
-        // Get plugin shim path
-        var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
-
-        CHANNEL++;
-
-        this._window = runInBrowserWindow(pluginShimPath, {
-            apipath: apiPath,
-            pluginpath: this._pluginPath,
-            servername: this._gvimServerName,
-            pluginname: this._pluginName,
-            cwd: pluginWorkingDirectory,
-            channel: CHANNEL.toString(),
-            port: this._port
-        });
-
-        this._nsp = this._io.of("/" + CHANNEL.toString());
-        this._nsp.on("connection", (socket) => {
-            console.log("Established socket connection to channel"+ CHANNEL.toString());
-            this._sockets.push(socket);
-            socket.on("message", (msg) => {
-                this._handleMessage(msg);
-            });
-        });
-
-        this._nsp.on("connect_error", () => {
-            console.log("Error connecting to plugin socket.");
-        });
-
-        this._nsp.on("error", () => {
-            console.log("Error connecting to socket");
+        this._pluginHost.on("message", (msg) => {
+            this._handleMessage(msg);
         });
     }
 
     public showDevTools(): void {
-        this._window.show();
-        this._window.webContents.openDevTools();
+        this._pluginHost.showDevTools();
     }
 
     public hideDevTools(): void {
-        this._window.hide();
+        this._pluginHost.hideDevTools();
     }
 
     private _handleMessage(data): void {
@@ -105,7 +66,6 @@ export default class Plugin {
             }
         }
     }
-
 
     public notifyEvent(eventName: string, eventArgs: any) {
         console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
@@ -146,10 +106,10 @@ export default class Plugin {
     }
 
     private _writeToPlugin(command: any, bufferName: string): void {
-        if (this._window) {
+        if (this._pluginHost) {
             if (this._isCommandHandled(bufferName)) {
                 console.log("Writing to plugin: " + this._pluginName);
-                this._nsp.emit("command", command);
+                this._pluginHost.sendCommand(command);
             } else {
                 console.log("Command ignored for buffer: " + bufferName);
             }
@@ -171,13 +131,9 @@ export default class Plugin {
     }
 
     public dispose(): void {
-        if(this._nsp) {
-            this._nsp = null;
-            console.log("Disconnecting sockets: " + this._sockets.length);
-            this._sockets.forEach((socket) => socket.disconnect());
-
-            // this._pluginProcess = null;
-            // TODO: Dispose of BrowserWindow
+        if(this._pluginHost) {
+            this._pluginHost.dispose();
+            this._pluginHost = null;
         }
     }
 }

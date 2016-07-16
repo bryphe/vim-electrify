@@ -1,6 +1,8 @@
 import PluginManager from "./PluginManager";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
+import {IPluginHostFactory} from "./IPluginHostFactory";
+
 /**
  * Session is a 1 <-> 1 map with a VIM/GVIM session.
  * Each session has an associated set of active plugins.
@@ -15,10 +17,10 @@ export default class Session {
         return this._session;
     }
 
-    constructor(session: string, io: any, commandExecutor: IRemoteCommandExecutor, port: number) {
+    constructor(session: string, commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory) {
         this._session = session;
         this._commandExecutor = commandExecutor;
-        this._pluginManager = new PluginManager(session, io, this._commandExecutor, port);
+        this._pluginManager = new PluginManager(session, this._commandExecutor, pluginHostFactory);
     }
 
     public get plugins(): PluginManager {

@@ -7,7 +7,7 @@
     "build": "gulp build",
     "postinstall": "gulp install-typings",
     "start": "electron lib/server/index.js --tcpPort 4001 --wsPort 4002",
-    "test": "mocha lib_test"
+    "test": "mocha --recursive lib_test"
   },
   "repository": {
     "type": "git",
