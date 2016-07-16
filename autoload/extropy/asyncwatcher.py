@@ -43,8 +43,7 @@ class AsyncWatcher:
 
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
-                subprocess.Popen("vim --servername " + self._serverName + " --remote-expr extropy#command#flushIncomingCommands()", startupinfo=startupinfo)
-                # subprocess.Popen("vim --servername GVIM --remote-expr extropy#command#echo('derp3')", startupinfo=startupinfo)
+                subprocess.Popen("vim --servername " + self._serverName + " --remote-expr electrify#command#flushIncomingCommands()", startupinfo=startupinfo)
 
             self._stopEvent.wait(self._sleepTime)
 
