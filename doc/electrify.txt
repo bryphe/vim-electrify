@@ -49,12 +49,6 @@ the loaded javascript plugins:
 
 |'g:electrify_enabled'|                 Default is 1 - enabled.
 
-|'g:electrify_enable_omnicomplete'|     When set to 1 (default), enables
-                                        javascript plugins to use omnicomplete.
-
-|'g:electrify_enable_quickinfo'|        When set to 1, enables javascript plugins
-                                        to show quick info in the command bar.
-
 |'g:electrify_tcp_port'|                Specify the port to be used for the
                                         tcp server. This is hosted externally,
                                         and vim communicates directly with it
