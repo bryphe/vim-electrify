@@ -13,6 +13,7 @@ var CHANNEL = 1;
 import { IPluginHost } from "./IPluginHost";
 import { IPluginHostFactory } from "./IPluginHostFactory";
 import BrowserWindowPluginHost from "./BrowserWindowPluginHost";
+import BrowserWindowPluginHostFactory from "./BrowserWindowPluginHost";
 
 export default class Plugin {
 
@@ -49,8 +50,8 @@ export default class Plugin {
         if (this._pluginHost)
             return;
 
-        CHANNEL++;
-        this._pluginHost = new BrowserWindowPluginHost(this._io, this._port, CHANNEL);
+        var pluginHostFactory = new BrowserWindowPluginHostFactory(this._io, this._port);
+        this._pluginHost = pluginHostFactory.createPluginHost();
         this._pluginHost.start(this._gvimServerName, this._pluginName, this._pluginPath);
 
         this._pluginHost.on("message", (msg) => {
