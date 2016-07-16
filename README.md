@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/extr0py/vim-electrify.png?label=ready&title=Ready)](https://waffle.io/extr0py/vim-electrify)
 # vim-electrify
 ###### Write VIM plugins in JavaScript, powered by [Electron](http://electron.atom.io)
 [![Build Status](https://travis-ci.org/extr0py/vim-electrify.svg?branch=master)](https://travis-ci.org/extr0py/vim-electrify)
