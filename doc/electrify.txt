@@ -1,0 +1,68 @@
+*electrify*     Supercharge your editor with JavaScript plugins!
+*vim-electrify*
+
+==============================================================================
+CONTENTS                                                   *electrify-contents*
+
+    1.Intro...................................|electrify-intro|
+    2.Requirements............................|electrify-requirements|
+    3.Commands................................|electrify-commands|
+    4.Options.................................|electrify-options|
+
+==============================================================================
+1. Intro                                                     *electrify-intro*
+
+vim-electrify is a VIM plugin that enables the authoring of JavaScript plugins,
+running in a Node/Electron environment. These plugins are asynchronous by nature.
+
+On its own, it doesn't do much - this provides base functionality for other
+plugins to leverage.
+
+
+==============================================================================
+2. Requirements                                       *electrify-requirements*
+
+Currently, this plugin is only tested on Windows 10, with Vim. It should be 
+relatively straightforward to make it work on OS X, however there will likely
+be some fixes required.
+
+### Prerequisites
+
+Other requirements are:
+- Vim 7.4 (>1087 patch) with +clientserver and python enabled
+- Node v4.4.2 or higher
+- NPM v1.4.2 or higher
+
+Optional dependencies that improve the plugin:
+- UltiSnips
+
+==============================================================================
+3. Options                                                 *electrify-commands*
+
+|:SourceJS <filename>|                  Loads a JavaScript file directly for
+|:SoJS <filename>|                      use in the vim session.
+
+==============================================================================
+4. Options                                                 *electrify-options*
+
+The plugin provides the following options that can customize the behavior of
+the loaded javascript plugins:
+
+|'g:electrify_enable_omnicomplete'|     When set to 1 (default), enables
+                                        javascript plugins to use omnicomplete.
+
+|'g:electrify_tcp_port'|                Specify the port to be used for the
+                                        tcp server. This is hosted externally,
+                                        and vim communicates directly with it
+                                        via a python interop layer.
+
+|'g:electrify_ws_port'|                 Specify the port to be used for the 
+                                        websocket layer. The websocket is used
+                                        to communicate from plugin <-> electron.
+
+|'g:electrify_dev_debug'|               When set to 1, allows debugging
+                                        javascript plugins externally.
+
+|'g:electrify_dev_hot_reload'|          When set to 1, automatically reloads
+                                        javascript plugins when source changes.
+

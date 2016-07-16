@@ -3,8 +3,6 @@ import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 import {EventEmitter} from "events";
 
-var log = require("winston");
-
 var SessionStartEvent = "start";
 var SessionEndEvent= "end";
 
@@ -27,11 +25,11 @@ export default class SessionManager extends EventEmitter {
 
     public getOrCreateSession(sessionName: string): Session {
         if (this._sessions[sessionName]) {
-            log.info("Session exists: " + sessionName);
+            console.log("Session exists: " + sessionName);
             return this._sessions[sessionName];
         }
 
-        log.info("Creating new session: " + sessionName);
+        console.log("Creating new session: " + sessionName);
         var newSession = new Session(sessionName, this._io, this._commandExecutor);
 
         this._sessions[sessionName] = newSession;
@@ -50,7 +48,7 @@ export default class SessionManager extends EventEmitter {
     }
 
     public endSession(sessionName: string): void {
-        log.info("Deleting session: " + sessionName);
+        console.log("Deleting session: " + sessionName);
         if (this._sessions[sessionName]) {
             var session = this._sessions[sessionName];
 

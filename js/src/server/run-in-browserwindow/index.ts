@@ -9,7 +9,7 @@ import * as Electron from "electron";
 //}
 export default function(pathToModule: string, args?: any): Electron.BrowserWindow {
     var browserWindow = new Electron.BrowserWindow({width: 800, height: 600, show: false});
-    browserWindow["__extropy_data__"] = {
+    browserWindow["__electrify_data__"] = {
         pathToModule: pathToModule,
         args: args
     };

@@ -24,46 +24,29 @@ export class OmniCompletionManager {
     }
 
     private _checkForCompletion(eventContext: context.ICommandContext) {
-        log.info("Checking for completion: " + eventContext.filetype);
+        console.log("Checking for completion: " + eventContext.filetype);
 
         var completers = this._omniCompleters[eventContext.filetype];
 
         if (!completers || !completers.length)
             return;
 
-        log.info("Got a completer");
+        console.log("Got a completer");
         // TODO: Handle multiple completers?
         var firstCompleter = completers[0];
 
-        // var completionType = <omni.CompletionType>firstCompleter.getCompletionType(eventContext);
-
-        // if (completionType == omni.CompletionType.None) {
-        //     log.info("CompletionType: None");
-        // } else if (completionType === omni.CompletionType.Omni) {
-        //     log.info("CompletionType: Omni");
-            firstCompleter.getCompletions(eventContext)
-                .then((completionInfo: omni.ICompletionInfo) => {
-                    if (completionInfo) {
-                        this._sendCompletion(completionInfo);
-                        log.info("Received completion results: " + completionInfo.base + "|" + completionInfo.items.length + " items");
-                    }
-                });
-        // } else if(completionType === omni.CompletionType.Function) {
-        //     log.info("CompletionType: Function");
-
-        //     firstCompleter.getFunctionCompletions(eventContext)
-        //         .then((completionInfo: omni.IFunctionCompletionInfo) => {
-        //             if(completionInfo) {
-        //                 this._sendCompletion(completionInfo);
-        //                 log.info("Received function completion results");
-        //             }
-        //         });
-        // }
+        firstCompleter.getCompletions(eventContext)
+            .then((completionInfo: omni.ICompletionInfo) => {
+                if (completionInfo) {
+                    this._sendCompletion(completionInfo);
+                    console.log("Received completion results: " + completionInfo.base + "|" + completionInfo.items.length + " items");
+                }
+            });
     }
 
     private _sendCompletion(completionInfo: omni.ICompletionInfo | omni.IFunctionCompletionInfo) {
         var serializedCompletion = JSON.stringify(completionInfo);
-        this._vim.rawExec("extropy#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
+        this._vim.rawExec("electrify#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
     }
 
     private _isFunctionMeet(eventContext: context.ICommandContext) {
