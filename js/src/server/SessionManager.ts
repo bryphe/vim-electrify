@@ -2,23 +2,22 @@ import Session from "./Session";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 import {EventEmitter} from "events";
+import {IPluginHostFactory} from "./IPluginHostFactory";
 
 var SessionStartEvent = "start";
 var SessionEndEvent= "end";
 
 export default class SessionManager extends EventEmitter {
 
-    private _io: any;
     private _sessions = {};
     private _commandExecutor: IRemoteCommandExecutor;
-    private _port: number;
+    private _pluginHostFactory: IPluginHostFactory;
 
-    constructor(io: any, commandExecutor: IRemoteCommandExecutor, port: number) {
+    constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory) {
         super();
 
-        this._io = io;
-        this._port = port;
         this._commandExecutor = commandExecutor;
+        this._pluginHostFactory = pluginHostFactory;
     }
 
     public getSessions(): Session[] {
@@ -32,7 +31,7 @@ export default class SessionManager extends EventEmitter {
         }
 
         console.log("Creating new session: " + sessionName);
-        var newSession = new Session(sessionName, this._io, this._commandExecutor, this._port);
+        var newSession = new Session(sessionName, this._commandExecutor, this._pluginHostFactory);
 
         this._sessions[sessionName] = newSession;
 

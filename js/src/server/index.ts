@@ -22,6 +22,7 @@ import CommandLineRemoteCommandExecutor from "./Commands/CommandLineRemoteComman
 import TcpSocketRemoteCommandExecutor from "./Commands/TcpSocketRemoteCommandExecutor"
 import TcpServer from "./TcpServer";
 import ContextMenuCreator from "./ContextMenuCreator";
+import BrowserWindowPluginHostFactory from "./BrowserWindowPluginHostFactory";
 
 var program = require("commander");
 
@@ -38,7 +39,8 @@ require("colors").enabled = true;
 var tcpServer = new TcpServer();
 
 var commandExecutor = new TcpSocketRemoteCommandExecutor(tcpServer);
-var sessionManager = new SessionManager(io, commandExecutor, program.wsPort);
+var pluginHostFactory = new BrowserWindowPluginHostFactory(io, program.wsPort);
+var sessionManager = new SessionManager(commandExecutor, pluginHostFactory);
 
 tcpServer.start(sessionManager, program.tcpPort);
 

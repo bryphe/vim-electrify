@@ -27,7 +27,7 @@ export default class TcpSocketInstance extends events.EventEmitter {
         this._tcpSocket.on("data", (data) => {
             var dataAsString = data.toString("utf8");
 
-            console.log("tcp: received data of length: " + dataAsString.length + "|" + this._currentBuffer);
+            console.log("tcp: received data of length: " + dataAsString.length);
             this._currentBuffer += dataAsString;
 
             if(this._currentBuffer.indexOf("\n") == -1)
@@ -67,7 +67,6 @@ export default class TcpSocketInstance extends events.EventEmitter {
             } else if(parsedData.type === "bufferChanged") {
                 var bufferName = parsedData.args.bufferName;
                 var lines = parsedData.args.lines;
-                console.log(JSON.stringify(lines));
 
                 console.log("BufferChanged: " + bufferName + "| Lines: " + lines.length);
                 this._session.plugins.onBufferChanged(parsedData.args);

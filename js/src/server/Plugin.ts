@@ -3,17 +3,11 @@ import path = require("path");
 import readline = require("readline");
 import minimatch = require("minimatch");
 
-var colors = require("colors/safe");
-
 import IPluginConfiguration = require("./IPluginConfiguration");
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
-var CHANNEL = 1;
-
 import { IPluginHost } from "./IPluginHost";
 import { IPluginHostFactory } from "./IPluginHostFactory";
-import BrowserWindowPluginHost from "./BrowserWindowPluginHost";
-import BrowserWindowPluginHostFactory from "./BrowserWindowPluginHostFactory";
 
 export default class Plugin {
 
@@ -21,12 +15,10 @@ export default class Plugin {
     private _pluginName: string;
     private _gvimServerName: string;
     private _config: IPluginConfiguration = null;
-    private _io: any;
-    private _nsp: any;
-    private _port: number;
     private _commandExecutor: IRemoteCommandExecutor;
 
     private _pluginHost: IPluginHost;
+    private _pluginHostFactory: IPluginHostFactory;
 
     public get pluginName(): string {
         return this._pluginName;
@@ -36,22 +28,20 @@ export default class Plugin {
         return this._pluginPath;
     }
 
-    constructor(io: any, commandExecutor: IRemoteCommandExecutor, port: number, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+    constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
         this._config = config;
-        this._io = io;
-        this._port = port;
         this._commandExecutor = commandExecutor;
+        this._pluginHostFactory = pluginHostFactory;
     }
 
     public start(): void {
         if (this._pluginHost)
             return;
 
-        var pluginHostFactory = new BrowserWindowPluginHostFactory(this._io, this._port);
-        this._pluginHost = pluginHostFactory.createPluginHost();
+        this._pluginHost = this._pluginHostFactory.createPluginHost();
         this._pluginHost.start(this._gvimServerName, this._pluginName, this._pluginPath);
 
         this._pluginHost.on("message", (msg) => {
