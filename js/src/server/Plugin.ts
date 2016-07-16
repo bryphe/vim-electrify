@@ -3,9 +3,6 @@ import path = require("path");
 import readline = require("readline");
 import minimatch = require("minimatch");
 
-import * as Electron from "electron";
-import runInBrowserWindow from "./run-in-browserwindow";
-
 var colors = require("colors/safe");
 
 import IPluginConfiguration = require("./IPluginConfiguration");
@@ -13,119 +10,9 @@ import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 var CHANNEL = 1;
 
-import * as events from "events";
-
-export interface IPluginHost extends events.EventEmitter {
-    // Message event - sent from plugin to this class
-    // Error event
-    //
-
-    start(gvimServerName: string, pluginName: string, pluginPath: string): void;
-
-    /** 
-     * Send a command to the plugin
-     */
-    sendCommand(command: string): void;
-
-    showDevTools(): void;
-
-    hideDevTools(): void;
-
-    dispose(): void;
-}
-
-export interface IPluginHostFactory {
-
-    createPluginHost(): IPluginHost;
-
-}
-
-// export class BrowserWindowPluginHostFactory implements IPluginHostFactory {
-//     private _channelCount: number = 1;
-
-
-// }
-
-export class BrowserWindowPluginHost extends events.EventEmitter implements IPluginHost {
-
-    private _io: any;
-    private _nsp: any;
-    private _port: number;
-    private _channel: number;
-
-    private _sockets: any[] = [];
-    private _window: Electron.BrowserWindow;
-
-    constructor(io: any, port: number, channel: number) {
-        super();
-
-        this._io = io;
-        this._port = port;
-        this._channel = channel;
-    }
-
-    public start(gvimServerName: string, pluginName: string, pluginPath: string): void {
-        // Get working directory
-        var pluginWorkingDirectory = path.resolve(path.dirname(pluginPath));
-
-        // Get api path
-        var apiPath = path.resolve(path.join(__dirname, "..", "api", "index.js"));
-
-        // Get plugin shim path (host)
-        var pluginShimPath = path.resolve(path.join(__dirname, "..", "plugin-shim-process", "index.js"));
-
-        this._window = runInBrowserWindow(pluginShimPath, {
-            apipath: apiPath,
-            pluginpath: pluginPath,
-            servername: gvimServerName,
-            pluginname: pluginName,
-            cwd: pluginWorkingDirectory,
-            channel: CHANNEL.toString(),
-            port: this._port
-        });
-
-        this._nsp = this._io.of("/" + this._channel.toString());
-        this._nsp.on("connection", (socket) => {
-            console.log("Established socket connection to channel"+ this._channel.toString());
-            this._sockets.push(socket);
-            socket.on("message", (msg) => {
-                this.emit("message", msg);
-            });
-        });
-
-        this._nsp.on("connect_error", () => {
-            console.log("Error connecting to plugin socket.");
-        });
-
-        this._nsp.on("error", () => {
-            console.log("Error connecting to socket");
-        });
-    }
-
-    public sendCommand(command: string): void {
-        this._nsp.emit("command", command);
-    }
-
-    public showDevTools(): void {
-        this._window.show();
-        this._window.webContents.openDevTools();
-    }
-
-    public hideDevTools(): void {
-        this._window.hide();
-    }
-
-    public dispose(): void {
-        if(this._nsp) {
-            this._nsp = null;
-            console.log("Disconnecting sockets: " + this._sockets.length);
-            this._sockets.forEach((socket) => socket.disconnect());
-
-            // this._pluginProcess = null;
-            // TODO: Dispose of BrowserWindow
-        }
-    }
-}
+import { IPluginHost } from "./IPluginHost";
+import { IPluginHostFactory } from "./IPluginHostFactory";
+import BrowserWindowPluginHost from "./BrowserWindowPluginHost";
 
 export default class Plugin {
 
@@ -161,7 +48,6 @@ export default class Plugin {
     public start(): void {
         if (this._pluginHost)
             return;
-
 
         CHANNEL++;
         this._pluginHost = new BrowserWindowPluginHost(this._io, this._port, CHANNEL);
