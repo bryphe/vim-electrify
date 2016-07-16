@@ -44,13 +44,14 @@ import vim
 import time
 pluginDir = vim.eval("s:plugindir")
 serverPath = vim.eval("s:serverJsPath")
-debugMode = vim.eval("g:electrify_nodeplugins_debugmode")
+tcpPort = vim.eval("g:electrify_tcp_port");
+wsPort = vim.eval("g:electrify_ws_port");
 
-server = Server(pluginDir, serverPath, 3000)
-server.start(debugMode)
+server = Server(pluginDir, serverPath, tcpPort, wsPort)
+server.start()
 EOF
 
-    call electrify#tcp#connect("127.0.0.1", 4001)
+    call electrify#tcp#connect("127.0.0.1", g:electrify_tcp_port)
 endfunction
 
 function! electrify#js#disconnectTcp()
@@ -104,10 +105,7 @@ endfunction
 function! electrify#js#stopServer()
 
 call electrify#tcp#disconnect()
-python << EOF
-request = Request("http://127.0.0.1:3000/api/stop")
-response = request.send({});
-EOF
+" TODO - use tcp instead
 endfunction
 
 function! electrify#js#notifyBufferUpdated()
@@ -162,5 +160,5 @@ function! electrify#js#deserialize(obj)
 endfunction
 
 function! electrify#js#isEnabled() 
-    return g:electrify_nodejs_enabled
+    return g:electrify_enabled
 endfunction

@@ -15,9 +15,17 @@ var server = require("http").createServer(app);
 var io = require("socket.io")(server, { path: "/vim-node-plugins/socket.io" });
 var os = require("os");
 var path = require("path");
-var log = require("./log");
-var bodyParser = require("body-parser");
 var net = require("net");
+
+var program = require("commander");
+
+program
+    .option("-t, --tcpPort <n>", "The tcp port to use for vim <-> electrify")
+    .option("-w, --wsPort <n>", "The websocket port to use for electrify <-> js plugins")
+    .parse(process.argv);
+
+console.log("Using tcp port: " + program.tcpPort);
+console.log("Using ws port: " + program.wsPort);
 
 require("colors").enabled = true;
 
@@ -109,45 +117,15 @@ var tcpServer = net.createServer((tcpSocket) => {
 
 });
 
-tcpServer.listen(4001, "127.0.0.1");
+tcpServer.listen(program.tcpPort, "127.0.0.1");
 
 var commandExecutor = new TcpSocketRemoteCommandExecutor(serverToSocket);
-sessionManager = new SessionManager(io, commandExecutor);
-
-app.use(bodyParser.json());
-
-app.get("/", function (req, res) {
-    res.send("Open for business");
-});
-
-app.get("/api/plugin/:serverName", (req, res) => {
-
-    var session = sessionManager.getSession(req.params.serverName);
-    var plugins = session.plugins.getAllPlugins();
-
-    var out = "";
-    plugins.forEach((plugin) => {
-        out += plugin.pluginName + os.EOL;
-        out += "** Path: " + plugin.pluginPath + os.EOL;
-        out += "** Process: " + plugin.process.pid + os.EOL;
-        out += os.EOL;
-    });
-
-    res.send(out);
-});
-
-app.post("/api/stop", function(req, res) {
-    console.log("stopping server");
-    res.send("closing server.");
-    process.exit();
-});
+sessionManager = new SessionManager(io, commandExecutor, program.wsPort);
 
 io.on("connection", (socket) => {
-    log.info("A socket connected.");
     console.log("A socket connected.");
 
     socket.on("room", (room) => {
-        log.info("Socket joining room: " + room);
         console.log("Socket joining room: " + room);
         socket.join(room);
     });
@@ -162,7 +140,7 @@ process.on("uncaughtException", (err) => {
     console.log("error: ", err);
 });
 
-server.listen(3000);
+server.listen(program.wsPort);
 console.log("Server up-and-running|" + process.pid);
 
 import ContextMenuCreator from "./ContextMenuCreator";

@@ -7,9 +7,10 @@ import loclist = require("./ILocListEntry");
 import syntax = require("./ISyntaxHighlighting");
 import * as omni from "./OmniCompletionmanager"
 
-// TODO: Take in port
 var channel = global["browserArgs"].channel;
-var socket = require("socket.io-client")("http://localhost:3000/" + channel, { path: "/vim-node-plugins/socket.io", transports: ["websocket"] });
+var wsPort = global["browserArgs"].port;
+
+var socket = require("socket.io-client")("http://localhost:" + wsPort + "/" + channel, { path: "/vim-node-plugins/socket.io", transports: ["websocket"] });
 
 export default class Vim extends events.EventEmitter {
 

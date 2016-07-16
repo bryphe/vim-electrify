@@ -15,10 +15,10 @@ export default class Session {
         return this._session;
     }
 
-    constructor(session: string, io: any, commandExecutor: IRemoteCommandExecutor) {
+    constructor(session: string, io: any, commandExecutor: IRemoteCommandExecutor, port: number) {
         this._session = session;
         this._commandExecutor = commandExecutor;
-        this._pluginManager = new PluginManager(session, io, this._commandExecutor);
+        this._pluginManager = new PluginManager(session, io, this._commandExecutor, port);
     }
 
     public get plugins(): PluginManager {

@@ -6,9 +6,7 @@
   "scripts": {
     "build": "gulp build",
     "postinstall": "gulp install-typings",
-    "start": "electron lib/server/index.js",
-    "start-server": "node lib/server/index.js",
-    "stop-server": "node lib/client/index.js --stop",
+    "start": "electron lib/server/index.js --tcpPort 4001 --wsPort 4002",
     "test": "mocha lib_test"
   },
   "repository": {
@@ -25,6 +23,7 @@
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.0",
     "colors": "^1.1.2",
+    "commander": "^2.9.0",
     "electron-prebuilt": "^1.2.1",
     "express": "^4.13.4",
     "glob": "^7.0.0",

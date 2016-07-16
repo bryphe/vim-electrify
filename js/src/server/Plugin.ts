@@ -21,6 +21,7 @@ export default class Plugin {
     private _config: IPluginConfiguration = null;
     private _io: any;
     private _nsp: any;
+    private _port: number;
     private _sockets: any[] = [];
     private _commandExecutor: IRemoteCommandExecutor;
     private _window: Electron.BrowserWindow;
@@ -33,12 +34,13 @@ export default class Plugin {
         return this._pluginPath;
     }
 
-    constructor(io: any, commandExecutor: IRemoteCommandExecutor, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+    constructor(io: any, commandExecutor: IRemoteCommandExecutor, port: number, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
         this._config = config;
         this._io = io;
+        this._port = port;
         this._commandExecutor = commandExecutor;
     }
 
@@ -63,7 +65,8 @@ export default class Plugin {
             servername: this._gvimServerName,
             pluginname: this._pluginName,
             cwd: pluginWorkingDirectory,
-            channel: CHANNEL.toString()
+            channel: CHANNEL.toString(),
+            port: this._port
         });
 
         this._nsp = this._io.of("/" + CHANNEL.toString());

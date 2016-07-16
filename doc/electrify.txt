@@ -18,7 +18,6 @@ running in a Node/Electron environment. These plugins are asynchronous by nature
 On its own, it doesn't do much - this provides base functionality for other
 plugins to leverage.
 
-
 ==============================================================================
 2. Requirements                                       *electrify-requirements*
 
@@ -48,8 +47,13 @@ Optional dependencies that improve the plugin:
 The plugin provides the following options that can customize the behavior of
 the loaded javascript plugins:
 
+|'g:electrify_enabled'|                 Default is 1 - enabled.
+
 |'g:electrify_enable_omnicomplete'|     When set to 1 (default), enables
                                         javascript plugins to use omnicomplete.
+
+|'g:electrify_enable_quickinfo'|        When set to 1, enables javascript plugins
+                                        to show quick info in the command bar.
 
 |'g:electrify_tcp_port'|                Specify the port to be used for the
                                         tcp server. This is hosted externally,
@@ -65,4 +69,3 @@ the loaded javascript plugins:
 
 |'g:electrify_dev_hot_reload'|          When set to 1, automatically reloads
                                         javascript plugins when source changes.
-
