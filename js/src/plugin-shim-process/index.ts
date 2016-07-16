@@ -4,6 +4,7 @@
  * This brings 'Vim' into the global scope, and
  * then loads the plugin code
  */
+
 import fs = require("fs");
 var argv = global["browserArgs"];
 

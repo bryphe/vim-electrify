@@ -1,23 +1,21 @@
 import Promise = require("bluebird");
 import childProcess = require("child_process");
-var log = require("./../log");
 var os = require("os");
+
+import TcpServer from "./../TcpServer";
 
 /**
  * Implementation of IRemoteCommandExecutor that uses tcp sockes
  */
 export default class TcpSocketRemoteCommandExecutor {
-    private _nameToSocketMap: any;
+    private _tcpServer: TcpServer;
 
-    constructor(nameToSocketMap: any) {
-        this._nameToSocketMap = nameToSocketMap;
+    constructor(tcpServer: TcpServer) {
+        this._tcpServer = tcpServer;
     }
 
     public executeCommand(serverName: string, command: string): Promise<void> {
-        if(!this._nameToSocketMap[serverName])
-            return Promise.reject("socket not found for servername: " + serverName);
-
-        this._nameToSocketMap[serverName].write("call " + command + "\n");
+        this._tcpServer.writeToSocket(serverName, "call " + command + "\n");
         return Promise.resolve();
     }
 }
