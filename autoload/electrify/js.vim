@@ -44,10 +44,9 @@ import vim
 import time
 pluginDir = vim.eval("s:plugindir")
 serverPath = vim.eval("s:serverJsPath")
-debugMode = vim.eval("g:electrify_nodeplugins_debugmode")
 
-server = Server(pluginDir, serverPath, 3000)
-server.start(debugMode)
+server = Server(pluginDir, serverPath, 4001, 3000)
+server.start()
 EOF
 
     call electrify#tcp#connect("127.0.0.1", 4001)
