@@ -1,6 +1,5 @@
 import Promise = require("bluebird");
 import childProcess = require("child_process");
-var log = require("./../log");
 
 /**
  * Implementation of IRemoteCommandExecutor that uses the VIM command line
@@ -13,11 +12,11 @@ var log = require("./../log");
 export default class CommandLineRemoteCommandExecutor {
     public executeCommand(serverName: string, command: string): Promise<void> {
         try {
-            log.verbose("CommandLineRemoteCommandExecutor - executing command for server", { serverName: serverName, command: command });
+            console.log("CommandLineRemoteCommandExecutor - executing command for server", { serverName: serverName, command: command });
             var vimProcess = childProcess.spawn("vim", ["--servername", serverName, "--remote-expr", command], { detached: true, stdio: "ignore" });
         }
         catch (ex) {
-            log.error("Error executing command: " + ex);
+            console.error("Error executing command: " + ex);
         }
         return Promise.resolve();
     }

@@ -50,11 +50,11 @@ var tcpServer = net.createServer((tcpSocket) => {
             currentBuffer = "";
         } catch(ex) {
             currentBuffer = "";
-            log.error("tcp: error parsing data: " + ex.toString(), { error: ex});
+            console.error("tcp: error parsing data: " + ex.toString(), { error: ex});
         }
 
         if(parsedData.type === "connect") {
-            log.info("Got connect event - registering server: " + parsedData.args.serverName);
+            console.log("Got connect event - registering server: " + parsedData.args.serverName);
             session = sessionManager.getOrCreateSession(parsedData.args.serverName);
             serverToSocket[session.name] = tcpSocket;
         } else if(parsedData.type === "event") {
