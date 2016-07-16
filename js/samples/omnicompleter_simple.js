@@ -11,18 +11,17 @@
 
 var Promise = require("bluebird");
 
-vim.omniCompleters.register("test_file", {
+vim.omniCompleters.register("testomni", {
     getCompletions: function(eventContext) {
         return Promise.resolve({
             base: 0,
             line: eventContext.currentLine,
             items: [
-                {word: "a", info: "First letter"},
-                {word: "b", info: "Second letter"},
+                {word: "a", menu: "First letter"},
+                {word: "b", menu: "Second letter"},
                 {word: "c"},
                 {word: "d"}
             ]
-
         });
     }
 });
