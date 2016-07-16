@@ -46,7 +46,7 @@ gulp.task("install-typings:test", function (cb) {
 
 function installTypings(typingsConfigPath, cb) {
     console.log("Platform: " + process.platform);
-    console.log("Typings path: " + typingsPath);
+    console.log("Typings path: " + typingsConfigPath);
     var commandFile = "typings.cmd";
     if(process.platform !== "win32") {
         commandFile = "typings";
