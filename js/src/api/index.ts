@@ -59,11 +59,11 @@ export default class Vim extends events.EventEmitter {
         // console.log("Registering command: " + name);
         this._commandNameToFunction[name] = callbackFunction;
 
-        this._rawExec("extropy#command#createCommand('" + this._pluginName + "', '" + name + "')")
+        this._rawExec("electrify#command#createCommand('" + this._pluginName + "', '" + name + "')")
     }
 
     public exec(command: string) {
-        this._rawExec("extropy#command#execute('" + command + "')");
+        this._rawExec("electrify#command#execute('" + command + "')");
     }
 
     public rawExec(command: string) {
@@ -71,19 +71,19 @@ export default class Vim extends events.EventEmitter {
     }
 
     public echo(msg: string): void {
-        this._rawExec("extropy#command#echo('" + msg + "')");
+        this._rawExec("electrify#command#echo('" + msg + "')");
     }
 
     public echohl(msg: string, highlightGroup: string): void {
-        this._rawExec("extropy#command#echohl('" + msg + "', '" + highlightGroup + "')");
+        this._rawExec("electrify#command#echohl('" + msg + "', '" + highlightGroup + "')");
     }
 
     public setSyntaxHighlighting(syntaxHighlightingInfo: syntax.ISyntaxHighlighting) {
-        this._rawExec("extropy#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
+        this._rawExec("electrify#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     }
 
     public setErrors(errors: loclist.ILocListEntry[]) {
-        this._rawExec("extropy#errors#set('" + JSON.stringify(errors) + "')")
+        this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')")
     }
 
     private _rawExec(command: string) {

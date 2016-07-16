@@ -4,7 +4,7 @@
 
 let s:logs = []
 
-function! extropy#debug#openLogs()
+function! electrify#debug#openLogs()
     execute(":new")
     :setlocal buftype=nofile
     :setlocal noswapfile
@@ -15,10 +15,10 @@ function! extropy#debug#openLogs()
     :setlocal ro
 endfunction
 
-function! extropy#debug#_log(level, msg)
+function! electrify#debug#_log(level, msg)
     call add(s:logs, { 'level': a:level, 'message': a:msg."|".expand("%:p")})
 endfunction
 
-function! extropy#debug#logInfo(msg)
-    call extropy#debug#_log(3, a:msg)
+function! electrify#debug#logInfo(msg)
+    call electrify#debug#_log(3, a:msg)
 endfunction

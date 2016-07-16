@@ -11,7 +11,7 @@ execute 'pyfile '.s:path. '\request.py'
 " Get context for messages to send to the server
 " Every call made to the server will have this data available
 python << EOF
-def extropy_get_context():
+def electrify_get_context():
     import vim
     currentBuffer = vim.eval("expand('%:p')")
     currentBufferNumber = vim.eval("bufnr('%')")
@@ -34,8 +34,8 @@ def extropy_get_context():
     return values
 EOF
 
-function! extropy#js#start()
-    if extropy#js#isEnabled() == 0
+function! electrify#js#start()
+    if electrify#js#isEnabled() == 0
         return
     endif
 
@@ -44,43 +44,43 @@ import vim
 import time
 pluginDir = vim.eval("s:plugindir")
 serverPath = vim.eval("s:serverJsPath")
-debugMode = vim.eval("g:extropy_nodeplugins_debugmode")
+debugMode = vim.eval("g:electrify_nodeplugins_debugmode")
 
 server = Server(pluginDir, serverPath, 3000)
 server.start(debugMode)
 EOF
 
-    call extropy#tcp#connect("127.0.0.1", 4001)
+    call electrify#tcp#connect("127.0.0.1", 4001)
 endfunction
 
-function! extropy#js#disconnectTcp()
-    call extropy#tcp#disconnect()
+function! electrify#js#disconnectTcp()
+    call electrify#tcp#disconnect()
 endfunction
 
-function! extropy#js#reconnect()
-    call extropy#tcp#reconnect()
+function! electrify#js#reconnect()
+    call electrify#tcp#reconnect()
     sleep 500m
-    call extropy#js#notifyBufferEvent("BufEnter")
+    call electrify#js#notifyBufferEvent("BufEnter")
 endfunction
 
-function! extropy#js#notifyBufferEvent(eventName)
+function! electrify#js#notifyBufferEvent(eventName)
 python << EOF
 message = {
     'type': 'event',
     'args': {
         'eventName': vim.eval("a:eventName")
     },
-    'context': extropy_get_context()
+    'context': electrify_get_context()
 }
 
-extropy_tcp_sendMessage(message)
+electrify_tcp_sendMessage(message)
 EOF
 
 endfunction
 
-function! extropy#js#callJsFunction(pluginName, commandName, qArgs)
-call extropy#debug#logInfo("extropy#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName." Args: ".a:qArgs)
-call extropy#tcp#warnIfNotConnected()
+function! electrify#js#callJsFunction(pluginName, commandName, qArgs)
+call electrify#debug#logInfo("electrify#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName." Args: ".a:qArgs)
+call electrify#tcp#warnIfNotConnected()
 python << EOF
 jsFunctionMessage = {
     'type': 'command',
@@ -89,47 +89,47 @@ jsFunctionMessage = {
         'command': vim.eval("a:commandName"),
         'qargs': vim.eval("a:qArgs")
     },
-    'context': extropy_get_context()
+    'context': electrify_get_context()
 }
 
-extropy_tcp_sendMessage(jsFunctionMessage)
+electrify_tcp_sendMessage(jsFunctionMessage)
 EOF
 endfunction
 
-function! extropy#js#restartServer()
-    call extropy#js#stopServer()
-    call extropy#js#start()
+function! electrify#js#restartServer()
+    call electrify#js#stopServer()
+    call electrify#js#start()
 endfunction
 
-function! extropy#js#stopServer()
+function! electrify#js#stopServer()
 
-call extropy#tcp#disconnect()
+call electrify#tcp#disconnect()
 python << EOF
 request = Request("http://127.0.0.1:3000/api/stop")
 response = request.send({});
 EOF
 endfunction
 
-function! extropy#js#notifyBufferUpdated()
-    if extropy#js#isEnabled() == 0
+function! electrify#js#notifyBufferUpdated()
+    if electrify#js#isEnabled() == 0
         return
     endif
 
     if &ma == 0
-        call extropy#debug#logInfo("Ignore buffer update because buffer is not modifiable")
+        call electrify#debug#logInfo("Ignore buffer update because buffer is not modifiable")
     endif
 
-    if !exists("b:extropy_change_tick")
-        let b:extropy_change_tick = -1
+    if !exists("b:electrify_change_tick")
+        let b:electrify_change_tick = -1
     endif
 
-    if b:changedtick == b:extropy_change_tick
+    if b:changedtick == b:electrify_change_tick
         return
     endif
 
-    let b:extropy_change_tick = b:changedtick
+    let b:electrify_change_tick = b:changedtick
 
-    call extropy#debug#logInfo("Sending update for change tick: ".b:changedtick)
+    call electrify#debug#logInfo("Sending update for change tick: ".b:changedtick)
 
 python << EOF
 import vim
@@ -147,20 +147,20 @@ args = {
 bufferChangedMessage = {
     'type': 'bufferChanged',
     'args': args,
-    'context': extropy_get_context()
+    'context': electrify_get_context()
 }
 
-extropy_tcp_sendMessage(bufferChangedMessage)
+electrify_tcp_sendMessage(bufferChangedMessage)
 EOF
 
 endfunction
 
-function! extropy#js#deserialize(obj)
+function! electrify#js#deserialize(obj)
     let splitted = join(split(a:obj, "\\"), "")
     execute "let remoteCompletion = ".splitted
     return remoteCompletion
 endfunction
 
-function! extropy#js#isEnabled() 
-    return g:extropy_nodejs_enabled
+function! electrify#js#isEnabled() 
+    return g:electrify_nodejs_enabled
 endfunction

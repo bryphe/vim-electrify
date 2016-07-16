@@ -6,7 +6,7 @@ let s:currentSnippet = 0
 let s:snippetPrefix = "ex"
 let s:snippets = {}
 
-function! extropy#snippet#expandAnonymousSnippet(snippet)
+function! electrify#snippet#expandAnonymousSnippet(snippet)
 " TODO: Assuming UltiSnips is enabled...
 
 python << EOF

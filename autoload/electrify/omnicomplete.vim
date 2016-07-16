@@ -8,16 +8,16 @@ let s:completionArgs = {
     \'items': []
 \}
 
-function! extropy#omnicomplete#initializeCompletion()
-    execute("inoremap <silent> <Plug>(extropy_nodejs_start_completion) <C-x><C-o>")
+function! electrify#omnicomplete#initializeCompletion()
+    execute("inoremap <silent> <Plug>(electrify_nodejs_start_completion) <C-x><C-o>")
 
-    augroup ExtropyOmnicompleteAutogroup
+    augroup electrifyOmnicompleteAutogroup
         autocmd!
-        autocmd CompleteDone * :call extropy#omnicomplete#onCompleteDone()
+        autocmd CompleteDone * :call electrify#omnicomplete#onCompleteDone()
     augroup END
 endfunction
 
-function! extropy#omnicomplete#openCompletionMenu(completionArgs)
+function! electrify#omnicomplete#openCompletionMenu(completionArgs)
     let s:completionArgs = a:completionArgs
     if mode() == "i" && !pumvisible()
         let s:originalCompleteOptions = &completeopt
@@ -28,30 +28,30 @@ function! extropy#omnicomplete#openCompletionMenu(completionArgs)
         " behavior
         set completeopt=noselect,noinsert,menuone
         set completeopt-=preview
-        set omnifunc=extropy#omnicomplete#complete
+        set omnifunc=electrify#omnicomplete#complete
 
-        call feedkeys("\<Plug>(extropy_nodejs_start_completion)")
+        call feedkeys("\<Plug>(electrify_nodejs_start_completion)")
     endif
 endfunction
 
-function! extropy#omnicomplete#initiateCompletion(completionArgsAsString)
-    let completionInfo = extropy#js#deserialize(a:completionArgsAsString)
-    call extropy#omnicomplete#openCompletionMenu(completionInfo)
+function! electrify#omnicomplete#initiateCompletion(completionArgsAsString)
+    let completionInfo = electrify#js#deserialize(a:completionArgsAsString)
+    call electrify#omnicomplete#openCompletionMenu(completionInfo)
 endfunction
 
-function! extropy#omnicomplete#complete(findstart, base)
+function! electrify#omnicomplete#complete(findstart, base)
     let line = getline('.')
     let lineNumber = line(".")
     let col = col('.')
     if a:findstart
         return s:completionArgs.base
     else
-        let items = extropy#omnicomplete#filterItems(s:completionArgs.items)
+        let items = electrify#omnicomplete#filterItems(s:completionArgs.items)
         return items
     endif
 endfunction
 
-function! extropy#omnicomplete#filterItems(items)
+function! electrify#omnicomplete#filterItems(items)
     let ret = []
 
     for item in a:items
@@ -85,7 +85,7 @@ function! extropy#omnicomplete#filterItems(items)
     return ret
 endfunction
 
-function! extropy#omnicomplete#onCompleteDone()
+function! electrify#omnicomplete#onCompleteDone()
     if exists("s:originalCompleteOptions")
         execute("set completeopt=".s:originalCompleteOptions)
         unlet s:originalCompleteOptions
@@ -98,7 +98,7 @@ function! extropy#omnicomplete#onCompleteDone()
     if type(v:completed_item) == type({})
         if has_key(v:completed_item, "kind")
             if v:completed_item.kind == "[snippet]" 
-                call extropy#snippet#expandAnonymousSnippet(v:completed_item.info)
+                call electrify#snippet#expandAnonymousSnippet(v:completed_item.info)
             endif
         endif
     endif

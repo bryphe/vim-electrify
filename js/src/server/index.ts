@@ -97,7 +97,7 @@ var tcpServer = net.createServer((tcpSocket) => {
 
     function getServerName() {
         console.log("No session... requesting connect.");
-        tcpSocket.write("extropy#tcp#sendConnectMessage()\n");
+        tcpSocket.write("electrify#tcp#sendConnectMessage()\n");
     }
 
     function end() {

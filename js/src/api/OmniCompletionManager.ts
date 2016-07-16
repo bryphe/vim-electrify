@@ -63,7 +63,7 @@ export class OmniCompletionManager {
 
     private _sendCompletion(completionInfo: omni.ICompletionInfo | omni.IFunctionCompletionInfo) {
         var serializedCompletion = JSON.stringify(completionInfo);
-        this._vim.rawExec("extropy#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
+        this._vim.rawExec("electrify#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
     }
 
     private _isFunctionMeet(eventContext: context.ICommandContext) {

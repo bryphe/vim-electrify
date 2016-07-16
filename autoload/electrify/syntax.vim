@@ -7,16 +7,16 @@
 "   'Function': ['keyword1', 'keyword2'],
 "   'Comment': ['keyword3', 'keyword4']
 " }
-function! extropy#syntax#setKeywordHighlighting(serializedHighlightDictionary)
+function! electrify#syntax#setKeywordHighlighting(serializedHighlightDictionary)
 
-    if !exists("b:extropy_nodejs_usedSyntaxGroups")
-        let b:extropy_nodejs_usedSyntaxGroups = []
+    if !exists("b:electrify_nodejs_usedSyntaxGroups")
+        let b:electrify_nodejs_usedSyntaxGroups = []
     endif
 
-    call extropy#debug#logInfo("extropy#syntax#setKeywordHighlighting:".a:serializedHighlightDictionary)
-    let highlightDictionary = extropy#js#deserialize(a:serializedHighlightDictionary)
+    call electrify#debug#logInfo("electrify#syntax#setKeywordHighlighting:".a:serializedHighlightDictionary)
+    let highlightDictionary = electrify#js#deserialize(a:serializedHighlightDictionary)
 
-    let highlightPrefix = bufnr('%')."_"."extropy_"
+    let highlightPrefix = bufnr('%')."_"."electrify_"
 
     for key in keys(highlightDictionary)
         let keywords = highlightDictionary[key]
@@ -29,13 +29,13 @@ function! extropy#syntax#setKeywordHighlighting(serializedHighlightDictionary)
 
         let keys = join(highlightDictionary[key], " ")
 
-        if index(b:extropy_nodejs_usedSyntaxGroups, highlightLinkGroup) > -1
+        if index(b:electrify_nodejs_usedSyntaxGroups, highlightLinkGroup) > -1
             execute "syntax clear " .highlightLinkGroup
         endif
 
         execute "highlight link ".highlightLinkGroup." ".key
         execute "syntax keyword ".highlightLinkGroup." ".keys
-        call add(b:extropy_nodejs_usedSyntaxGroups, highlightLinkGroup)
+        call add(b:electrify_nodejs_usedSyntaxGroups, highlightLinkGroup)
     endfor
 
     redraw

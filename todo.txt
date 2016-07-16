@@ -6,19 +6,19 @@
 
 Function completion:
 4) VIM side - add API like:
-extropy#omnicomplete#openSnippetCompletion(snippetCompletionArgs)
+electrify#omnicomplete#openSnippetCompletion(snippetCompletionArgs)
 snippetCompletionArgs = base
 items = [
 { description: "Snippet description", contents: ["line 1", "line 2", etc]}
 ]
 
 Test method:
-inoremap <expr> $ extropy#omnicomplete#openCompletionMenu({'base': col('.'), 'line': line('.'), 'items': [{'kind': "snippet", 'abbr': "hi", 'empty': 1, 'info': 'secret info'}]})
+inoremap <expr> $ electrify#omnicomplete#openCompletionMenu({'base': col('.'), 'line': line('.'), 'items': [{'kind': "snippet", 'abbr': "hi", 'empty': 1, 'info': 'secret info'}]})
 
 
 The method will call openCompleteMenu, with word: '', empty: 1, 'abbr': 'name', description': description, 'info': SomeSnippetIdentifier
 Save into script-local buffer, like s:pendingSnippets = map<identifier, contents>
- 5) Create extropy#snippet#expandSnippet(lines)
+ 5) Create electrify#snippet#expandSnippet(lines)
 [IN PROGRESS] - Added snippet.vim to handle this and prototyped - it works well with the omnicompelte
 
 6) Finish hooking up in the TS code- how to pass the completions down?
