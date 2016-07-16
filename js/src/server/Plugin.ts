@@ -117,8 +117,10 @@ export default class Plugin {
     }
 
     private _isCommandHandled(bufferName: string): boolean {
-        if (!bufferName)
+        if (!bufferName) {
+            console.log("No buffername");
             return false;
+        }
 
         if (this._config.supportedFiles) {
             var anyMatches = false;

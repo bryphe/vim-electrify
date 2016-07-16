@@ -55,6 +55,6 @@ export class OmniCompletionManager {
 
     public register(fileType: string, omniCompleter: omni.IOmniCompleter): void {
         this._omniCompleters[fileType] = this._omniCompleters[fileType] || [];
-        this._omniCompleters[fileType].push(omniCompleter);
+        this._omniCompleters[fileType].unshift(omniCompleter);
     }
 }

@@ -1,7 +1,7 @@
 import IPluginConfiguration = require("./IPluginConfiguration");
 
 var defaultConfiguration = {
-    supportedFiles: ["*.*"]
+    supportedFiles: ["*"]
 }
 
 export = {

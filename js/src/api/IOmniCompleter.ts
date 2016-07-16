@@ -23,14 +23,6 @@ export interface IFunctionCompletionItem {
     kind?: string;
 }
 
-export enum CompletionType {
-    None,
-    Omni,
-    Function
-}
-
 export interface IOmniCompleter {
-    getCompletionType(completionContext: context.ICommandContext): CompletionType;
     getCompletions(completionContext: context.ICommandContext): Promise<ICompletionInfo>;
-    getFunctionCompletions(completionContext: context.ICommandContext): Promise<IFunctionCompletionInfo>;
 }
