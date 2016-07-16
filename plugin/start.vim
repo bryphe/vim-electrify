@@ -51,7 +51,7 @@ augroup ElectrifyLifecycleListeners
     autocmd! CursorMoved * :call electrify#command#flushIncomingCommands()
     autocmd! CursorHoldI * :call electrify#command#flushIncomingCommands()
     autocmd! CursorMovedI * :call electrify#command#flushIncomingCommands()
-    autocmd! VimLeave * :call electrify#js#disconnectTcp()
+    autocmd! VimLeave * :call electrify#tcp#disconnect()
 augroup END
 
 call electrify#js#start()
