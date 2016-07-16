@@ -26,7 +26,7 @@ class Server:
         path = os.path.join(self._pluginPath, "js", "node_modules", ".bin", "electron.cmd")
 
         # TODO: Pass in port specified in config
-        self._serverProcess = subprocess.Popen(path + " " + self._serverPath + " --tcpPort " + string(self._tcpPort) + " --wsPort " + string(self._wsPort), startupinfo=startupinfo)
+        self._serverProcess = subprocess.Popen(path + " " + self._serverPath + " --tcpPort " + str(self._tcpPort) + " --wsPort " + str(self._wsPort), startupinfo=startupinfo)
 
     def stop(self):
         if self._serverProcess != None:
