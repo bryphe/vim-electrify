@@ -13,7 +13,7 @@ var CHANNEL = 1;
 import { IPluginHost } from "./IPluginHost";
 import { IPluginHostFactory } from "./IPluginHostFactory";
 import BrowserWindowPluginHost from "./BrowserWindowPluginHost";
-import BrowserWindowPluginHostFactory from "./BrowserWindowPluginHost";
+import BrowserWindowPluginHostFactory from "./BrowserWindowPluginHostFactory";
 
 export default class Plugin {
 

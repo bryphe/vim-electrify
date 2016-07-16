@@ -5,7 +5,7 @@ import BrowserWindowPluginHost from "./BrowserWindowPluginHost";
 export default class BrowserWindowPluginHostFactory implements IPluginHostFactory {
 
     private _io: any;
-    private _port: any;
+    private _port: number;
     private _channel: number = 0;
 
     constructor(io: any, port: number) {
