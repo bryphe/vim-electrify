@@ -6,7 +6,8 @@ CONTENTS                                                   *electrify-contents*
 
     1.Intro...................................|electrify-intro|
     2.Requirements............................|electrify-requirements|
-    3.Options.................................|electrify-options|
+    3.Commands................................|electrify-commands|
+    4.Options.................................|electrify-options|
 
 ==============================================================================
 1. Intro                                                     *electrify-intro*
@@ -36,15 +37,19 @@ Optional dependencies that improve the plugin:
 - UltiSnips
 
 ==============================================================================
-3. Options                                                 *electrify-options*
+3. Options                                                 *electrify-commands*
+
+|:SourceJS <filename>|                  Loads a JavaScript file directly for
+|:SoJS <filename>|                      use in the vim session.
+
+==============================================================================
+4. Options                                                 *electrify-options*
 
 The plugin provides the following options that can customize the behavior of
 the loaded javascript plugins:
 
-
-|'g:electrify_debug'|                   When set to 1, allows debugging
-                                        javascript plugins externally.
-
+|'g:electrify_enable_omnicomplete'|     When set to 1 (default), enables
+                                        javascript plugins to use omnicomplete.
 
 |'g:electrify_tcp_port'|                Specify the port to be used for the
                                         tcp server. This is hosted externally,
@@ -54,3 +59,10 @@ the loaded javascript plugins:
 |'g:electrify_ws_port'|                 Specify the port to be used for the 
                                         websocket layer. The websocket is used
                                         to communicate from plugin <-> electron.
+
+|'g:electrify_dev_debug'|               When set to 1, allows debugging
+                                        javascript plugins externally.
+
+|'g:electrify_dev_hot_reload'|          When set to 1, automatically reloads
+                                        javascript plugins when source changes.
+
