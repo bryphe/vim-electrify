@@ -49,8 +49,6 @@ export default class Plugin extends events.EventEmitter {
         this._pluginHost.on("message", (msg) => {
             this._handleMessage(msg);
         });
-
-        this._pluginHost.on()
     }
 
     public showDevTools(): void {
@@ -67,7 +65,7 @@ export default class Plugin extends events.EventEmitter {
                 var command = data.command.split("\"").join("\\\"");
                 this._commandExecutor.executeCommand(this._gvimServerName, command);
             } else if(data.type === "loadplugin") {
-                this.emit("loadplugin", data);
+                this.emit("loadplugin", data.pluginPath);
             }
         }
     }
