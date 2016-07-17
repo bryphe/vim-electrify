@@ -122,7 +122,7 @@ export default class Plugin extends events.EventEmitter {
     private _isCommandHandled(bufferName: string): boolean {
         if (!bufferName) {
             console.log("No buffername");
-            return false;
+            return true;
         }
 
         if (this._config.supportedFiles) {
