@@ -82,7 +82,10 @@ export default class Vim extends events.EventEmitter {
     }
 
     public loadPlugin(pluginPackageFilePath: string): void {
-        socket.emit("loadplugin", pluginPackageFilePath);
+        socket.emit("message", {
+            type: "loadplugin",
+            pluginPath: pluginPackageFilePath 
+        });
     }
 
     public rawExec(command: string) {
