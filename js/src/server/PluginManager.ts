@@ -43,6 +43,7 @@ export default class PluginManager {
     }
 
     private _loadPluginFromPackage(packageFilePath: string): void {
+        console.log("Loading plugin from package: " + packageFilePath);
         var packageInfo = JSON.parse(fs.readFileSync(packageFilePath, "utf8"));
         var main = packageInfo.main;
         var name = packageInfo.name;
@@ -60,6 +61,7 @@ export default class PluginManager {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath)
             var plugin = new Plugin(this._commandExecutor, this._pluginHostFactory, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
+            plugin.on("loadplugin", (pluginPath) => this._loadPluginFromPackage(pluginPath));
             this._pluginNameToInstance[pluginName] = plugin;
         } else {
             console.log("Plugin [" + pluginName + "] already started.")

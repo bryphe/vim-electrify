@@ -81,6 +81,10 @@ export default class Vim extends events.EventEmitter {
         this._evalCallbacks[this._evalSequence] = callbackFunction;
     }
 
+    public loadPlugin(pluginPackageFilePath: string): void {
+        socket.emit("loadplugin", pluginPackageFilePath);
+    }
+
     public rawExec(command: string) {
         this._rawExec(command);
     }
@@ -106,7 +110,7 @@ export default class Vim extends events.EventEmitter {
             type: "command",
             command: command
         };
-        Command.sendCommand(commandToSend);
+        socket.emit("message", commandToSend);
     }
 
     private _executeEvent(command: any): void {
@@ -157,11 +161,5 @@ export default class Vim extends events.EventEmitter {
             else if (command.type === "bufferChanged")
                 this._onBufferChanged(command.arguments);
         }
-    }
-}
-
-export class Command {
-    public static sendCommand(commandToSend: any): void {
-        socket.emit("message", commandToSend);
     }
 }

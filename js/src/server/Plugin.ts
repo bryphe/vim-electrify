@@ -1,4 +1,4 @@
-import childProcess = require("child_process");
+import * as events from "events";
 import path = require("path");
 import readline = require("readline");
 import minimatch = require("minimatch");
@@ -9,7 +9,7 @@ import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 import { IPluginHost } from "./IPluginHost";
 import { IPluginHostFactory } from "./IPluginHostFactory";
 
-export default class Plugin {
+export default class Plugin extends events.EventEmitter {
 
     private _pluginPath: string;
     private _pluginName: string;
@@ -29,6 +29,8 @@ export default class Plugin {
     }
 
     constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
+        super();
+
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
         this._pluginPath = pluginPath;
@@ -47,6 +49,8 @@ export default class Plugin {
         this._pluginHost.on("message", (msg) => {
             this._handleMessage(msg);
         });
+
+        this._pluginHost.on()
     }
 
     public showDevTools(): void {
@@ -59,10 +63,11 @@ export default class Plugin {
 
     private _handleMessage(data): void {
         if (data && data.type) {
-            if (data.type == "command") {
-
+            if (data.type === "command") {
                 var command = data.command.split("\"").join("\\\"");
                 this._commandExecutor.executeCommand(this._gvimServerName, command);
+            } else if(data.type === "loadplugin") {
+                this.emit("loadplugin", data);
             }
         }
     }
