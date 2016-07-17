@@ -1,0 +1,1 @@
+vim.echo("Hello from plugin loader");
