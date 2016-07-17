@@ -22,8 +22,9 @@ endfunction
 function! electrify#command#eval(expression, pluginName, seq)
     call electrify#debug#logInfo("Evaluating: ".a:expression)
     :execute "let evalResult = ".a:expression
-    call electrify#debug#logInfo("Got value: ".a:expression)
-    call electrify#js#callJsFunction(a:pluginName, "evalresult", {seq: a:seq, returnValue: evalResult})
+    call electrify#debug#logInfo("Got value: ".string(evalResult))
+    call electrify#js#callJsFunction(a:pluginName, "evalresult", {'seq': a:seq, 'returnValue': evalResult})
+    call electrify#debug#logInfo("eval: finished callback")
 endfunction
 
 function! electrify#command#echom(msg)

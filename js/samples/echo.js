@@ -6,5 +6,4 @@
  *      - Run ":SourceJS"
  */
 
-
 vim.echo("Hello world");

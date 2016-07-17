@@ -55,21 +55,21 @@ export default class TcpSocketInstance extends events.EventEmitter {
                 if(eventName === "VimLeave") {
                     this._end();
                 }
-            } else if(parsedData.type === "command") {
-                var plugin = parsedData.args.plugin;
-                var command = parsedData.args.command;
-                var context = parsedData.context;
-
-                console.log("Got command: " + command);
-
-                var plugin = this._session.plugins.getPlugin(plugin);
-                plugin.execute(command, context);
             } else if(parsedData.type === "bufferChanged") {
                 var bufferName = parsedData.args.bufferName;
                 var lines = parsedData.args.lines;
 
                 console.log("BufferChanged: " + bufferName + "| Lines: " + lines.length);
                 this._session.plugins.onBufferChanged(parsedData.args);
+            } else {
+                var plugin = parsedData.args.plugin;
+                var command = parsedData.args.command;
+                var context = parsedData.context;
+
+                console.log("Got plugin command: " + command);
+
+                var plugin = this._session.plugins.getPlugin(plugin);
+                plugin.execute(command, context);
             }
         });
 
