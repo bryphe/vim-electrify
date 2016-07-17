@@ -19,6 +19,14 @@ function! electrify#command#execute(command)
     :execute a:command
 endfunction
 
+function! electrify#command#eval(expression, pluginName, seq)
+    call electrify#debug#logInfo("Evaluating: ".a:expression)
+    :execute "let evalResult = ".a:expression
+    call electrify#debug#logInfo("Got value: ".string(evalResult))
+    call electrify#js#callJsFunction(a:pluginName, "evalresult", {'seq': a:seq, 'returnValue': evalResult})
+    call electrify#debug#logInfo("eval: finished callback")
+endfunction
+
 function! electrify#command#echom(msg)
     call electrify#debug#logInfo("echom: ".a:msg)
     echom a:msg
@@ -39,7 +47,7 @@ endfunction
 " Create a local vim command
 function! electrify#command#createCommand(pluginName, commandName) 
     call electrify#debug#logInfo("CreateCommand: " . a:pluginName . a:commandName)
-    execute "command! -nargs=* " . a:commandName . " call electrify#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "', <q-args>)"
+    execute "command! -nargs=* " . a:commandName . " call electrify#js#callJsFunction('" . a:pluginName . "', '" . a:commandName . "', {'qargs': <q-args>})"
 endfunction
 
 " Callback from the remote server to execute the incoming commands

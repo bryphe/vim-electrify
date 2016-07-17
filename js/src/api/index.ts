@@ -20,6 +20,9 @@ export default class Vim extends events.EventEmitter {
 
     private _omniCompletionManager: omni.OmniCompletionManager;
 
+    private _evalSequence = 0;
+    private _evalCallbacks = {};
+
     public get omniCompleters(): omni.OmniCompletionManager {
         return this._omniCompletionManager;
     }
@@ -67,6 +70,24 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("electrify#command#execute('" + command + "')");
     }
 
+    /**
+     * Evalutes a vim expression and returns the result in a callback
+     */
+    public eval(command: string, callbackFunction: Function): void {
+        this._evalSequence++;
+
+        this._rawExec("electrify#command#eval('" + command + "', '" + this._pluginName + "', '" + this._evalSequence.toString() + "')");
+
+        this._evalCallbacks[this._evalSequence] = callbackFunction;
+    }
+
+    public loadPlugin(pluginPackageFilePath: string): void {
+        socket.emit("message", {
+            type: "loadplugin",
+            pluginPath: pluginPackageFilePath 
+        });
+    }
+
     public rawExec(command: string) {
         this._rawExec(command);
     }
@@ -92,7 +113,7 @@ export default class Vim extends events.EventEmitter {
             type: "command",
             command: command
         };
-        Command.sendCommand(commandToSend);
+        socket.emit("message", commandToSend);
     }
 
     private _executeEvent(command: any): void {
@@ -100,9 +121,18 @@ export default class Vim extends events.EventEmitter {
         this.emit(eventName, command.callContext);
     }
 
+    /**
+     * Incoming commands from vim -> plugin
+     */
     private _executeCommand(command: any): void {
         var commandName = command.command;
-        this._commandNameToFunction[commandName](command.callContext);
+
+        // All lowercase commands won't conflict with user-facing commands
+        if (commandName === "evalresult") {
+            this._onEvalResult(command);
+        } else {
+            this._commandNameToFunction[commandName](command.callContext);
+        }
     }
 
     private _onBufferChanged(bufferChangeInfo: any): void {
@@ -112,6 +142,19 @@ export default class Vim extends events.EventEmitter {
         this.emit("BufferChanged", { fileName: bufferChangeInfo.bufferName, newContents: newContent });
     }
 
+    private _onEvalResult(command: any): void {
+        var seqNumber = command.callContext.seq;
+        console.log("Got eval result");
+
+        if(this._evalCallbacks[seqNumber]) {
+            this._evalCallbacks[seqNumber](null, command.callContext.returnValue);
+            this._evalCallbacks[seqNumber] = null;
+        }
+    }
+
+    /**
+     * Commands from plugin -> vim
+     */
     private _handleCommand(command: any): void {
         if (command) {
             if (command.type === "execute")
@@ -121,11 +164,5 @@ export default class Vim extends events.EventEmitter {
             else if (command.type === "bufferChanged")
                 this._onBufferChanged(command.arguments);
         }
-    }
-}
-
-export class Command {
-    public static sendCommand(commandToSend: any): void {
-        socket.emit("message", commandToSend);
     }
 }

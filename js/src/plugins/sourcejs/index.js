@@ -19,7 +19,11 @@ function handleSourceCommand(context) {
         // See stackoverflow:
         // http://stackoverflow.com/questions/9210542/node-js-require-cache-possible-to-invalidate
 
-        delete require.cache[require.resolve(sourceFile)];
-        require(sourceFile);
+        try {
+            delete require.cache[require.resolve(sourceFile)];
+            require(sourceFile);
+        } catch (ex) {
+            vim.echohl("SourceJS - Error: " + ex.toString(), "Error");
+        }
     }
 }

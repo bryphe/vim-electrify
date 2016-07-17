@@ -1,0 +1,9 @@
+{
+  "name": "pluginloader",
+  "version": "0.0.1",
+  "description": "Loads plugins from the runtime paths",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
