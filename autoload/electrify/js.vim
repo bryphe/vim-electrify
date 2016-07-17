@@ -75,12 +75,13 @@ EOF
 
 endfunction
 
-function! electrify#js#callJsFunction(pluginName, commandName, qArgs)
+function! electrify#js#callJsFunction(pluginName, commandName, additionalArgs)
 call electrify#debug#logInfo("electrify#js#callJsFunction: PluginName: ".a:pluginName." Command: ".a:commandName." Args: ".a:qArgs)
 call electrify#tcp#warnIfNotConnected()
 python << EOF
 context = electrify_get_context()
-context["qargs"] = vim.eval("a:qArgs")
+additionalArgs = vim.eval("a:additionalArgs")
+context.update(additionalArgs)
 
 jsFunctionMessage = {
     'type': 'command',
