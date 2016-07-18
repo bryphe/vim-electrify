@@ -1,0 +1,14 @@
+<html>
+<body>
+  <h1>Hello!</h1>
+  <div>
+      <span>These were the args passed:</span>
+      <span id="args" style="font-weight: bold"></span>
+  </div>
+  <script>
+    require('electron').ipcRenderer.on('init', (event, message) => {
+        document.getElementById("args").textContent = message;
+    });
+  </script>
+</body>
+</html>
