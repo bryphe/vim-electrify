@@ -83,7 +83,7 @@ TODO
 - [Echo](samples/echo.js)
 - [Eval](samples/eval.js)
 - [Command](samples/command.js)
-- [Simple omnicompleter](samples/omnicompleter_simple.js);
+- [Omnicompleter](samples/omnicompleter_simple.js);
 - [BrowserWindow](samples/browserwindow.js)
 
 FAQ
