@@ -51,7 +51,7 @@ function installTypings(typingsConfigPath, cb) {
     if(process.platform !== "win32") {
         commandFile = "typings";
     }
-    var typingsPath = path.join(__dirname, "node_modules", ".bin", commandFile);
+    var typingsPath = path.join(__dirname, "..", "node_modules", ".bin", commandFile);
 
     var child = exec(typingsPath + " install", { cwd: typingsConfigPath });
     child.stdout.pipe(process.stdout);

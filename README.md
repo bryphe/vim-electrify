@@ -59,7 +59,6 @@ Optional dependencies that improve the plugin:
     If using pathogen, clone this repository into your bundle folder.
 
     Run 'npm run install'
-    Run 'npm run build'
 
 ### OSX
 
@@ -81,7 +80,11 @@ TODO
 
 ### Examples
 
-TODO
+- [Echo](samples/echo.js)
+- [Eval](samples/eval.js)
+- [Command](samples/command.js)
+- [Omnicompleter](samples/omnicompleter_simple.js);
+- [BrowserWindow](samples/browserwindow.js)
 
 FAQ
 ===

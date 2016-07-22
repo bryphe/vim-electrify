@@ -4,10 +4,10 @@
   "description": "Interop layer to allow running node-powered JavaScript plugins for VIM",
   "main": "index.js",
   "scripts": {
-    "build": "gulp build",
-    "postinstall": "gulp install-typings",
-    "start": "electron lib/server/index.js --tcpPort 4001 --wsPort 4002",
-    "test": "mocha --recursive lib_test"
+    "build": "cd js && gulp build",
+    "postinstall": "cd js && gulp install-typings",
+    "start": "electron js/lib/server/index.js --tcpPort 4001 --wsPort 4002",
+    "test": "mocha --recursive js/lib_test"
   },
   "repository": {
     "type": "git",
