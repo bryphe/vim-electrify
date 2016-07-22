@@ -24,7 +24,7 @@ class Server:
         startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 
         # TODO: Remove 'cmd' in non-windows platforms
-        path = os.path.join(self._pluginPath, "js", "node_modules", ".bin", "electron.cmd")
+        path = os.path.join(self._pluginPath, "node_modules", ".bin", "electron.cmd")
 
         # TODO: Pass in port specified in config
         self._serverProcess = subprocess.Popen(path + " " + self._serverPath + " --tcpPort " + str(self._tcpPort) + " --wsPort " + str(self._wsPort), startupinfo=startupinfo)
