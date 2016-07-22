@@ -3,7 +3,7 @@ node_js:
   - "6"
 
 install:
-    - cd js && npm install
+    - npm install
 
 script:
     - npm run build
