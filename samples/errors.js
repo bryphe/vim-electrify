@@ -20,7 +20,7 @@ vim.addCommand("ErrorSource1", function(context) {
     }, {
         fileName: context.currentBuffer,
         lineNumber: 6,
-        column: 6,
+        startColumn: 6,
         endColumn: 16,
         type: "2",
         text: "error from source 2"
@@ -39,7 +39,7 @@ vim.addCommand("ErrorSource2", function(context) {
         fileName: context.currentBuffer,
         lineNumber: 16,
         startColumn: 0,
-        endColumn: 15
+        endColumn: 15,
         type: "2",
         text: "error from source 2"
     }]);

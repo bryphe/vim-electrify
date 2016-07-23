@@ -98,6 +98,7 @@ function! electrify#errors#_render()
     endfor
 
     call setqflist(allLocEntries)
+    :redraw
 
 endfunction
 

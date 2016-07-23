@@ -1,5 +1,5 @@
 export interface ILocListEntry {
-    filename: string;
+    fileName: string;
     lineNumber: number;
     column: number;
     text: string;
