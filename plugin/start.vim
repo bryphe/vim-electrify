@@ -54,6 +54,11 @@ augroup ElectrifyLifecycleListeners
     autocmd! VimLeave * :call electrify#tcp#disconnect()
 augroup END
 
+augroup ElectrifyErrorListeners
+    autocmd!
+    autocmd! BufEnter * :call electrify#errors#_render()
+augroup END
+
 call electrify#js#start()
 call electrify#omnicomplete#initializeCompletion()
 call electrify#command#startWatcher()
