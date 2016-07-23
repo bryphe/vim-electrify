@@ -105,7 +105,7 @@ export default class Vim extends events.EventEmitter {
     }
 
     public setErrors(key: string, errors: ILocListEntry[]) {
-        this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')");
+        this._rawExec("electrify#errors#set('" + key "', '"  + JSON.stringify(errors) + "')");
     }
 
     public setLocationList(locations: ILocListEntry[]) {

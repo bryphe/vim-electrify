@@ -1,9 +1,7 @@
 export interface ILocListEntry {
-    bufnr: number;
     filename: string;
-    lnum: number;
-    col: number;
+    lineNumber: number;
+    column: number;
     text: string;
-    nr: number;
     type: string;
 }

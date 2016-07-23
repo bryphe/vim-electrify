@@ -86,7 +86,7 @@ var Vim = (function (_super) {
     Vim.prototype.setSyntaxHighlighting = function (syntaxHighlightingInfo) {
         this._rawExec("electrify#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     };
-    Vim.prototype.setErrors = function (errors) {
+    Vim.prototype.setErrors = function (key, errors) {
         this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')");
     };
     Vim.prototype.setLocationList = function (locations) {

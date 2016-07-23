@@ -2,10 +2,11 @@
  * IErrorEntry is the interface for setting errors
  */
 export interface IErrorEntry {
-    filename: string,
+    fileName: string,
     lineNumber: number,
-    startColumn: number,
-    endColumn: number,
+    column?: number,
+    startColumn?: number,
+    endColumn?: number,
     text: string,
-    type: string
+    type?: string
 }

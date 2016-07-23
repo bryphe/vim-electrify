@@ -21,7 +21,7 @@ export default class Vim extends events.EventEmitter {
     echo(msg: string): void;
     echohl(msg: string, highlightGroup: string): void;
     setSyntaxHighlighting(syntaxHighlightingInfo: syntax.ISyntaxHighlighting): void;
-    setErrors(errors: ILocListEntry[]): void;
+    setErrors(key: string, errors: ILocListEntry[]): void;
     setLocationList(locations: ILocListEntry[]): void;
     setQuickFixList(locations: ILocListEntry[]): void;
     private _rawExec(command);

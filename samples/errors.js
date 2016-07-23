@@ -9,35 +9,47 @@
  *      - Run ":ClearErrorSource1"
  */
 
-vim.addCommand("Errors", function(context) {
-    vim.setLocationList([{
-        filename: context.currentBuffer,
+vim.addCommand("ErrorSource1", function(context) {
+    vim.setErrors("errorSource1Key", [{
+        fileName: context.currentBuffer,
         lineNumber: 5,
-        column: 5,
+        startColumn: 5,
+        endColumn: 10,
         type: "1",
-        text: "location 1"
+        text: "error from source 1"
     }, {
-        filename: context.currentBuffer,
+        fileName: context.currentBuffer,
         lineNumber: 6,
         column: 6,
+        endColumn: 16,
         type: "2",
-        text: "location 2"
+        text: "error from source 2"
     }]);
 });
 
-vim.addCommand("TestQuickFixList", function(context) {
-    vim.setLocationList([{
-        filename: context.currentBuffer,
-        lineNumber: 5,
-        column: 5,
+vim.addCommand("ErrorSource2", function(context) {
+    vim.setErrors("errorSource2Key", [{
+        fileName: context.currentBuffer,
+        lineNumber: 15,
+        startColumn: 10,
+        endColumn: 11,
         type: "1",
-        text: "error 1"
+        text: "error from source 2"
     }, {
-        filename: context.currentBuffer,
-        lineNumber: 6,
-        column: 6,
+        fileName: context.currentBuffer,
+        lineNumber: 16,
+        startColumn: 0,
+        endColumn: 15
         type: "2",
-        text: "error 2"
+        text: "error from source 2"
     }]);
+});
+
+vim.addCommand("ClearErrorSource1", function(context) {
+    vim.clearErrors("errorSource1Key");
+});
+
+vim.addCommand("ClearErrorSource2", function(context) {
+    vim.clearErrors("errorSource2Key");
 });
 
