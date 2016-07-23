@@ -104,7 +104,7 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("electrify#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     }
 
-    public setErrors(errors: ILocListEntry[]) {
+    public setErrors(key: string, errors: ILocListEntry[]) {
         this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')");
     }
 
