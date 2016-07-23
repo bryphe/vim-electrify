@@ -1,5 +1,5 @@
 import events = require("events");
-import loclist = require("./ILocListEntry");
+import { ILocListEntry } from "./ILocListEntry";
 import syntax = require("./ISyntaxHighlighting");
 import * as omni from "./OmniCompletionmanager";
 export default class Vim extends events.EventEmitter {
@@ -21,7 +21,9 @@ export default class Vim extends events.EventEmitter {
     echo(msg: string): void;
     echohl(msg: string, highlightGroup: string): void;
     setSyntaxHighlighting(syntaxHighlightingInfo: syntax.ISyntaxHighlighting): void;
-    setErrors(errors: loclist.ILocListEntry[]): void;
+    setErrors(errors: ILocListEntry[]): void;
+    setLocationList(locations: ILocListEntry[]): void;
+    setQuickFixList(locations: ILocListEntry[]): void;
     private _rawExec(command);
     private _executeEvent(command);
     private _executeCommand(command);

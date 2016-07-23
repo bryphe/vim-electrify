@@ -89,6 +89,12 @@ var Vim = (function (_super) {
     Vim.prototype.setErrors = function (errors) {
         this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')");
     };
+    Vim.prototype.setLocationList = function (locations) {
+        this._rawExec("electrify#list#setloclist('" + JSON.stringify(locations) + "')");
+    };
+    Vim.prototype.setQuickFixList = function (locations) {
+        this._rawExec("electrify#list#setqflist('" + JSON.stringify(locations) + "')");
+    };
     Vim.prototype._rawExec = function (command) {
         var commandToSend = {
             type: "command",

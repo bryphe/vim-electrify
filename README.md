@@ -85,6 +85,7 @@ TODO
 - [Command](samples/command.js)
 - [Omnicompleter](samples/omnicompleter_simple.js);
 - [BrowserWindow](samples/browserwindow.js)
+- [Setting qflist/loclist](samples/lists.js)
 
 FAQ
 ===
