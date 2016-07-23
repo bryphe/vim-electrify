@@ -3,7 +3,7 @@ import childProcess = require("child_process");
 import events = require("events");
 import os = require("os");
 
-import loclist = require("./ILocListEntry");
+import {ILocListEntry} from "./ILocListEntry";
 import syntax = require("./ISyntaxHighlighting");
 import * as omni from "./OmniCompletionmanager"
 
@@ -104,8 +104,20 @@ export default class Vim extends events.EventEmitter {
         this._rawExec("electrify#syntax#setKeywordHighlighting('" + JSON.stringify(syntaxHighlightingInfo) + "')");
     }
 
-    public setErrors(errors: loclist.ILocListEntry[]) {
-        this._rawExec("electrify#errors#set('" + JSON.stringify(errors) + "')")
+    public clearErrors(key: string) {
+        this._rawExec("electrify#errors#clear('" + key + "')");
+    }
+
+    public setErrors(key: string, errors: ILocListEntry[]) {
+        this._rawExec("electrify#errors#set('" + key + "', '"  + JSON.stringify(errors) + "')");
+    }
+
+    public setLocationList(locations: ILocListEntry[]) {
+        this._rawExec("electrify#list#setloclist('" + JSON.stringify(locations) + "')");
+    }
+
+    public setQuickFixList(locations: ILocListEntry[]) {
+        this._rawExec("electrify#list#setqflist('" + JSON.stringify(locations) + "')");
     }
 
     private _rawExec(command: string) {
