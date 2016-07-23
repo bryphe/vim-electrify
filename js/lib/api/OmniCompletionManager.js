@@ -1,16 +1,14 @@
 "use strict";
-var OmniCompletionManager = (function () {
-    function OmniCompletionManager(owner) {
-        var _this = this;
+class OmniCompletionManager {
+    constructor(owner) {
         this._commandNameToFunction = {};
         this._omniCompleters = {};
         this._vim = owner;
-        this._vim.on("CursorMovedI", function (eventContext) {
-            _this._checkForCompletion(eventContext);
+        this._vim.on("CursorMovedI", (eventContext) => {
+            this._checkForCompletion(eventContext);
         });
     }
-    OmniCompletionManager.prototype._checkForCompletion = function (eventContext) {
-        var _this = this;
+    _checkForCompletion(eventContext) {
         console.log("Checking for completion: " + eventContext.filetype);
         var completers = this._omniCompleters[eventContext.filetype];
         if (!completers || !completers.length)
@@ -18,23 +16,22 @@ var OmniCompletionManager = (function () {
         console.log("Got a completer");
         var firstCompleter = completers[0];
         firstCompleter.getCompletions(eventContext)
-            .then(function (completionInfo) {
+            .then((completionInfo) => {
             if (completionInfo) {
-                _this._sendCompletion(completionInfo);
+                this._sendCompletion(completionInfo);
                 console.log("Received completion results: " + completionInfo.base + "|" + completionInfo.items.length + " items");
             }
         });
-    };
-    OmniCompletionManager.prototype._sendCompletion = function (completionInfo) {
+    }
+    _sendCompletion(completionInfo) {
         var serializedCompletion = JSON.stringify(completionInfo);
         this._vim.rawExec("electrify#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
-    };
-    OmniCompletionManager.prototype._isFunctionMeet = function (eventContext) {
-    };
-    OmniCompletionManager.prototype.register = function (fileType, omniCompleter) {
+    }
+    _isFunctionMeet(eventContext) {
+    }
+    register(fileType, omniCompleter) {
         this._omniCompleters[fileType] = this._omniCompleters[fileType] || [];
         this._omniCompleters[fileType].unshift(omniCompleter);
-    };
-    return OmniCompletionManager;
-}());
+    }
+}
 exports.OmniCompletionManager = OmniCompletionManager;

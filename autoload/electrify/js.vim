@@ -136,15 +136,19 @@ lines = []
 for line in vim.current.buffer:
     lines.append(line)
 
+
+context = electrify_get_context()
+
 args = {
 "bufferName": currentBuffer,
 "lines": lines
 }
 
+context.update(args)
+
 bufferChangedMessage = {
     'type': 'bufferChanged',
-    'args': args,
-    'context': electrify_get_context()
+    'args': context
 }
 
 electrify_tcp_sendMessage(bufferChangedMessage)
