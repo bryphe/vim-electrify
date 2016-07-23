@@ -18,6 +18,9 @@ class Plugin extends events.EventEmitter {
     get pluginPath() {
         return this._pluginPath;
     }
+    get pluginHost() {
+        return this._pluginHost;
+    }
     start() {
         if (this._pluginHost)
             return;
@@ -51,21 +54,21 @@ class Plugin extends events.EventEmitter {
             eventName: eventName,
             callContext: eventArgs
         };
-        this._writeToPlugin(commandInfo, eventArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, eventArgs);
     }
     startOmniComplete(omniCompletionArgs) {
         var commandInfo = {
             type: "omnicomplete",
             arguments: omniCompletionArgs
         };
-        this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, omniCompletionArgs);
     }
     onBufferChanged(bufferChangedEventArgs) {
         var commandInfo = {
             type: "bufferChanged",
             arguments: bufferChangedEventArgs
         };
-        this._writeToPlugin(commandInfo, bufferChangedEventArgs.bufferName);
+        this._writeToPlugin(commandInfo, bufferChangedEventArgs);
     }
     execute(commandName, callContext) {
         var commandInfo = {
@@ -73,32 +76,35 @@ class Plugin extends events.EventEmitter {
             command: commandName,
             callContext: callContext
         };
-        this._writeToPlugin(commandInfo, callContext.currentBuffer);
+        this._writeToPlugin(commandInfo, callContext);
     }
-    _writeToPlugin(command, bufferName) {
+    _writeToPlugin(command, context) {
         if (this._pluginHost) {
-            if (this._isCommandHandled(bufferName)) {
+            if (this._isCommandHandled(context)) {
                 console.log("Writing to plugin: " + this._pluginName);
                 this._pluginHost.sendCommand(command);
             }
             else {
-                console.log("Command ignored for buffer: " + bufferName);
+                console.log("Command ignored for buffer: " + context.currentBuffer);
             }
         }
     }
-    _isCommandHandled(bufferName) {
-        if (!bufferName) {
+    _isCommandHandled(context) {
+        if (!context.currentBuffer) {
             console.log("No buffername");
             return true;
         }
+        var filterPassed = true;
         if (this._config.supportedFiles) {
             var anyMatches = false;
-            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(bufferName, fileFilter, { matchBase: true }));
-            return matches.length > 0;
+            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(context.currentBuffer, fileFilter, { matchBase: true }));
+            filterPassed = filterPassed && matches.length > 0;
         }
-        else {
-            return true;
+        if (this._config.supportedFileTypes) {
+            var matches = this._config.supportedFileTypes.filter(f => f === context.filetype);
+            filterPassed = filterPassed && matches.length > 0;
         }
+        return filterPassed;
     }
     dispose() {
         if (this._pluginHost) {

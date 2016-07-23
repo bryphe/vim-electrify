@@ -1,16 +1,10 @@
 import TcpSocketInstance from "../../lib/server/TcpSocketInstance";
 import SessionManager from "../../lib/server/SessionManager";
-import {MockPluginHostFactory} from "./MockPluginHost"
+import {MockPluginHostFactory} from "./MockPluginHost";
+import {MockCommandExecutor} from "./MockCommandExecutor";
 
 import * as assert from "assert";
 import * as events from "events";
-
-class MockCommandExecutor {
-
-    public executeCommand(): Promise<void> {
-        return Promise.resolve();
-    }
-}
 
 class MockSocket extends events.EventEmitter {
 

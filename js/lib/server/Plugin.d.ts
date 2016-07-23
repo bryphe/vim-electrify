@@ -1,6 +1,7 @@
 import * as events from "events";
-import IPluginConfiguration = require("./IPluginConfiguration");
+import { IPluginConfiguration } from "./IPluginConfiguration";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
+import { IPluginHost } from "./IPluginHost";
 import { IPluginHostFactory } from "./IPluginHostFactory";
 export default class Plugin extends events.EventEmitter {
     private _pluginPath;
@@ -12,6 +13,7 @@ export default class Plugin extends events.EventEmitter {
     private _pluginHostFactory;
     pluginName: string;
     pluginPath: string;
+    pluginHost: IPluginHost;
     constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration);
     start(): void;
     showDevTools(): void;
@@ -21,7 +23,7 @@ export default class Plugin extends events.EventEmitter {
     startOmniComplete(omniCompletionArgs: any): void;
     onBufferChanged(bufferChangedEventArgs: any): void;
     execute(commandName: string, callContext: any): void;
-    private _writeToPlugin(command, bufferName);
-    private _isCommandHandled(bufferName);
+    private _writeToPlugin(command, context);
+    private _isCommandHandled(context);
     dispose(): void;
 }

@@ -2,17 +2,14 @@
  * Configuration, specified in the package.json,
  * under the 'electrify' node
  */
-interface IPluginConfiguration {
+export interface IPluginConfiguration {
     /**
      * Glob to match supported files
      */
-    supportedFiles: string[];
-
+    supportedFiles?: string[];
 
     /**
      * VIM assigned filetypes to match
      */
-    supportedFileTypes: string[];
+    supportedFileTypes?: string[];
 }
-
-export = IPluginConfiguration;

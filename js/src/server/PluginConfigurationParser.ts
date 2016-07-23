@@ -1,4 +1,4 @@
-import IPluginConfiguration = require("./IPluginConfiguration");
+import { IPluginConfiguration } from "./IPluginConfiguration";
 
 var defaultConfiguration: IPluginConfiguration = {
     supportedFiles: ["*"],
