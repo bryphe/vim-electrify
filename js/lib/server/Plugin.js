@@ -90,10 +90,6 @@ class Plugin extends events.EventEmitter {
         }
     }
     _isCommandHandled(context) {
-        if (!context.currentBuffer) {
-            console.log("No buffername");
-            return true;
-        }
         var filterPassed = true;
         if (this._config.supportedFiles) {
             var anyMatches = false;

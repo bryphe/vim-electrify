@@ -87,6 +87,7 @@ TODO
 - [BrowserWindow](samples/browserwindow.js)
 - [Setting qflist/loclist](samples/lists.js)
 - [Showing errors](samples/errors.js)
+- [Open a buffer](samples/open.js)
 
 FAQ
 ===

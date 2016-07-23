@@ -1,9 +1,6 @@
 import { IPluginConfiguration } from "./IPluginConfiguration";
 
-var defaultConfiguration: IPluginConfiguration = {
-    supportedFiles: ["*"],
-    supportedFileTypes: ["*"]
-}
+var defaultConfiguration: IPluginConfiguration = { }
 
 export function getVimConfig(packageJsonObject: any): IPluginConfiguration {
         packageJsonObject = packageJsonObject || { };

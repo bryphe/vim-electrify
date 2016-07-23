@@ -44,6 +44,13 @@ function! electrify#command#echohl(msg, highlightGroup)
     echohl NONE
 endfunction
 
+function! electrify#command#gotofile(file, line, offset)
+    exe ":e! ".a:file
+    exe ":keepjumps norm ".a:line."G".a:offset
+    norm zz
+    redraw
+endfunction
+
 " Create a local vim command
 function! electrify#command#createCommand(pluginName, commandName) 
     call electrify#debug#logInfo("CreateCommand: " . a:pluginName . a:commandName)

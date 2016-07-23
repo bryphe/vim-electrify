@@ -1,8 +1,5 @@
 "use strict";
-var defaultConfiguration = {
-    supportedFiles: ["*"],
-    supportedFileTypes: ["*"]
-};
+var defaultConfiguration = {};
 function getVimConfig(packageJsonObject) {
     packageJsonObject = packageJsonObject || {};
     var electrifyConfig = packageJsonObject.electrify || {};

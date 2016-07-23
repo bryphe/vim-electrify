@@ -68,6 +68,22 @@ describe("Plugin", () => {
             var mockHost = <MockPluginHost>plugin.pluginHost;
             assert.strictEqual(mockHost.getSentCommands().length, 1);
         });
+
+        it("doesn't send event if buffername is empty, and supportedFileType is specified", () => {
+            var config = {
+                supportedFileTypes: ["testtype"]
+            };
+
+            var simulatedEventContext = {
+                currentBuffer: null
+            };
+
+            var plugin = createPluginFromConfig(config);
+            plugin.notifyEvent("testevent", simulatedEventContext);
+
+            var mockHost = <MockPluginHost>plugin.pluginHost;
+            assert.strictEqual(mockHost.getSentCommands().length, 0);
+        });
     });
 
     function createPluginFromConfig(config: IPluginConfiguration): Plugin {
