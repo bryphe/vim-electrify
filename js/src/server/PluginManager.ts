@@ -5,7 +5,7 @@ import glob = require("glob");
 import util = require("util");
 
 import IPluginConfiguration = require("./IPluginConfiguration");
-import PluginConfigurationParser = require("./PluginConfigurationParser");
+import * as PluginConfigurationParser from "./PluginConfigurationParser";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 import {IPluginHostFactory} from "./IPluginHostFactory";
 

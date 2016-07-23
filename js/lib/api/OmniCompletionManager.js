@@ -13,7 +13,6 @@ class OmniCompletionManager {
         var completers = this._omniCompleters[eventContext.filetype];
         if (!completers || !completers.length)
             return;
-        console.log("Got a completer");
         var firstCompleter = completers[0];
         firstCompleter.getCompletions(eventContext)
             .then((completionInfo) => {
@@ -26,8 +25,6 @@ class OmniCompletionManager {
     _sendCompletion(completionInfo) {
         var serializedCompletion = JSON.stringify(completionInfo);
         this._vim.rawExec("electrify#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
-    }
-    _isFunctionMeet(eventContext) {
     }
     register(fileType, omniCompleter) {
         this._omniCompleters[fileType] = this._omniCompleters[fileType] || [];

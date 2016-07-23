@@ -9,6 +9,5 @@ export declare class OmniCompletionManager {
     constructor(owner: Vim);
     private _checkForCompletion(eventContext);
     private _sendCompletion(completionInfo);
-    private _isFunctionMeet(eventContext);
     register(fileType: string, omniCompleter: omni.IOmniCompleter): void;
 }

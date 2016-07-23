@@ -59,6 +59,7 @@ export default class Vim extends events.EventEmitter {
         return this._pluginName;
     }
 
+
     public addCommand(name: string, callbackFunction: Function): void {
         // console.log("Registering command: " + name);
         this._commandNameToFunction[name] = callbackFunction;

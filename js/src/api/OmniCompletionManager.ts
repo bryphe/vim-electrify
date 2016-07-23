@@ -20,7 +20,7 @@ export class OmniCompletionManager {
 
         this._vim.on("CursorMovedI", (eventContext: context.ICommandContext) => {
             this._checkForCompletion(eventContext);
-        })
+        });
     }
 
     private _checkForCompletion(eventContext: context.ICommandContext) {
@@ -31,7 +31,6 @@ export class OmniCompletionManager {
         if (!completers || !completers.length)
             return;
 
-        console.log("Got a completer");
         // TODO: Handle multiple completers?
         var firstCompleter = completers[0];
 
@@ -47,10 +46,6 @@ export class OmniCompletionManager {
     private _sendCompletion(completionInfo: omni.ICompletionInfo | omni.IFunctionCompletionInfo) {
         var serializedCompletion = JSON.stringify(completionInfo);
         this._vim.rawExec("electrify#omnicomplete#initiateCompletion('" + serializedCompletion + "')");
-    }
-
-    private _isFunctionMeet(eventContext: context.ICommandContext) {
-
     }
 
     public register(fileType: string, omniCompleter: omni.IOmniCompleter): void {
