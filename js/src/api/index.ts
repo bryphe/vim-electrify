@@ -59,6 +59,7 @@ export default class Vim extends events.EventEmitter {
         return this._pluginName;
     }
 
+
     public addCommand(name: string, callbackFunction: Function): void {
         // console.log("Registering command: " + name);
         this._commandNameToFunction[name] = callbackFunction;
@@ -151,7 +152,12 @@ export default class Vim extends events.EventEmitter {
         console.log("Received file update: " + bufferChangeInfo.lines.length + " lines.");
         var newContent = bufferChangeInfo.lines.join(os.EOL);
 
-        this.emit("BufferChanged", { fileName: bufferChangeInfo.bufferName, newContents: newContent });
+        var args: any = { };
+        Object.assign(args, bufferChangeInfo);
+        delete args.lines;
+        args.newContents = newContent;
+
+        this.emit("BufferChanged", args);
     }
 
     private _onEvalResult(command: any): void {

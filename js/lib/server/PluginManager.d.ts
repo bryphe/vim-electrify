@@ -1,5 +1,5 @@
 import Plugin from "./Plugin";
-import IPluginConfiguration = require("./IPluginConfiguration");
+import { IPluginConfiguration } from "./IPluginConfiguration";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 import { IPluginHostFactory } from "./IPluginHostFactory";
 export default class PluginManager {

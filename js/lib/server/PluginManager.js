@@ -1,33 +1,32 @@
 "use strict";
-var Plugin_1 = require("./Plugin");
-var path = require("path");
-var fs = require("fs");
-var glob = require("glob");
-var util = require("util");
-var PluginConfigurationParser = require("./PluginConfigurationParser");
-var PluginManager = (function () {
-    function PluginManager(gvimServerName, commandExecutor, pluginHost) {
+const Plugin_1 = require("./Plugin");
+const path = require("path");
+const fs = require("fs");
+const glob = require("glob");
+const util = require("util");
+const PluginConfigurationParser = require("./PluginConfigurationParser");
+class PluginManager {
+    constructor(gvimServerName, commandExecutor, pluginHost) {
         this._pluginNameToInstance = {};
         this._gvimServerName = gvimServerName;
         this._commandExecutor = commandExecutor;
         this._pluginHostFactory = pluginHost;
         this.loadGlobalPlugins();
     }
-    PluginManager.prototype.loadGlobalPlugins = function () {
+    loadGlobalPlugins() {
         var jsPluginDirectory = path.join(process.env.HOME, "vimfiles", "js-plugins");
         this._loadPluginsFromDirectory(jsPluginDirectory);
         var builtInPluginDirectory = path.join(__dirname, "..", "plugins");
         this._loadPluginsFromDirectory(builtInPluginDirectory);
-    };
-    PluginManager.prototype._loadPluginsFromDirectory = function (jsPluginDirectory) {
-        var _this = this;
+    }
+    _loadPluginsFromDirectory(jsPluginDirectory) {
         console.log("Loading plugins from: {0}", jsPluginDirectory);
         var plugins = glob.sync(path.join(jsPluginDirectory, "*/package.json"));
-        plugins.forEach(function (plugin) {
-            _this._loadPluginFromPackage(plugin);
+        plugins.forEach((plugin) => {
+            this._loadPluginFromPackage(plugin);
         });
-    };
-    PluginManager.prototype._loadPluginFromPackage = function (packageFilePath) {
+    }
+    _loadPluginFromPackage(packageFilePath) {
         console.log("Loading plugin from package: " + packageFilePath);
         var packageInfo = JSON.parse(fs.readFileSync(packageFilePath, "utf8"));
         var main = packageInfo.main;
@@ -37,60 +36,54 @@ var PluginManager = (function () {
         console.log(util.format("Loading plugin: %s %s %s", name, version, main));
         console.log("-Supported files: " + config.supportedFiles);
         this.start(name, path.join(packageFilePath, "..", main), config);
-    };
-    PluginManager.prototype.start = function (pluginName, pluginFilePath, config) {
-        var _this = this;
+    }
+    start(pluginName, pluginFilePath, config) {
         if (!this._pluginNameToInstance[pluginName]) {
             console.log("Starting plugin: " + pluginName + " path: " + pluginFilePath);
             var plugin = new Plugin_1.default(this._commandExecutor, this._pluginHostFactory, this._gvimServerName, pluginName, pluginFilePath, config);
             plugin.start();
-            plugin.on("loadplugin", function (pluginPath) { return _this._loadPluginFromPackage(pluginPath); });
+            plugin.on("loadplugin", (pluginPath) => this._loadPluginFromPackage(pluginPath));
             this._pluginNameToInstance[pluginName] = plugin;
         }
         else {
             console.log("Plugin [" + pluginName + "] already started.");
         }
-    };
-    PluginManager.prototype.getPlugin = function (pluginName) {
+    }
+    getPlugin(pluginName) {
         return this._pluginNameToInstance[pluginName];
-    };
-    PluginManager.prototype.getAllPlugins = function () {
-        var _this = this;
+    }
+    getAllPlugins() {
         var ret = [];
-        Object.keys(this._pluginNameToInstance).forEach(function (key) {
-            ret.push(_this._pluginNameToInstance[key]);
+        Object.keys(this._pluginNameToInstance).forEach((key) => {
+            ret.push(this._pluginNameToInstance[key]);
         });
         return ret;
-    };
-    PluginManager.prototype.startOmniComplete = function (omniCompletionArgs) {
-        var _this = this;
+    }
+    startOmniComplete(omniCompletionArgs) {
         console.log("PluginManager - starting omnicomplete");
-        Object.keys(this._pluginNameToInstance).forEach(function (key) {
+        Object.keys(this._pluginNameToInstance).forEach((key) => {
             if (key.indexOf("typescript") >= 0) {
-                var plugin = _this._pluginNameToInstance[key];
+                var plugin = this._pluginNameToInstance[key];
                 plugin.startOmniComplete(omniCompletionArgs);
             }
         });
-    };
-    PluginManager.prototype.onBufferChanged = function (bufferChangedArgs) {
-        var _this = this;
-        Object.keys(this._pluginNameToInstance).forEach(function (key) {
-            var plugin = _this._pluginNameToInstance[key];
+    }
+    onBufferChanged(bufferChangedArgs) {
+        Object.keys(this._pluginNameToInstance).forEach((key) => {
+            var plugin = this._pluginNameToInstance[key];
             plugin.onBufferChanged(bufferChangedArgs);
         });
-    };
-    PluginManager.prototype.notifyEvent = function (eventName, eventArgs) {
-        var _this = this;
-        Object.keys(this._pluginNameToInstance).forEach(function (key) {
-            var plugin = _this._pluginNameToInstance[key];
+    }
+    notifyEvent(eventName, eventArgs) {
+        Object.keys(this._pluginNameToInstance).forEach((key) => {
+            var plugin = this._pluginNameToInstance[key];
             plugin.notifyEvent(eventName, eventArgs);
         });
-    };
-    PluginManager.prototype.dispose = function () {
+    }
+    dispose() {
         this.getAllPlugins()
-            .forEach(function (plugin) { return plugin.dispose(); });
-    };
-    return PluginManager;
-}());
+            .forEach((plugin) => plugin.dispose());
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PluginManager;

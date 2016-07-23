@@ -3,7 +3,7 @@ import path = require("path");
 import readline = require("readline");
 import minimatch = require("minimatch");
 
-import IPluginConfiguration = require("./IPluginConfiguration");
+import {IPluginConfiguration} from "./IPluginConfiguration";
 import IRemoteCommandExecutor = require("./Commands/IRemoteCommandExecutor");
 
 import { IPluginHost } from "./IPluginHost";
@@ -26,6 +26,10 @@ export default class Plugin extends events.EventEmitter {
 
     public get pluginPath(): string {
         return this._pluginPath;
+    }
+
+    public get pluginHost(): IPluginHost {
+        return this._pluginHost;
     }
 
     constructor(commandExecutor: IRemoteCommandExecutor, pluginHostFactory: IPluginHostFactory, gvimServerName: string, pluginName: string, pluginPath: string, config: IPluginConfiguration) {
@@ -79,7 +83,7 @@ export default class Plugin extends events.EventEmitter {
             callContext: eventArgs
         };
 
-        this._writeToPlugin(commandInfo, eventArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, eventArgs);
     }
 
     public startOmniComplete(omniCompletionArgs: any): void {
@@ -88,7 +92,7 @@ export default class Plugin extends events.EventEmitter {
             arguments: omniCompletionArgs
         };
 
-        this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
+        this._writeToPlugin(commandInfo, omniCompletionArgs);
     }
 
     public onBufferChanged(bufferChangedEventArgs: any): void {
@@ -96,7 +100,7 @@ export default class Plugin extends events.EventEmitter {
             type: "bufferChanged",
             arguments: bufferChangedEventArgs
         };
-        this._writeToPlugin(commandInfo, bufferChangedEventArgs.bufferName);
+        this._writeToPlugin(commandInfo, bufferChangedEventArgs);
     }
 
     public execute(commandName: string, callContext: any) {
@@ -105,34 +109,40 @@ export default class Plugin extends events.EventEmitter {
             command: commandName,
             callContext: callContext
         };
-        this._writeToPlugin(commandInfo, callContext.currentBuffer);
+        this._writeToPlugin(commandInfo, callContext);
     }
 
-    private _writeToPlugin(command: any, bufferName: string): void {
+    private _writeToPlugin(command: any, context: any): void {
         if (this._pluginHost) {
-            if (this._isCommandHandled(bufferName)) {
+            if (this._isCommandHandled(context)) {
                 console.log("Writing to plugin: " + this._pluginName);
                 this._pluginHost.sendCommand(command);
             } else {
-                console.log("Command ignored for buffer: " + bufferName);
+                console.log("Command ignored for buffer: " + context.currentBuffer);
             }
         }
     }
 
-    private _isCommandHandled(bufferName: string): boolean {
-        if (!bufferName) {
+    private _isCommandHandled(context: any): boolean {
+        if (!context.currentBuffer) {
             console.log("No buffername");
             return true;
         }
 
+        var filterPassed = true;
         if (this._config.supportedFiles) {
             var anyMatches = false;
 
-            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(bufferName, fileFilter, { matchBase: true }));
-            return matches.length > 0;
-        } else {
-            return true;
+            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(context.currentBuffer, fileFilter, { matchBase: true }));
+            filterPassed = filterPassed && matches.length > 0;
         }
+
+        if (this._config.supportedFileTypes) {
+            var matches = this._config.supportedFileTypes.filter(f => f === context.filetype);
+            filterPassed = filterPassed && matches.length > 0;
+        }
+
+        return filterPassed;
     }
 
     public dispose(): void {

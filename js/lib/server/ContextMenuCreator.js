@@ -1,24 +1,23 @@
 "use strict";
-var Electron = require("electron");
-var ContextMenuCreator = (function () {
-    function ContextMenuCreator(tray, sessionManager) {
-        var _this = this;
+const Electron = require("electron");
+class ContextMenuCreator {
+    constructor(tray, sessionManager) {
         this._trayMenu = tray;
         this._sessionManager = sessionManager;
-        sessionManager.on("start", function (session) {
-            _this._rebuildContextMenu();
+        sessionManager.on("start", (session) => {
+            this._rebuildContextMenu();
         });
         this._rebuildContextMenu();
     }
-    ContextMenuCreator.prototype._rebuildContextMenu = function () {
+    _rebuildContextMenu() {
         var contextMenu = new Electron.Menu();
         this._sessionManager.getSessions()
-            .forEach(function (session) {
+            .forEach((session) => {
             var subMenu = new Electron.Menu();
-            session.plugins.getAllPlugins().forEach(function (plugin) {
+            session.plugins.getAllPlugins().forEach(plugin => {
                 var subMenuItem = new Electron.MenuItem({
                     label: plugin.pluginName,
-                    click: function () {
+                    click: () => {
                         plugin.showDevTools();
                     } });
                 subMenu.append(subMenuItem);
@@ -31,15 +30,14 @@ var ContextMenuCreator = (function () {
         });
         var menuItem = new Electron.MenuItem({
             label: "Quit",
-            click: function () {
+            click: () => {
                 Electron.app.quit();
             }
         });
         contextMenu.append(menuItem);
         this._trayMenu.setToolTip('This is my application.');
         this._trayMenu.setContextMenu(contextMenu);
-    };
-    return ContextMenuCreator;
-}());
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ContextMenuCreator;

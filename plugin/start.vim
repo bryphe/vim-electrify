@@ -43,6 +43,9 @@ augroup ElectrifyEventListeners
     autocmd! VimLeave * :call electrify#js#notifyBufferEvent("VimLeave")
     autocmd! CursorMoved * :call electrify#js#notifyBufferEvent("CursorMoved")
     autocmd! CursorMovedI * :call electrify#js#notifyBufferEvent("CursorMovedI")
+    autocmd! BufWrite * :call electrify#js#notifyBufferEvent("BufWrite")
+    autocmd! BufWritePre * :call electrify#js#notifyBufferEvent("BufWritePre")
+    autocmd! BufWritePost * :call electrify#js#notifyBufferEvent("BufWritePost")
 augroup END
 
 augroup ElectrifyLifecycleListeners

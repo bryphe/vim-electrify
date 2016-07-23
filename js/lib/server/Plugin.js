@@ -1,15 +1,9 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var events = require("events");
-var minimatch = require("minimatch");
-var Plugin = (function (_super) {
-    __extends(Plugin, _super);
-    function Plugin(commandExecutor, pluginHostFactory, gvimServerName, pluginName, pluginPath, config) {
-        _super.call(this);
+const events = require("events");
+const minimatch = require("minimatch");
+class Plugin extends events.EventEmitter {
+    constructor(commandExecutor, pluginHostFactory, gvimServerName, pluginName, pluginPath, config) {
+        super();
         this._config = null;
         this._gvimServerName = gvimServerName;
         this._pluginName = pluginName;
@@ -18,37 +12,31 @@ var Plugin = (function (_super) {
         this._commandExecutor = commandExecutor;
         this._pluginHostFactory = pluginHostFactory;
     }
-    Object.defineProperty(Plugin.prototype, "pluginName", {
-        get: function () {
-            return this._pluginName;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Plugin.prototype, "pluginPath", {
-        get: function () {
-            return this._pluginPath;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Plugin.prototype.start = function () {
-        var _this = this;
+    get pluginName() {
+        return this._pluginName;
+    }
+    get pluginPath() {
+        return this._pluginPath;
+    }
+    get pluginHost() {
+        return this._pluginHost;
+    }
+    start() {
         if (this._pluginHost)
             return;
         this._pluginHost = this._pluginHostFactory.createPluginHost();
         this._pluginHost.start(this._gvimServerName, this._pluginName, this._pluginPath);
-        this._pluginHost.on("message", function (msg) {
-            _this._handleMessage(msg);
+        this._pluginHost.on("message", (msg) => {
+            this._handleMessage(msg);
         });
-    };
-    Plugin.prototype.showDevTools = function () {
+    }
+    showDevTools() {
         this._pluginHost.showDevTools();
-    };
-    Plugin.prototype.hideDevTools = function () {
+    }
+    hideDevTools() {
         this._pluginHost.hideDevTools();
-    };
-    Plugin.prototype._handleMessage = function (data) {
+    }
+    _handleMessage(data) {
         if (data && data.type) {
             if (data.type === "command") {
                 var command = data.command.split("\"").join("\\\"");
@@ -58,70 +46,72 @@ var Plugin = (function (_super) {
                 this.emit("loadplugin", data.pluginPath);
             }
         }
-    };
-    Plugin.prototype.notifyEvent = function (eventName, eventArgs) {
+    }
+    notifyEvent(eventName, eventArgs) {
         console.log(this._pluginName + ": firing event - " + eventName + "|" + JSON.stringify(eventArgs));
         var commandInfo = {
             type: "event",
             eventName: eventName,
             callContext: eventArgs
         };
-        this._writeToPlugin(commandInfo, eventArgs.currentBuffer);
-    };
-    Plugin.prototype.startOmniComplete = function (omniCompletionArgs) {
+        this._writeToPlugin(commandInfo, eventArgs);
+    }
+    startOmniComplete(omniCompletionArgs) {
         var commandInfo = {
             type: "omnicomplete",
             arguments: omniCompletionArgs
         };
-        this._writeToPlugin(commandInfo, omniCompletionArgs.currentBuffer);
-    };
-    Plugin.prototype.onBufferChanged = function (bufferChangedEventArgs) {
+        this._writeToPlugin(commandInfo, omniCompletionArgs);
+    }
+    onBufferChanged(bufferChangedEventArgs) {
         var commandInfo = {
             type: "bufferChanged",
             arguments: bufferChangedEventArgs
         };
-        this._writeToPlugin(commandInfo, bufferChangedEventArgs.bufferName);
-    };
-    Plugin.prototype.execute = function (commandName, callContext) {
+        this._writeToPlugin(commandInfo, bufferChangedEventArgs);
+    }
+    execute(commandName, callContext) {
         var commandInfo = {
             type: "execute",
             command: commandName,
             callContext: callContext
         };
-        this._writeToPlugin(commandInfo, callContext.currentBuffer);
-    };
-    Plugin.prototype._writeToPlugin = function (command, bufferName) {
+        this._writeToPlugin(commandInfo, callContext);
+    }
+    _writeToPlugin(command, context) {
         if (this._pluginHost) {
-            if (this._isCommandHandled(bufferName)) {
+            if (this._isCommandHandled(context)) {
                 console.log("Writing to plugin: " + this._pluginName);
                 this._pluginHost.sendCommand(command);
             }
             else {
-                console.log("Command ignored for buffer: " + bufferName);
+                console.log("Command ignored for buffer: " + context.currentBuffer);
             }
         }
-    };
-    Plugin.prototype._isCommandHandled = function (bufferName) {
-        if (!bufferName) {
+    }
+    _isCommandHandled(context) {
+        if (!context.currentBuffer) {
             console.log("No buffername");
             return true;
         }
+        var filterPassed = true;
         if (this._config.supportedFiles) {
             var anyMatches = false;
-            var matches = this._config.supportedFiles.filter(function (fileFilter) { return minimatch(bufferName, fileFilter, { matchBase: true }); });
-            return matches.length > 0;
+            var matches = this._config.supportedFiles.filter((fileFilter) => minimatch(context.currentBuffer, fileFilter, { matchBase: true }));
+            filterPassed = filterPassed && matches.length > 0;
         }
-        else {
-            return true;
+        if (this._config.supportedFileTypes) {
+            var matches = this._config.supportedFileTypes.filter(f => f === context.filetype);
+            filterPassed = filterPassed && matches.length > 0;
         }
-    };
-    Plugin.prototype.dispose = function () {
+        return filterPassed;
+    }
+    dispose() {
         if (this._pluginHost) {
             this._pluginHost.dispose();
             this._pluginHost = null;
         }
-    };
-    return Plugin;
-}(events.EventEmitter));
+    }
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Plugin;

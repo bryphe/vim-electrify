@@ -1,4 +1,4 @@
-interface IPluginConfiguration {
-    supportedFiles: string[];
+export interface IPluginConfiguration {
+    supportedFiles?: string[];
+    supportedFileTypes?: string[];
 }
-export = IPluginConfiguration;
