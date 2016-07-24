@@ -5,6 +5,7 @@
 ---------------------------------------------------
 
 - [Intro](#intro)
+-   [Plugins](#plugins)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
     - [Windows](#windows)
@@ -36,6 +37,24 @@ This plugin is experimental and currently in a prototyping stage.
 It will not appeal to everyone, especially those who prefer a minimalist VIM install and plugins
 with no dependencies. However, if you use Node/NPM and related technologies on a day-to-day basis,
 I hope that you find this useful.
+
+Here's a quick example:
+
+![vim-electrify-demo](http://i.imgur.com/WmLBYHj.gif)
+
+That shows some basic functionality in the API - both receiving messages and sending messages to VIM.
+The real power of this, though, is writing plugins in JavaScript - and leveraging all the rich
+debugging tools that are available in that ecosystem.
+
+Later, I'll add a youtube video showing how to create a plugin powered by vim-electrify. But for now,
+check out the examples below.
+
+### Plugins
+##### Plugins built on-top of vim-electrify
+- [vim-electrify-typescript-completion](https://github.com/extr0py/vim-electrify-typescript-completion) 
+    - Provides autocompletion for TypeScript and JavaScript
+- [vim-electrify-markdown-preview](https://github.com/extr0py/vim-electrify-markdown-preview)
+    - A markdown preview engine, uses Electron's BrowserWindow
 
 Installation
 ------------
@@ -97,7 +116,7 @@ Nothing here yet :)
 Contact
 =======
 
-extr0py@extropygames.com
+extropy@extropygames.com
 
 License
 =======
