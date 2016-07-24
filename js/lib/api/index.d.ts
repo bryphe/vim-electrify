@@ -17,6 +17,7 @@ export default class Vim extends events.EventEmitter {
     exec(command: string): void;
     eval(command: string, callbackFunction: Function): void;
     loadPlugin(pluginPackageFilePath: string): void;
+    openBuffer(path: string, line?: number, column?: number): void;
     rawExec(command: string): void;
     echo(msg: string): void;
     echohl(msg: string, highlightGroup: string): void;

@@ -89,6 +89,13 @@ export default class Vim extends events.EventEmitter {
         });
     }
 
+    public openBuffer(path: string, line?: number, column?: number) {
+        line = line || 0;
+        column = column || 0;
+
+        this._rawExec("electrify#command#gotofile('" + path + "', " + line + ", " + column + ")");
+    }
+
     public rawExec(command: string) {
         this._rawExec(command);
     }

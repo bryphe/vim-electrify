@@ -55,6 +55,11 @@ class Vim extends events.EventEmitter {
             pluginPath: pluginPackageFilePath
         });
     }
+    openBuffer(path, line, column) {
+        line = line || 0;
+        column = column || 0;
+        this._rawExec("electrify#command#gotofile('" + path + "', " + line + ", " + column + ")");
+    }
     rawExec(command) {
         this._rawExec(command);
     }

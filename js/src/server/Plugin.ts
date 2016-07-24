@@ -124,11 +124,6 @@ export default class Plugin extends events.EventEmitter {
     }
 
     private _isCommandHandled(context: any): boolean {
-        if (!context.currentBuffer) {
-            console.log("No buffername");
-            return true;
-        }
-
         var filterPassed = true;
         if (this._config.supportedFiles) {
             var anyMatches = false;
