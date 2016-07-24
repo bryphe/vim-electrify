@@ -20,25 +20,8 @@
 
 Intro
 -----
-
 vim-electrify is a VIM plugin that enables the authoring of JavaScript plugins,
-running in a Node/Electron environment. These plugins are asynchronous by nature.
-
-The personal motivation for this project is to avoid using VimScript and leverage
-the same technology I use for my day job (JS, TS, etc) in order to enhance the editor.
-I prefer using VIM as opposed to Sublime, VSCode, Atom, Visual Studio, even with VIM-like
-plugins, but I miss features like autocomplete and the ease of extending some of these features.
-
-The project simply started as an engine for TS completion, but grew into something that could
-be more generalized.
-
-This plugin is experimental and currently in a prototyping stage.
-
-It will not appeal to everyone, especially those who prefer a minimalist VIM install and plugins
-with no dependencies. However, if you use Node/NPM and related technologies on a day-to-day basis,
-I hope that you find this useful.
-
-Here's a quick example:
+running in a Node/Electron environment. 
 
 ![vim-electrify-demo](http://i.imgur.com/WmLBYHj.gif)
 
@@ -82,6 +65,12 @@ The plugin has not yet been tested on OS X.
 
 Guide
 =====
+
+### Commands
+
+`:SourceJS`
+
+- Executes the JavaScript in the current file against the running VIM instance.
 
 ### Architecture
 
