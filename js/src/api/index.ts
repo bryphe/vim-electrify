@@ -129,6 +129,12 @@ export default class Vim extends events.EventEmitter {
     }
 
     private _rawExec(command: string) {
+
+        if (command.indexOf("\n") >= 0) {
+            console.warn("Command contains newlines. Please ensure newlines are escaped.");
+            command = command.split("\n").join(" ");
+        }
+
         var commandToSend = {
             type: "command",
             command: command

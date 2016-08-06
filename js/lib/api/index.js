@@ -85,6 +85,10 @@ class Vim extends events.EventEmitter {
         this._rawExec("electrify#list#setqflist('" + JSON.stringify(locations) + "')");
     }
     _rawExec(command) {
+        if (command.indexOf("\n") >= 0) {
+            console.warn("Command contains newlines. Please ensure newlines are escaped.");
+            command = command.split("\n").join(" ");
+        }
         var commandToSend = {
             type: "command",
             command: command
