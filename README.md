@@ -102,7 +102,7 @@ Nothing here yet :)
 Contact
 =======
 
-extropy@extropygames.com
+bryphe@outlook.com
 
 License
 =======
